@@ -86,8 +86,9 @@ class Point:
         self.y = y
         self.z = z
 
-    def to_cj(self):
-        return [self.x, self.y, self.z]
+    def to_cj(self, vertices):
+        index = vertices.add(self.x, self.y, self.z)
+        return index
 
 
 # collection of points -> used to create shape
@@ -245,3 +246,6 @@ class CityGeometry:
             }
         }
 
+
+class CityGemometryParser:
+    
