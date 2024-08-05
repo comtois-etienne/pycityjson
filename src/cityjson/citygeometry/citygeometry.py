@@ -1,4 +1,4 @@
-from .geometrytype.solidgeometry import CitySolidGeometry
+from .geometrytype.primitive import CitySolidGeometry
 
 
 class CityGeometry:
