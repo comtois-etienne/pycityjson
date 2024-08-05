@@ -2,12 +2,20 @@ from .cityobject import CityObject
 import numpy as np
 
 
+def parse_cityobjects(cityjson):
+    pass
+
+
 class CityObjects:
-    def __init__(self, cityjson):
-        self._cityobjects = []
-        city_objects = cityjson._data['CityObjects'] if 'CityObjects' in cityjson._data else {}
-        for uuid, data in city_objects.items():
-            self._cityobjects.append(CityObject(uuid, data, cityjson))
+    # def __init__(self, cityjson):
+    #     self._cityobjects = []
+    #     city_objects = cityjson._data['CityObjects'] if 'CityObjects' in cityjson._data else {}
+    #     for uuid, data in city_objects.items():
+    #         self._cityobjects.append(CityObject(uuid, data, cityjson))
+
+    def __init__(self, cityjson, cityobjects = []):
+        self._cityjson = cityjson
+        self._cityobjects = cityobjects
 
     def __len__(self):
         return len(self._cityobjects)
@@ -37,6 +45,11 @@ class CityObjects:
                 return city_object
         return None
     
+    def add_cityobject(self, cityobject):
+        ctobj = self.get_by_uuid(cityobject.uuid)
+        if ctobj is None:
+            self._cityobjects.append(cityobject)
+
     def get_by_attribute(self, attribute, value):
         city_objects = []
         for city_object in self._cityobjects:
