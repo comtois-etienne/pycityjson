@@ -1,4 +1,4 @@
-from .geometry.surface import CitySurface
+from .geometry.geometry import MultiLineString
 from .geometry.volume import CityVolume
 
 def replace(boundaries, vertices):
