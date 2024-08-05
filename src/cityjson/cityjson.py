@@ -52,16 +52,16 @@ class CityJSON:
     def __setitem__(self, key, value):
         self.metadata[key] = value
     
-    def to_dict(self):
+    def to_cj(self):
         return {
             'type': self._data['type'],
             'version': self._data['version'],
-            'CityObjects': self.cityobjects.to_dict(),
+            'CityObjects': self.cityobjects.to_cj(),
             'transform': {
                 'scale': self.scale(),
                 'translate': self.origin()
             },
-            'vertices': self.vertices.to_dict(),
+            'vertices': self.vertices.to_cj(),
             'metadata': self.metadata,
         }
     

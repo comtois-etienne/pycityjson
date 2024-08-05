@@ -54,7 +54,7 @@ class CityVertices:
     def set_origin(self, x, y, z):
         self._translate = [x, y, z]
 
-    def to_dict(self):
+    def to_cj(self):
         vertices = np.array(self._vertices)
         vertices = ( vertices - np.array(self._translate) ) / np.array(self._scale)
         vertices = np.round(vertices).astype(int)

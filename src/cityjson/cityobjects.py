@@ -20,12 +20,6 @@ class CityObjects:
             return self._cityobjects[key]
         return self.get_by_uuid(key)
 
-    def to_dict(self):
-        city_objects = {}
-        for cityobject in self._cityobjects:
-            city_objects[cityobject.uuid] = cityobject.to_dict()
-        return city_objects
-
     def _get_by_type(self, citytype):
         city_objects = []
         for cityobject in self._cityobjects:
@@ -50,9 +44,9 @@ class CityObjects:
                 city_objects.append(city_object)
         return city_objects
 
-    def to_dict(self):
+    def to_cj(self):
         city_objects = {}
         for cityobject in self._cityobjects:
-            city_objects[cityobject.uuid] = cityobject.to_dict()
+            city_objects[cityobject.uuid] = cityobject.to_cj()
         return city_objects
 
