@@ -1,11 +1,11 @@
-from .cityjson import CityJSON
-from .cityobject import CityObject
-from .cityvertices import CityVertices
+from .city import City
+from .cityobjects import CityObject
+from .vertices import Vertices
 
 
 __all__ = [
-    'CityJSON',
+    'City',
     'CityObject',
-    'CityVertices'
+    'Vertices'
 ]
 
