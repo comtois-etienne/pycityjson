@@ -1,5 +1,6 @@
 .DS_Store
 data/*
+bak/*
 notebook.ipynb
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks
