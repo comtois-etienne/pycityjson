@@ -29,6 +29,8 @@ SEMANTIC = {
 
 
 def _get_semantic(name):
+    if name is None:
+        return None
     if name in SEMANTIC:
         return SEMANTIC[name]
     if name in SEMANTIC.values():
@@ -40,20 +42,20 @@ def _get_semantic(name):
 
 
 class Primitive:
-    def to_cj(self):
+    def to_cj(self, vertices):
         pass
 
     def get_semantic_surfaces(self):
-        pass
+        return None
 
     def get_semantic_values(self, semantics):
-        pass
+        return None
 
 
 class Semantic:
-    def __init__(self, name: str):
+    def __init__(self, dtype: str):
         self.semantic = {}
-        self.semantic['type'] = _get_semantic(name)
+        self.semantic['type'] = _get_semantic(dtype)
         self.add_uuid()
 
     def __getitem__(self, key):
@@ -79,7 +81,20 @@ class Semantic:
         return self.semantic
 
 
-# 3d point
+class SemanticsParser:
+    def __init__(self, cityjson):
+        self.cityjson = cityjson
+
+    def parse(self, data) -> list[Semantic]:
+        semantics = []
+        for s in data:
+            semantic = Semantic(s['type'])
+            for key, value in s.items():
+                semantic[key] = value
+            semantics.append(semantic)
+        return semantics
+
+
 class Point:
     def __init__(self, x, y, z):
         self.x = x
@@ -92,8 +107,7 @@ class Point:
 
 
 # collection of points -> used to create shape
-# not a geometry
-class MultiPoint:
+class MultiPoint(Primitive):
     __type = "MultiPoint"
     __depth = 1
 
@@ -103,19 +117,18 @@ class MultiPoint:
     def add_point(self, point: Point):
         self.points.append(point)
 
-    def to_cj(self):
-        return [point.to_cj() for point in self.points]
+    def to_cj(self, vertices):
+        return [point.to_cj(vertices) for point in self.points]
 
 
-# This is a surface
+# This is a surface containing the semantic
 # first multi point is the exterior ring
 # the rest are interior rings
-# not yet a geometry
-class MultiLineString:
+class MultiLineString(Primitive):
     __type = "MultiLineString"
     __depth = 2
 
-    def __init__(self, semantic, faces: list[MultiPoint] = []):
+    def __init__(self, faces: list[MultiPoint] = [], semantic=None):
         self.semantic = Semantic(semantic)
         self.faces = faces
 
@@ -128,8 +141,8 @@ class MultiLineString:
         else:
             self.faces[0] = exterior
 
-    def to_cj(self):
-        return [face.to_cj() for face in self.faces]
+    def to_cj(self, vertices):
+        return [face.to_cj(vertices) for face in self.faces]
     
     def get_semantic_cj(self):
         return self.semantic.to_cj()
@@ -138,6 +151,7 @@ class MultiLineString:
 # Used to create a landscape of a building wall
 class MultiSurface(Primitive):
     __type = "MultiSurface" # separate surfaces with holes
+    __type_a = "MultiSurface" # separate surfaces with holes
     __type_b = "CompositeSurface" # adjacents surfaces without overlap
     __depth = 3
 
@@ -147,8 +161,8 @@ class MultiSurface(Primitive):
     def add_surface(self, surface: MultiLineString):
         self.surfaces.append(surface)
 
-    def to_cj(self):
-        return [surface.to_cj() for surface in self.surfaces]
+    def to_cj(self, vertices):
+        return [surface.to_cj(vertices) for surface in self.surfaces]
     
     def get_semantic_surfaces(self):
         semantics = {}
@@ -180,8 +194,8 @@ class Solid(Primitive):
     def add_multi_surface(self, multi_surface: MultiSurface):
         self.multi_surfaces.append(multi_surface)
 
-    def to_cj(self):
-        return [multi_surface.to_cj() for multi_surface in self.multi_surfaces]
+    def to_cj(self, vertices):
+        return [multi_surface.to_cj(vertices) for multi_surface in self.multi_surfaces]
     
     def get_semantic_surfaces(self):
         semantics = {}
@@ -201,6 +215,7 @@ class Solid(Primitive):
 
 class MultiSolid(Primitive):
     __type = "MultiSolid" # separate solids
+    __type_a = "MultiSolid" # separate solids
     __type_b = "CompositeSolid" # adjacents solids
     __depth = 5
 
@@ -210,8 +225,8 @@ class MultiSolid(Primitive):
     def add_solid(self, solid: Solid):
         self.solids.append(solid)
 
-    def to_cj(self):
-        return [solid.to_cj() for solid in self.solids]
+    def to_cj(self, vertices):
+        return [solid.to_cj(vertices) for solid in self.solids]
     
     def get_semantic_surfaces(self):
         semantics = {}
@@ -230,22 +245,209 @@ class MultiSolid(Primitive):
         return semantic_values
 
 
-class CityGeometry:
-    def __init__(self, primitive: Primitive, lod: int = 1):
-        self.primitive = primitive
 
-    def to_cj(self):
-        semantics = self.primitive.get_semantic_surfaces()
-        return {
+# BEGIN GEOMETRY
+
+class CityGeometry:
+    def to_cj(self, vertices):
+        pass
+
+
+# Primitive
+class CityPrimitive(CityGeometry):
+    def __init__(self, primitive: Primitive, lod: str = '1'):
+        self.primitive = primitive
+        self.lod = lod
+
+    def to_cj(self, vertices):
+        citygeometry = {
             'type': self.primitive.__type,
             'lod': self.lod,
-            'boundaries': self.primitive.to_cj(),
-            'semantics': {
-                'surfaces': self.primitive.get_semantic_surfaces(),
+            'boundaries': self.primitive.to_cj(vertices)
+        }
+        semantics = self.primitive.get_semantic_surfaces()
+        if semantics is not None and semantics[0]['type'] is not None:
+            citygeometry['semantics'] = {
+                'surfaces': semantics,
                 'values': self.primitive.get_semantic_values(semantics)
             }
-        }
+        return citygeometry
+
+
+# Template
+class CityInstance(CityGeometry):
+    #todo
+    pass
+
+
+# END GEOMETRY
+
+
+# BEGIN PARSER
+
+class PrimitiveParser:
+    def __init__(self, cityjson):
+        self.cityjson = cityjson
+
+    def parse(self, data) -> Primitive:
+        pass
+
+    def _parse(self, boundary, semantics, values):
+        pass
+
+
+class MultiPointParser(PrimitiveParser):
+    def parse(self, data) -> MultiPoint:
+        points = []
+        for index in data['boundaries']:
+            point = self.cityjson[index]
+            points.append(Point(point[0], point[1], point[2]))
+        return MultiPoint(points)
+    
+    def _parse(self, boundary, semantics, values):
+        pass
+
+
+class MultiLineStringParser(PrimitiveParser):
+    __child_parser = MultiPointParser
+
+    def parse(self, data) -> MultiLineString:
+        boundaries = data['boundaries']
+        multi_points = []
+        for i, multi_point in enumerate(boundaries):
+            multi_points.append(
+                MultiPointParser(self.cityjson).parse(multi_point)
+            )
+        return MultiLineString(multi_points) # receives the final semantic
+
+    def _parse(self, boundary, semantics, values):
+        multi_points = []
+        for i, multi_point in enumerate(boundary):
+            multi_points.append(
+                MultiPointParser(self.cityjson)._parse(multi_point)
+            )
+        return MultiLineString(multi_points, semantics[values])
+
+
+class MultiSurfaceParser(PrimitiveParser):
+    def parse(self, data) -> MultiSurface:
+        semantics = SemanticsParser(self.cityjson).parse(data['semantics']['surfaces'])
+        values = data['semantics']['values']
+        boundaries = data['boundaries']
+        multi_lines = []
+        for i, multi_line in enumerate(boundaries):
+            multi_lines.append(
+                MultiLineStringParser(self.cityjson)._parse(
+                    multi_line, semantics, values[i]
+                )
+            )
+        return MultiSurface(multi_lines)
+
+    def _parse(self, boundary, semantics, values):
+        multi_lines = []
+        for i, multi_line in enumerate(boundary):
+            multi_lines.append(
+                MultiLineStringParser(self.cityjson)._parse(
+                    multi_line, semantics, values[i]
+                )
+            )
+        return MultiSurface(multi_lines)
+
+
+class SolidParser(PrimitiveParser):
+    __child_parser = MultiSurfaceParser
+
+    def parse(self, data) -> Solid:
+        semantics = SemanticsParser(self.cityjson).parse(data['semantics']['surfaces'])
+        values = data['semantics']['values']
+        boundaries = data['boundaries']
+        multi_surfaces = []
+        for i, multi_surface in enumerate(boundaries):
+            multi_surfaces.append(
+                MultiSurfaceParser(self.cityjson)._parse(
+                    multi_surface, semantics, values[i]
+                )
+            )
+        return Solid(multi_surfaces)
+
+    def _parse(self, boundary, semantics, values):
+        multi_surfaces = []
+        for i, multi_surface in enumerate(boundary):
+            multi_surfaces.append(
+                MultiSurfaceParser(self.cityjson)._parse(
+                    multi_surface, semantics, values[i]
+                )
+            )
+        return Solid(multi_surfaces)
+
+
+def _parse(primitive: Primitive, child_parser: PrimitiveParser, cityjson, data):
+    semantics = SemanticsParser(cityjson).parse(data['semantics']['surfaces'])
+    values = data['semantics']['values']
+    boundaries = data['boundaries']
+    children = []
+
+    if isinstance(values, list):
+        for i, child in enumerate(boundaries):
+            children.append(
+                child_parser(cityjson)._parse(
+                    child, semantics, values[i]
+                )
+            )
+    else:
+        for i, child in enumerate(boundaries):
+            children.append(child_parser(cityjson).parse(child), semantics[values])
+    return primitive(children)
+
+
+class MultiSolidParser(PrimitiveParser):
+    __child_parser = SolidParser
+
+    def parse(self, data) -> MultiSolid:
+        semantics = SemanticsParser(self.cityjson).parse(data['semantics']['surfaces'])
+        values = data['semantics']['values']
+        boundaries = data['boundaries']
+        solids = []
+        for i, solid in enumerate(boundaries):
+            solids.append(
+                SolidParser(self.cityjson)._parse(
+                    solid, semantics, values[i]
+                )
+            )
+        return MultiSolid(solids)
+
+
+class CityInstanceParser:
+    #todo
+    pass
 
 
 class CityGemometryParser:
-    
+    def __init__(self, cityjson):
+        self.cityjson = cityjson
+
+    # data contains cityobject['geometry'][i]
+    def parse(self, data) -> CityGeometry:
+        dtype = data['type']
+        lod = data['lod']
+        primitive = None
+
+        if dtype == 'GeometryInstance':
+            pass
+        elif dtype == 'CompositeSolid':
+            primitive = MultiSolidParser(self.cityjson).parse(data)
+            primitive.__type = primitive.__type_b
+        elif dtype == 'MultiSolid':
+            primitive = MultiSolidParser(self.cityjson).parse(data)
+        elif dtype == 'Solid':
+            primitive = SolidParser(self.cityjson).parse(data)
+        elif dtype == 'MultiSurface':
+            primitive = MultiSurfaceParser(self.cityjson).parse(data)
+        elif dtype == 'CompositeSurface':
+            primitive = MultiSurfaceParser(self.cityjson).parse(data)
+            primitive.__type = primitive.__type_b
+        else:
+            print("Geometry type not implemented yet")
+
+        return CityPrimitive(primitive, lod)
+
