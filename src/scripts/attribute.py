@@ -1,6 +1,6 @@
 
 
-def get_attribute(data, key, default=None):
+def get_attribute(data, key, *, default=None):
     if key in data:
         return data[key]
     return default
