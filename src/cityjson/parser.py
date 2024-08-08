@@ -12,6 +12,7 @@ from src.scripts.attribute import (
 class CityParser:
     def __init__(self, json_path):
         self.file_path = json_path
+        self.cityjson = None
 
     def read_json(self):
         with open(self._file_path, 'r') as file:
@@ -23,6 +24,9 @@ class CityParser:
 
     # data contains cityjson
     def parse(self, data) -> City:
+        if self.cityjson is None:
+            self.read_json()
+
         city = City()
         v_parser = VerticesParser(city)
         co_parser = CityObjectsParser(city)
