@@ -5,8 +5,8 @@ from .vertices import Vertices
 class VerticesParser:
     def __init__(self, city):
         self.city = city
-        self.translate = city.origin()
-        self.scale = city.scale()
+        self.translate = city.origin
+        self.scale = city.scale
         self.precision = city.precision()
 
     # data contains cityjson['vertices']
