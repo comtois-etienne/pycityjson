@@ -1,4 +1,4 @@
-from .primitive import CityPrimitive
+from .geometry import CityPrimitive
 from .geometry import CityGeometry
 from .primitive.parser import (
     MultiSolidParser,
