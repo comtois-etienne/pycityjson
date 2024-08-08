@@ -15,7 +15,7 @@ class CityParser:
         self.cityjson = None
 
     def read_json(self):
-        with open(self._file_path, 'r') as file:
+        with open(self.file_path, 'r') as file:
             self.cityjson = json.load(file)
 
     def write_json(self, city : City, formatted=False):
