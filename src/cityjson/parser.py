@@ -34,10 +34,10 @@ class CityParser:
         city.origin = get_nested_attribute(data, 'transform', 'translate', default=[0, 0, 0])
 
         v_parser = VerticesParser(city)
-        city._vertices = v_parser.parse(get_attribute(data, 'vertices', []))
+        city._vertices = v_parser.parse(get_attribute(data, 'vertices', default=[]))
 
         co_parser = CityObjectsParser(city)
-        city._cityobjects = co_parser.parse(get_attribute(data, 'CityObjects', []))
+        city._cityobjects = co_parser.parse(get_attribute(data, 'CityObjects', default=[]))
 
         # city.geometry_template = # todo
 
