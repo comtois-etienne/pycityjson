@@ -65,7 +65,7 @@ class City:
         }
     
     def precision(self):
-        return len(str(self._scale[0]).split('.')[1])
+        return len(str(self.scale[0]).split('.')[1])
     
     def set_origin(self, x=None, y=None, z=None):
         if x is None or y is None or z is None:
