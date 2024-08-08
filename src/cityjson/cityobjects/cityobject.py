@@ -1,4 +1,4 @@
-from src.uuid.guid import guid, is_guid
+from src.guid import guid, is_guid
 from src.scripts.attribute import round_attribute as _round
 
 
