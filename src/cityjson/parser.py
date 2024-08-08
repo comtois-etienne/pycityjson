@@ -30,8 +30,8 @@ class CityParser:
         city.type = get_attribute(data, 'type', default='CityJSON')
         city.version = get_attribute(data, 'version', default='2.0')
         city.metadata = get_attribute(data, 'metadata', default={})
-        city.scale = get_attribute(data, 'transform', 'scale', default=[0.001, 0.001, 0.001])
-        city.origin = get_attribute(data, 'transform', 'translate', default=[0, 0, 0])
+        city.scale = get_nested_attribute(data, 'transform', 'scale', default=[0.001, 0.001, 0.001])
+        city.origin = get_nested_attribute(data, 'transform', 'translate', default=[0, 0, 0])
 
         v_parser = VerticesParser(city)
         city._vertices = v_parser.parse(get_attribute(data, 'vertices', []))
