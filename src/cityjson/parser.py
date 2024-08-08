@@ -27,18 +27,18 @@ class CityParser:
     def parse(self, data) -> City:
         city = City()
 
-        city.type = get_attribute(data, 'type', 'CityJSON')
-        city.version = get_attribute(data, 'version', '2.0')
-        city.metadata = get_attribute(data, 'metadata', {})
-        city.scale = get_attribute(data, 'transform', 'scale', [0.001, 0.001, 0.001])
-        city.origin = get_attribute(data, 'transform', 'translate', [0, 0, 0])
+        city.type = get_attribute(data, 'type', default='CityJSON')
+        city.version = get_attribute(data, 'version', default='2.0')
+        city.metadata = get_attribute(data, 'metadata', default={})
+        city.scale = get_attribute(data, 'transform', 'scale', default=[0.001, 0.001, 0.001])
+        city.origin = get_attribute(data, 'transform', 'translate', default=[0, 0, 0])
 
         v_parser = VerticesParser(city)
         city._vertices = v_parser.parse(get_attribute(data, 'vertices', []))
 
         co_parser = CityObjectsParser(city)
         city._cityobjects = co_parser.parse(get_attribute(data, 'CityObjects', []))
-        
+
         # city.geometry_template = # todo
 
         return city
