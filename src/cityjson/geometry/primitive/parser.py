@@ -14,23 +14,23 @@ class PrimitiveParser:
     def __init__(self, city):
         self.city = city
 
-    def _parse(self, primitive_class, child_parser, boundary, semantics=None, values=None) -> Primitive:
-        # MultiLineString if a child
-        primitive = primitive_class(semantic = semantics[values]) if isinstance(values, int) else primitive_class([])
+    # parsing children
+    def _parse(self, primitive_class, child_parser_class, boundary, semantics=None, values=None) -> Primitive:
+        primitive = primitive_class(semantic = semantics[values]) if isinstance(values, int) else primitive_class()
 
-        child_parser_instance = child_parser(self.city)
+        child_parser = child_parser_class(self.city)
         for i, child in enumerate(boundary):
             value = None if values is None or isinstance(values, int) else values[i]
-            child = child_parser_instance._parse(child, semantics, value)
+            child = child_parser._parse(child, semantics, value)
             primitive.add_child(child)
         
         return primitive
 
+    # data contains cityjson['CityObjects'][uuid]['geometry'][index]
     def parse(self, data) -> Primitive:
         semantics = SemanticParser(self.city).parse(data['semantics']['surfaces'])
         values = data['semantics']['values']
         boundaries = data['boundaries']
-        # MuliSolid, Solid, MultiSurface
         return self._parse(boundaries, semantics, values)
 
 
