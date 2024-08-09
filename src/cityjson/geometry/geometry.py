@@ -32,7 +32,7 @@ class CityPrimitive(CityGeometry):
 
     def to_cj(self, vertices):
         citygeometry = {
-            'type': self.primitive.__type,
+            'type': self.primitive.get_type(),
             'lod': self.lod,
             'boundaries': self.primitive.to_cj(vertices)
         }
