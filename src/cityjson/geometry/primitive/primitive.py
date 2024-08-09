@@ -11,6 +11,9 @@ class Primitive:
     def to_cj(self, vertices):
         pass
 
+    def add_child(self, child):
+        pass
+
     def get_semantic_surfaces(self):
         return None
 
@@ -18,11 +21,14 @@ class Primitive:
         return None
 
 
-class Point(Primitive):
+class Point:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
+
+    def __repr__(self):
+        return f"Point({self.x}, {self.y}, {self.z})"
 
     def to_cj(self, vertices):
         index = vertices.add(self.x, self.y, self.z)
@@ -36,6 +42,9 @@ class MultiPoint(Primitive):
 
     def __init__(self, points: list[Point] = []):
         self.children = points
+
+    def __repr__(self):
+        return f"{self.__type}_{self.__depth}(len{len(self.children)})"
 
     def get_type(self):
         return self.__type
@@ -57,6 +66,9 @@ class MultiLineString(Primitive):
     def __init__(self, faces: list[MultiPoint] = [], semantic=None):
         self.semantic = semantic
         self.children = faces
+
+    def __repr__(self):
+        return f"{self.__type}_{self.__depth}(len{len(self.children)})"
 
     def get_type(self):
         return self.__type
@@ -86,6 +98,9 @@ class MultiSurface(Primitive):
 
     def __init__(self, surfaces: list[MultiLineString] = []):
         self.children = surfaces
+
+    def __repr__(self):
+        return f"{self.__type}_{self.__depth}(len{len(self.children)})"
 
     def get_type(self):
         return self.__type
@@ -123,7 +138,7 @@ class Solid(Primitive):
         self.children = multi_surfaces
 
     def __repr__(self):
-        return f"{self.__type}_{self.__depth}({len(self.children)})"
+        return f"{self.__type}_{self.__depth}(len{len(self.children)})"
 
     def get_type(self):
         return self.__type
@@ -160,7 +175,7 @@ class MultiSolid(Primitive):
         self.children = solids
 
     def __repr__(self):
-        return f"{self.__type}_{self.__depth}({len(self.children)})"
+        return f"{self.__type}_{self.__depth}(len{len(self.children)})"
 
     def get_type(self):
         return self.__type
