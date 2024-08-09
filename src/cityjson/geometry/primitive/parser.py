@@ -11,25 +11,22 @@ from .primitive import (
 
 
 class PrimitiveParser:
-    __primitive = None
-    __child_parser = None
-
     def __init__(self, city):
         self.city = city
 
-    def _parse(self, boundary, semantics=None, values=None) -> Primitive:
+    def _parse(self, primitive, child_parser, boundary, semantics=None, values=None) -> Primitive:
         children = []
         for i, child in enumerate(boundary):
-            value = values[i] if values is not None else None
+            value = None if values is None or isinstance(values, int) else values[i]
             children.append(
-                self.__child_parser(self.city)._parse(
+                child_parser(self.city)._parse(
                     child, semantics, value
                 )
             )
         # MultiLineString if a child
         if values is not None and isinstance(values, int):
-            return self.__primitive(children, semantics[values])
-        return self.__primitive(children)
+            return primitive(children, semantics[values])
+        return primitive(children)
 
     def parse(self, data) -> Primitive:
         semantics = SemanticParser(self.city).parse(data['semantics']['surfaces'])
@@ -55,8 +52,12 @@ class MultiPointParser(PrimitiveParser):
     __primitive = MultiPoint
     __child_parser = PointParser
 
-    # def _parse(self, boundary, semantics=None, values=None):
-    #     return super()._parse(boundary, semantics, values)
+    def _parse(self, boundary, semantics=None, values=None):
+        return super()._parse(
+            self.__primitive, 
+            self.__child_parser, 
+            boundary, semantics, values
+        )
 
     def parse(self, data) -> MultiPoint:
         boundaries = data['boundaries']
@@ -68,8 +69,12 @@ class MultiLineStringParser(PrimitiveParser):
     __primitive = MultiLineString
     __child_parser = MultiPointParser
 
-    # def _parse(self, boundary, semantics=None, values=None):
-    #     super()._parse(boundary, semantics, values)
+    def _parse(self, boundary, semantics=None, values=None):
+        super()._parse(
+            self.__primitive, 
+            self.__child_parser, 
+            boundary, semantics, values
+        )
 
     # no semantics
     def parse(self, data) -> Primitive:
@@ -81,31 +86,43 @@ class MultiSurfaceParser(PrimitiveParser):
     __primitive = MultiSurface
     __child_parser = MultiLineStringParser
 
-    # def _parse(self, boundary, semantics, values):
-    #     return super()._parse(boundary, semantics, values)
+    def _parse(self, boundary, semantics, values):
+        return super()._parse(
+            self.__primitive, 
+            self.__child_parser, 
+            boundary, semantics, values
+        )
 
-    # def parse(self, data) -> Primitive:
-    #     return super().parse(data)
+    def parse(self, data) -> Primitive:
+        return super().parse(data)
 
 
 class SolidParser(PrimitiveParser):
     __primitive = Solid
     __child_parser = MultiSurfaceParser
 
-    # def _parse(self, boundary, semantics, values):
-    #     return super()._parse(boundary, semantics, values)
+    def _parse(self, boundary, semantics, values):
+        return super()._parse(
+            self.__primitive, 
+            self.__child_parser, 
+            boundary, semantics, values
+        )
     
-    # def parse(self, data) -> Primitive:
-    #     return super().parse(data)
+    def parse(self, data) -> Primitive:
+        return super().parse(data)
 
 
 class MultiSolidParser(PrimitiveParser):
     __primitive = MultiSolid
     __child_parser = SolidParser
 
-    # def _parse(self, boundary, semantics, values):
-    #     return super()._parse(boundary, semantics, values)
+    def _parse(self, boundary, semantics, values):
+        return super()._parse(
+            self.__primitive, 
+            self.__child_parser, 
+            boundary, semantics, values
+        )
 
-    # def parse(self, data) -> Primitive:
-    #     return super().parse(data)
+    def parse(self, data) -> Primitive:
+        return super().parse(data)
 
