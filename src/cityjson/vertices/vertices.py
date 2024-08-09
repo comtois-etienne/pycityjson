@@ -17,13 +17,13 @@ class Vertices:
     
     def __iter__(self):
         return iter(self._vertices)
-    
+
     def __contains__(self, item):
         return item in self._vertices
-    
+
     def exists(self, x, y, z):
         return [x, y, z] in self._vertices
-    
+
     def get(self, x, y, z):
         coord = [x, y, z]
         if self.exists(x, y, z):
