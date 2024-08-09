@@ -53,7 +53,7 @@ SECOND_LEVEL_TYPES = {
 class CityObject:
     def __init__(self, city, type, attributes={}, geometry=[], children=[], parent=None):
         self.city = city
-        self._uuid = attributes['uuid'] if 'uuid' in attributes else guid()
+        self.__uuid = attributes['uuid'] if 'uuid' in attributes else guid()
         self.type = type #todo verif with types
         self.geo_extent = None
         self.attributes = attributes
@@ -64,7 +64,7 @@ class CityObject:
         self.parent = parent
 
     def __repr__(self):
-        return f"CityObject({self.type}({self._uuid}))"
+        return f"CityObject({self.type}({self.__uuid}))"
 
     def to_cj(self):
         cj = {'type': self.type}
@@ -91,7 +91,10 @@ class CityObject:
     def set_attribute(self, key, value):
         self.attributes[key] = value
         if key == 'uuid':
-            self._uuid = value
+            self.__uuid = value
+
+    def uuid(self):
+        return self.__uuid
 
     def round_attribute(self, attribute, decimals=0):
         _round(self.attributes, attribute, decimals)
@@ -108,7 +111,7 @@ class CityObject:
         return self.geometry
 
     def get_vertices(self, flat=False):
-        return [g.get_vertices(flat) for g in self.geometry]
+        return [g.to_cj(self.city.get_vertices()) for g in self.geometry]
 
     def set_geographical_extent(self, overwrite=False):
         if self.geo_extent is None or overwrite:
@@ -120,13 +123,12 @@ class CityObject:
         return self.geo_extent
 
     def is_uuid_valid(self):
-        print(self._uuid)
-        return is_guid(self._uuid)
+        return is_guid(self.__uuid)
 
     def correct_uuid(self):
-        if not is_guid(self._uuid):
+        if not is_guid(self.__uuid):
             self.set_attribute('uuid', guid())
-        return self._uuid
+        return self.__uuid
 
 
 class CityGroup(CityObject):

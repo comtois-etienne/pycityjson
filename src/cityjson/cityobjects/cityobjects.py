@@ -33,7 +33,7 @@ class CityObjects:
     
     def get_by_uuid(self, uuid) -> CityObject:
         for city_object in self._cityobjects:
-            if city_object.uuid == uuid:
+            if city_object.uuid() == uuid:
                 return city_object
         return None
     
