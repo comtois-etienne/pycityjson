@@ -76,7 +76,7 @@ class CityObject:
         if self.attributes != {}:
             cj['attributes'] = self.attributes
         if self.geometry is not None:
-            cj['geometry'] = [g.to_cj() for g in self.geometry]
+            cj['geometry'] = [g.to_cj(self.city.get_vertices()) for g in self.geometry]
         if self.children != []:
             cj['children'] = [child.uuid for child in self.children]
         if self.parent is not None:
