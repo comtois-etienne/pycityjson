@@ -87,6 +87,12 @@ class MultiLineString(Primitive):
     
     def get_semantic_cj(self):
         return self.semantic.to_cj()
+    
+    def get_semantic_values(self, semantics):
+        for i in range(len(semantics)):
+            if semantics[i] == self.semantic:
+                return i
+        return None
 
 
 # Used to create a landscape of a building wall
@@ -119,14 +125,7 @@ class MultiSurface(Primitive):
 
     # depth = 1
     def get_semantic_values(self, semantics):
-        semantic_values = []
-        for surface in self.children:
-            uuid = surface.semantic['uuid']
-            for i, semantic in enumerate(semantics):
-                if semantic == uuid:
-                    semantic_values.append(i)
-                    break
-        return semantic_values
+        return [surface.get_semantic_values(semantics) for surface in self.children]
 
 
 # Used to create a building
@@ -158,15 +157,11 @@ class Solid(Primitive):
 
     # depth = 2
     def get_semantic_values(self, semantics):
-        semantic_values = []
-        for multi_surface in self.children:
-            semantic_values = multi_surface.get_semantic_values(semantics)
-            semantic_values.append(semantic_values)
-        return semantic_values
+        return [multi_surface.get_semantic_values(semantics) for multi_surface in self.children]
 
 
 class MultiSolid(Primitive):
-    __type = "MultiSolid" # separate solids
+    __type = "MultiSolid"
     __type_a = "MultiSolid" # separate solids
     __type_b = "CompositeSolid" # adjacents solids
     __depth = 5
@@ -196,9 +191,5 @@ class MultiSolid(Primitive):
     
     # depth = 3
     def get_semantic_values(self, semantics):
-        semantic_values = []
-        for solid in self.children:
-            semantic_values = solid.get_semantic_values(semantics)
-            semantic_values.append(semantic_values)
-        return semantic_values
+        return [solid.get_semantic_values(semantics) for solid in self.children]
 

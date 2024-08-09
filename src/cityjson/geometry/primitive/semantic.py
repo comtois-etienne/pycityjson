@@ -53,12 +53,15 @@ class Semantic:
     def __setitem__(self, key, value):
         self.semantic[key] = value
 
+    def __repr__(self):
+        return f"Semantic({self.semantic})"
+
     def __eq__(self, other):
-        if isinstance(other, Semantic):
+        if isinstance(other, Semantic) or isinstance(other, dict):
             if other['type'] == self.semantic['type']:
-                if 'uuid' in other.semantic and 'uuid' in self.semantic:
+                if 'uuid' in other and 'uuid' in self.semantic:
                     return other['uuid'] == self.semantic['uuid']
-                if 'uuid' in other.semantic or 'uuid' in self.semantic:
+                if 'uuid' in other or 'uuid' in self.semantic:
                     return False
                 return True
         return False
