@@ -5,6 +5,9 @@ from .semantic import Semantic
 
 
 class Primitive:
+    def get_type(self):
+        pass
+
     def to_cj(self, vertices):
         pass
 
@@ -34,6 +37,9 @@ class MultiPoint(Primitive):
     def __init__(self, points: list[Point] = []):
         self.points = points
 
+    def get_type(self):
+        return self.__type
+
     def add_point(self, point: Point):
         self.points.append(point)
 
@@ -41,7 +47,7 @@ class MultiPoint(Primitive):
         return [point.to_cj(vertices) for point in self.points]
 
 
-# This is a surface containing the semantic
+#### This is a surface containing the semantic ####
 # first multi point is the exterior ring
 # the rest are interior rings
 class MultiLineString(Primitive):
@@ -49,8 +55,11 @@ class MultiLineString(Primitive):
     __depth = 2
 
     def __init__(self, faces: list[MultiPoint] = [], semantic=None):
-        self.semantic = Semantic(semantic)
+        self.semantic = semantic
         self.faces = faces
+
+    def get_type(self):
+        return self.__type
 
     def add_face(self, face: MultiPoint):
         self.faces.append(face)
@@ -77,6 +86,9 @@ class MultiSurface(Primitive):
 
     def __init__(self, surfaces: list[MultiLineString] = []):
         self.surfaces = surfaces
+
+    def get_type(self):
+        return self.__type
 
     def add_surface(self, surface: MultiLineString):
         self.surfaces.append(surface)
@@ -110,6 +122,9 @@ class Solid(Primitive):
     def __init__(self, multi_surfaces: list[MultiSurface] = []):
         self.multi_surfaces = multi_surfaces
 
+    def get_type(self):
+        return self.__type
+
     def add_multi_surface(self, multi_surface: MultiSurface):
         self.multi_surfaces.append(multi_surface)
 
@@ -140,6 +155,9 @@ class MultiSolid(Primitive):
 
     def __init__(self, solids: list[Solid] = []):
         self.solids = solids
+
+    def get_type(self):
+        return self.__type
 
     def add_solid(self, solid: Solid):
         self.solids.append(solid)
