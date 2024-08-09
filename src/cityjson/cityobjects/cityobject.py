@@ -55,7 +55,7 @@ class CityObject:
         self.city = city
 
         self.attributes = {} if attributes is None else attributes
-        self.geometry = [] if geometry is None else geometry
+        self.geometry = [] if geometry is None else geometry # todo verify that it is a list of geometries
         self.children = [] if children is None else children
 
         self.__uuid = self.attributes['uuid'] if 'uuid' in self.attributes else guid()
@@ -78,9 +78,9 @@ class CityObject:
         if self.geometry is not None:
             cj['geometry'] = [g.to_cj(self.city.get_vertices()) for g in self.geometry]
         if self.children != []:
-            cj['children'] = [child.uuid for child in self.children]
+            cj['children'] = [child.uuid() for child in self.children]
         if self.parent is not None:
-            cj['parent'] = self.parent.uuid
+            cj['parent'] = self.parent.uuid()
         return cj
 
     def set_parent(self, parent):
