@@ -23,15 +23,17 @@ class CityObjectParser:
     # data contains cityjson['CityObjects'][uuid]
     def parse(self, uuid, data):
         geometry = [self.geometry_parser.parse(g) for g in get_attribute(data, 'geometry', default=[])]
+
         # todo citygroupparser
         city_object = CityObject(
             city = self.city,
             type = get_attribute(data, 'type', default='GenericCityObject'),
             attributes = get_attribute(data, 'attributes', default={}),
             geometry = geometry,
-            children = get_attribute(data, 'children', default=[]), # todo link uuids to objects
-            parent = get_attribute(data, 'parent', default=None) # todo link uuid to object
+            children = get_attribute(data, 'children', default=[]),
+            parent = get_attribute(data, 'parent', default=None)
         )
+
         city_object.geo_extent = get_attribute(data, 'geographicalExtent', default=None)
         city_object.set_attribute('uuid', uuid)
         return city_object
@@ -43,13 +45,13 @@ class CityObjectsParser:
 
     # data contains cityjson['CityObjects']
     def parse(self, data) -> CityObjects:
-        city_objects = []
+        city_objects = CityObjects(self.city)
         parser = CityObjectParser(self.city)
-        for uuid, data in data.items():
-            city_objects.append(parser.parse(uuid, data))
-        # todo sort the data?
 
-        city_objects = CityObjects(self.city, city_objects)
+        for uuid, data in data.items():
+            cityobject = parser.parse(uuid, data)
+            city_objects.add_cityobject(cityobject)
+
         for city_object in city_objects:
             parser._link_parent(city_object, city_objects)
             parser._link_children(city_object, city_objects)

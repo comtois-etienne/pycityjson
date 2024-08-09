@@ -40,8 +40,8 @@ class MultiPoint(Primitive):
     __type = "MultiPoint"
     __depth = 1
 
-    def __init__(self, points: list[Point] = []):
-        self.children = points
+    def __init__(self, points: list[Point] = None):
+        self.children = [] if points is None else points
 
     def __repr__(self):
         return f"{self.__type}_{self.__depth}(len{len(self.children)})"
@@ -63,9 +63,9 @@ class MultiLineString(Primitive):
     __type = "MultiLineString"
     __depth = 2
 
-    def __init__(self, faces: list[MultiPoint] = [], semantic=None):
+    def __init__(self, faces: list[MultiPoint] = None, semantic=None):
         self.semantic = semantic
-        self.children = faces
+        self.children = [] if faces is None else faces
 
     def __repr__(self):
         return f"{self.__type}_{self.__depth}(len{len(self.children)})"
@@ -96,8 +96,8 @@ class MultiSurface(Primitive):
     __type_b = "CompositeSurface" # adjacents surfaces without overlap
     __depth = 3
 
-    def __init__(self, surfaces: list[MultiLineString] = []):
-        self.children = surfaces
+    def __init__(self, surfaces: list[MultiLineString] = None):
+        self.children = [] if surfaces is None else surfaces
 
     def __repr__(self):
         return f"{self.__type}_{self.__depth}(len{len(self.children)})"
@@ -134,8 +134,8 @@ class Solid(Primitive):
     __type = "Solid"
     __depth = 4
 
-    def __init__(self, multi_surfaces: list[MultiSurface] = []):
-        self.children = multi_surfaces
+    def __init__(self, multi_surfaces: list[MultiSurface] = None):
+        self.children = [] if multi_surfaces is None else multi_surfaces
 
     def __repr__(self):
         return f"{self.__type}_{self.__depth}(len{len(self.children)})"
@@ -171,8 +171,8 @@ class MultiSolid(Primitive):
     __type_b = "CompositeSolid" # adjacents solids
     __depth = 5
 
-    def __init__(self, solids: list[Solid] = []):
-        self.children = solids
+    def __init__(self, solids: list[Solid] = None):
+        self.children = [] if solids is None else solids
 
     def __repr__(self):
         return f"{self.__type}_{self.__depth}(len{len(self.children)})"

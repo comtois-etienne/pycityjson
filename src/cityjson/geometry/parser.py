@@ -41,7 +41,8 @@ class CityGeometryParser:
         }
 
         if dtype in parsers:
-            primitive = parsers[dtype](self.city).parse(data)
+            parser = parsers[dtype](self.city)
+            primitive = parser.parse(data)
         if dtype in alt_primitive:
             primitive.__type = primitive.__type_b
 

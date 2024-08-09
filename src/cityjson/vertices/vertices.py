@@ -2,9 +2,9 @@ import numpy as np
 
 
 class Vertices:
-    def __init__(self, city, vertices=[]):
+    def __init__(self, city, vertices=None):
         self.city = city
-        self._vertices = vertices
+        self._vertices = [] if vertices is None else vertices
 
     def __getitem__(self, index):
         if isinstance(index, int):

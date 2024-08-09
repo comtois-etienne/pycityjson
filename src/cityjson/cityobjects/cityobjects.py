@@ -2,9 +2,9 @@ from .cityobject import CityObject
 
 
 class CityObjects:
-    def __init__(self, city, cityobjects = []):
+    def __init__(self, city, cityobjects = None):
         self._city = city
-        self._cityobjects = cityobjects
+        self._cityobjects = [] if cityobjects is None else cityobjects
 
     def __len__(self):
         return len(self._cityobjects)

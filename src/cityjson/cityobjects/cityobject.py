@@ -51,14 +51,17 @@ SECOND_LEVEL_TYPES = {
 
 
 class CityObject:
-    def __init__(self, city, type, attributes={}, geometry=[], children=[], parent=None):
+    def __init__(self, city, type, attributes=None, geometry=None, children=None, parent=None):
         self.city = city
-        self.__uuid = attributes['uuid'] if 'uuid' in attributes else guid()
+
+        self.attributes = {} if attributes is None else attributes
+        self.geometry = [] if geometry is None else geometry
+        self.children = [] if children is None else children
+
+        self.__uuid = self.attributes['uuid'] if 'uuid' in self.attributes else guid()
         self.type = type #todo verif with types
         self.geo_extent = None
-        self.attributes = attributes
-        self.geometry = geometry
-        self.children = children
+
         for child in self.children:
             child.set_parent(self)
         self.parent = parent
@@ -109,6 +112,9 @@ class CityObject:
 
     def get_geometry(self):
         return self.geometry
+    
+    def add_geometry(self, geometry):
+        self.geometry.append(geometry)
 
     def get_vertices(self, flat=False):
         return [g.to_cj(self.city.get_vertices()) for g in self.geometry]
@@ -132,7 +138,7 @@ class CityObject:
 
 
 class CityGroup(CityObject):
-    def __init__(self, city, attributes={}, geometry=[], children=[], parent=None, children_roles=[]):
+    def __init__(self, city, attributes=None, geometry=None, children=None, parent=None, children_roles=None):
         super().__init__(
             city, 
             'CityObjectGroup', 
@@ -141,7 +147,7 @@ class CityGroup(CityObject):
             children, 
             parent
         )
-        self.children_roles = children_roles
+        self.children_roles = [] if children_roles is None else children_roles
 
     def add_child(self, child, role=None):
         super().add_child(child)

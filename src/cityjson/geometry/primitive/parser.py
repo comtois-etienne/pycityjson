@@ -16,7 +16,7 @@ class PrimitiveParser:
 
     def _parse(self, primitive_class, child_parser, boundary, semantics=None, values=None) -> Primitive:
         # MultiLineString if a child
-        primitive = primitive_class(semantic = semantics[values]) if isinstance(values, int) else primitive_class()
+        primitive = primitive_class(semantic = semantics[values]) if isinstance(values, int) else primitive_class([])
 
         child_parser_instance = child_parser(self.city)
         for i, child in enumerate(boundary):
@@ -25,7 +25,6 @@ class PrimitiveParser:
             primitive.add_child(child)
         
         return primitive
-
 
     def parse(self, data) -> Primitive:
         semantics = SemanticParser(self.city).parse(data['semantics']['surfaces'])

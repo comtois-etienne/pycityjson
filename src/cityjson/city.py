@@ -3,10 +3,10 @@ from .vertices.vertices import Vertices
 
 
 class City:
-    def __init__(self, type='CityJSON', version='2.0', metadata={}, scale=None, origin=None, cityobjects=None, vertices=None):
+    def __init__(self, type='CityJSON', version='2.0', metadata=None, scale=None, origin=None, cityobjects=None, vertices=None):
         self.type = type
         self.version = version
-        self.metadata = metadata
+        self.metadata = {} if metadata is None else metadata
         self.scale = scale if scale is not None else [0.001, 0.001, 0.001]
         self.origin = origin if origin is not None else [0, 0, 0]
         self._vertices = vertices
