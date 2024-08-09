@@ -35,16 +35,16 @@ class MultiPoint(Primitive):
     __depth = 1
 
     def __init__(self, points: list[Point] = []):
-        self.points = points
+        self.children = points
 
     def get_type(self):
         return self.__type
 
-    def add_point(self, point: Point):
-        self.points.append(point)
+    def add_child(self, point: Point):
+        self.children.append(point)
 
     def to_cj(self, vertices):
-        return [point.to_cj(vertices) for point in self.points]
+        return [point.to_cj(vertices) for point in self.children]
 
 
 #### This is a surface containing the semantic ####
@@ -56,22 +56,22 @@ class MultiLineString(Primitive):
 
     def __init__(self, faces: list[MultiPoint] = [], semantic=None):
         self.semantic = semantic
-        self.faces = faces
+        self.children = faces
 
     def get_type(self):
         return self.__type
 
-    def add_face(self, face: MultiPoint):
-        self.faces.append(face)
+    def add_child(self, face: MultiPoint):
+        self.children.append(face)
 
     def set_exterior_face(self, exterior: MultiPoint):
-        if len(self.faces) == 0:
-            self.faces.append(exterior)
+        if len(self.children) == 0:
+            self.children.append(exterior)
         else:
-            self.faces[0] = exterior
+            self.children[0] = exterior
 
     def to_cj(self, vertices):
-        return [face.to_cj(vertices) for face in self.faces]
+        return [face.to_cj(vertices) for face in self.children]
     
     def get_semantic_cj(self):
         return self.semantic.to_cj()
@@ -85,27 +85,27 @@ class MultiSurface(Primitive):
     __depth = 3
 
     def __init__(self, surfaces: list[MultiLineString] = []):
-        self.surfaces = surfaces
+        self.children = surfaces
 
     def get_type(self):
         return self.__type
 
-    def add_surface(self, surface: MultiLineString):
-        self.surfaces.append(surface)
+    def add_child(self, surface: MultiLineString):
+        self.children.append(surface)
 
     def to_cj(self, vertices):
-        return [surface.to_cj(vertices) for surface in self.surfaces]
+        return [surface.to_cj(vertices) for surface in self.children]
     
     def get_semantic_surfaces(self):
         semantics = {}
-        for surface in self.surfaces:
+        for surface in self.children:
             semantics[surface.semantic['uuid']] = surface.get_semantic_cj()
         return list(semantics.values())
 
     # depth = 1
     def get_semantic_values(self, semantics):
         semantic_values = []
-        for surface in self.surfaces:
+        for surface in self.children:
             uuid = surface.semantic['uuid']
             for i, semantic in enumerate(semantics):
                 if semantic == uuid:
@@ -120,28 +120,31 @@ class Solid(Primitive):
     __depth = 4
 
     def __init__(self, multi_surfaces: list[MultiSurface] = []):
-        self.multi_surfaces = multi_surfaces
+        self.children = multi_surfaces
+
+    def __repr__(self):
+        return f"{self.__type}_{self.__depth}({len(self.children)})"
 
     def get_type(self):
         return self.__type
 
-    def add_multi_surface(self, multi_surface: MultiSurface):
-        self.multi_surfaces.append(multi_surface)
+    def add_child(self, multi_surface: MultiSurface):
+        self.children.append(multi_surface)
 
     def to_cj(self, vertices):
-        return [multi_surface.to_cj(vertices) for multi_surface in self.multi_surfaces]
+        return [multi_surface.to_cj(vertices) for multi_surface in self.children]
     
     def get_semantic_surfaces(self):
         semantics = {}
-        for multi_surface in self.multi_surfaces:
-            for surface in multi_surface.surfaces:
+        for multi_surface in self.children:
+            for surface in multi_surface.children:
                 semantics[surface.semantic['uuid']] = surface.get_semantic_cj()
         return list(semantics.values())
 
     # depth = 2
     def get_semantic_values(self, semantics):
         semantic_values = []
-        for multi_surface in self.multi_surfaces:
+        for multi_surface in self.children:
             semantic_values = multi_surface.get_semantic_values(semantics)
             semantic_values.append(semantic_values)
         return semantic_values
@@ -154,29 +157,32 @@ class MultiSolid(Primitive):
     __depth = 5
 
     def __init__(self, solids: list[Solid] = []):
-        self.solids = solids
+        self.children = solids
+
+    def __repr__(self):
+        return f"{self.__type}_{self.__depth}({len(self.children)})"
 
     def get_type(self):
         return self.__type
 
-    def add_solid(self, solid: Solid):
-        self.solids.append(solid)
+    def add_child(self, solid: Solid):
+        self.children.append(solid)
 
     def to_cj(self, vertices):
-        return [solid.to_cj(vertices) for solid in self.solids]
+        return [solid.to_cj(vertices) for solid in self.children]
     
     def get_semantic_surfaces(self):
         semantics = {}
-        for solid in self.solids:
-            for multi_surface in solid.multi_surfaces:
-                for surface in multi_surface.surfaces:
+        for solid in self.children:
+            for multi_surface in solid.children:
+                for surface in multi_surface.children:
                     semantics[surface.semantic['uuid']] = surface.get_semantic_cj()
         return list(semantics.values())
     
     # depth = 3
     def get_semantic_values(self, semantics):
         semantic_values = []
-        for solid in self.solids:
+        for solid in self.children:
             semantic_values = solid.get_semantic_values(semantics)
             semantic_values.append(semantic_values)
         return semantic_values
