@@ -30,6 +30,9 @@ class CityPrimitive(CityGeometry):
         self.primitive = primitive
         self.set_lod(lod)
 
+    def __repr__(self) -> str:
+        return f'{self.primitive.get_type()}(lod {self.lod})'
+
     def to_cj(self, vertices):
         citygeometry = {
             'type': self.primitive.get_type(),
