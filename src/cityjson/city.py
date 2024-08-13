@@ -60,6 +60,10 @@ class City:
         self.metadata[key] = value
     
     def to_cj(self, purge_vertices=False):
+        self.get_vertices()
+        self.get_cityobjects()
+        self.get_geometry_template()
+        
         if purge_vertices:
             self._vertices = Vertices(self)
         city = {
