@@ -1,17 +1,18 @@
 from .cityobjects import CityObjects
 from .vertices.vertices import Vertices
+from .template import GeometryTemplate
 
 
 class City:
-    def __init__(self, type='CityJSON', version='2.0', metadata=None, scale=None, origin=None, cityobjects=None, vertices=None):
+    def __init__(self, type='CityJSON', version='2.0'):
         self.type = type
         self.version = version
-        self.metadata = {} if metadata is None else metadata
-        self.scale = scale if scale is not None else [0.001, 0.001, 0.001]
-        self.origin = origin if origin is not None else [0, 0, 0]
-        self._vertices = vertices
-        self._cityobjects = cityobjects
-        # self.geometry_template = # todo
+        self.metadata = {}
+        self.scale = [0.001, 0.001, 0.001]
+        self.origin = [0, 0, 0]
+        self._vertices = None
+        self._cityobjects = None
+        self.geometry_template = None
 
     def get_vertices(self):
         if self._vertices is None:
@@ -22,6 +23,11 @@ class City:
         if self._cityobjects is None:
             self._cityobjects = CityObjects(self)
         return self._cityobjects
+    
+    def get_geometry_template(self):
+        if self.geometry_template is None:
+            self.geometry_template = GeometryTemplate(self)
+        return self.geometry_template
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -32,6 +38,8 @@ class City:
             return self.get_vertices()
         if key_lower == 'cityobjects' or key_lower == 'objects':
             return self.get_cityobjects()
+        if key_lower == 'geometrytemplate' or key_lower == 'geometry-template':
+            return self.get_geometry_template()
         if key_lower == 'epsg':
             return self.epsg()
         if key_lower == 'version':
@@ -54,7 +62,7 @@ class City:
     def to_cj(self, purge_vertices=False):
         if purge_vertices:
             self._vertices = Vertices(self)
-        return {
+        city = {
             'type': self.type,
             'version': self.version,
             'CityObjects': self._cityobjects.to_cj(),
@@ -65,16 +73,20 @@ class City:
             'vertices': self._vertices.to_cj(),
             'metadata': self.metadata,
         }
+        if not self.geometry_template.is_empty():
+            city['geometry-templates'] = self.geometry_template.to_cj()
+        return city
     
     def precision(self):
         return len(str(self.scale[0]).split('.')[1])
     
-    def set_origin(self, x=None, y=None, z=None):
-        if x is None or y is None or z is None:
+    def set_origin(self, vertice=None):
+        if vertice is None:
             x = self._vertices.get_min(0)
             y = self._vertices.get_min(1)
             z = self._vertices.get_min(2)
-        self.origin = [x, y, z]
+            vertice = [x, y, z]
+        self.origin = vertice
 
     def epsg(self):
         if 'referenceSystem' not in self.metadata:
