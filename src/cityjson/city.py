@@ -51,7 +51,9 @@ class City:
     def __setitem__(self, key, value):
         self.metadata[key] = value
     
-    def to_cj(self):
+    def to_cj(self, purge_vertices=False):
+        if purge_vertices:
+            self._vertices = Vertices(self)
         return {
             'type': self.type,
             'version': self.version,
