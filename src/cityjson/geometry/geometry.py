@@ -1,37 +1,30 @@
 from .primitive.primitive import Primitive
 
 
-class CityGeometry:
-    def to_cj(self, vertices):
-        pass
-
-    def set_lod(self, lod):
-        self.lod = lod
-
-    def get_lod(self):
-        return self.lod
-
-    def get_boundaries(self):
-        pass
-
-    def get_vertices(self, flat=False):
-        pass
-
-    def get_max(self, axis=0):
-        pass
-
-    def get_min(self, axis=0):
-        pass
-
-
 # Contains MultiSolid, Solid, MultiSurface, MultiLineString...
-class CityPrimitive(CityGeometry):
+class CityGeometry:
     def __init__(self, primitive: Primitive, lod: str = '1'):
         self.primitive = primitive
-        self.set_lod(lod)
+        self.lod = lod
 
     def __repr__(self) -> str:
         return f'{self.primitive.get_type()}(lod {self.lod})'
+    
+    def get_boundaries(self):
+        # todo
+        pass
+
+    def get_vertices(self, flat=False):
+        # todo
+        pass
+
+    def get_max(self, axis=0):
+        # todo
+        pass
+
+    def get_min(self, axis=0):
+        # todo
+        pass
 
     def to_cj(self, vertices):
         citygeometry = {
@@ -49,7 +42,7 @@ class CityPrimitive(CityGeometry):
 
 
 # Contains GeometryInstance (Template)
-class CityInstance(CityGeometry):
+class CityInstance:
     #todo
     pass
 

@@ -1,11 +1,10 @@
 from .parser import CityGeometryParser
-from .geometry import CityGeometry, CityPrimitive, CityInstance
+from .geometry import CityGeometry, CityInstance
 
 
 __all__ = [
     'CityGeometryParser',
     'CityGeometry',
-    'CityPrimitive',
     'CityInstance',
 ]
 

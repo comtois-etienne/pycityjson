@@ -1,4 +1,3 @@
-from .geometry import CityPrimitive
 from .geometry import CityGeometry
 from .primitive.parser import (
     MultiSolidParser,
@@ -30,7 +29,7 @@ class CityGeometryParser:
         ]
 
         parsers = {
-            'GeometryInstance': InstanceParser, #todo
+            # 'GeometryInstance': InstanceParser, #todo
             'CompositeSolid': MultiSolidParser,
             'MultiSolid': MultiSolidParser,
             'Solid': SolidParser,
@@ -46,5 +45,5 @@ class CityGeometryParser:
         if dtype in alt_primitive:
             primitive.__type = primitive.__type_b
 
-        return CityPrimitive(primitive, lod)
+        return CityGeometry(primitive, lod)
 
