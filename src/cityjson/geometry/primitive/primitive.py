@@ -31,7 +31,7 @@ class Point:
         return f"Point({self.x}, {self.y}, {self.z})"
 
     def to_cj(self, vertices):
-        index = vertices.add(self.x, self.y, self.z)
+        index = vertices.add([self.x, self.y, self.z])
         return index
 
 
