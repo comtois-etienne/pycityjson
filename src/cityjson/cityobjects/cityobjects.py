@@ -4,7 +4,7 @@ from .cityobject import CityObject
 class CityObjects:
     def __init__(self, city, cityobjects = None):
         self._city = city
-        self._cityobjects = [] if cityobjects is None else cityobjects
+        self._cityobjects : list[CityObject] = [] if cityobjects is None else cityobjects
 
     def __len__(self):
         return len(self._cityobjects)
@@ -52,6 +52,6 @@ class CityObjects:
     def to_cj(self):
         city_objects = {}
         for cityobject in self._cityobjects:
-            city_objects[cityobject.uuid] = cityobject.to_cj()
+            city_objects[cityobject.uuid()] = cityobject.to_cj()
         return city_objects
 
