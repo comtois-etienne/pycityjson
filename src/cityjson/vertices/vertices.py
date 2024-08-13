@@ -46,10 +46,10 @@ class Vertices:
         return [vertice[0], vertice[1], vertice[2]]
 
     def get_min(self, axis=0):
-        return min(self.get_axis(axis))
+        return min(self.__get_axis(axis))
 
     def get_max(self, axis=0):
-        return max(self.get_axis(axis))
+        return max(self.__get_axis(axis))
 
     def add(self, vertice):
         if not self.exists(vertice):
@@ -57,7 +57,7 @@ class Vertices:
             self._vertices.append(vertice)
         return self.get_index(vertice)
 
-    def get_axis(self, axis=0):
+    def __get_axis(self, axis=0):
         return [coord[axis] for coord in self._vertices]
 
     def to_cj(self):
