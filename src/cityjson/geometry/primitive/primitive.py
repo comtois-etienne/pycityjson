@@ -14,6 +14,9 @@ class Primitive:
     def add_child(self, child):
         pass
 
+    def get_vertices(self):
+        pass
+
     def get_semantic_surfaces(self):
         return None
 
