@@ -1,6 +1,6 @@
 from .cityobjects import CityObjects
 from .vertices.vertices import Vertices
-from .templates import GeometryTemplates
+from .templates import GeometryTemplate
 
 
 class City:
@@ -11,23 +11,23 @@ class City:
         self.scale = [0.001, 0.001, 0.001]
         self.origin = [0, 0, 0]
         self._vertices = None
-        self._cityobjects = None
         self._geometry_template = None
+        self._cityobjects = None
 
     def get_vertices(self):
         if self._vertices is None:
             self._vertices = Vertices(self)
         return self._vertices
-    
+
+    def get_geometry_templates(self):
+        if self._geometry_template is None:
+            self._geometry_template = GeometryTemplate(self)
+        return self._geometry_template
+
     def get_cityobjects(self):
         if self._cityobjects is None:
             self._cityobjects = CityObjects(self)
         return self._cityobjects
-    
-    def get_geometry_templates(self):
-        if self._geometry_template is None:
-            self._geometry_template = GeometryTemplates(self)
-        return self._geometry_template
 
     def __getitem__(self, key):
         if isinstance(key, int):

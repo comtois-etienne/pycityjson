@@ -1,11 +1,16 @@
 from src.cityjson.vertices import Vertices
-from src.cityjson.geometry import CityGeometry
+from src.cityjson.geometry import Geometry
 
 
-class GeometryTemplates:
+class GeometryTemplate:
     def __init__(self, city, geometries=None, vertices=None):
-        self.geometries : list[CityGeometry] = geometries if geometries is not None else []
+        self.geometries : list[Geometry] = geometries if geometries is not None else []
         self.vertices = vertices if vertices is not None else Vertices(city)
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self.geometries[key]
+        return None
 
     def is_empty(self):
         return len(self.geometries) == 0
