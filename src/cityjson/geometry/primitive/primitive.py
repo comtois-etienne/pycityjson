@@ -79,7 +79,7 @@ class MultiLineString(Primitive):
     __type = "MultiLineString"
     __depth = 2
 
-    def __init__(self, faces: list[MultiPoint] = None, semantic=None):
+    def __init__(self, faces: list[MultiPoint] = None, semantic: Semantic=None):
         self.semantic = semantic
         self.children = [] if faces is None else faces
 
