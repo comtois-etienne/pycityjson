@@ -7,8 +7,16 @@ class CityGeometry:
         self.primitive = primitive
         self.lod = lod
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return f'{self.primitive.get_type()}(lod {self.lod})'
+
+    def __repr__(self) -> str:
+        return f'CityGeometry((lod({self.lod}))({repr(self.primitive)}))'
+    
+    def __eq__(self, value: object) -> bool:
+        if not isinstance(value, CityGeometry):
+            return False
+        return self.__repr__() == repr(value)
     
     def get_boundaries(self):
         # todo
@@ -39,10 +47,4 @@ class CityGeometry:
                 'values': self.primitive.get_semantic_values(semantics)
             }
         return citygeometry
-
-
-# Contains GeometryInstance (Template)
-class CityInstance:
-    #todo
-    pass
 
