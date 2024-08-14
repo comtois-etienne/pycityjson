@@ -2,6 +2,14 @@ from src.cityjson.vertices import Vertices
 from src.cityjson.geometry import Geometry
 
 
+class FakeCity:
+    def __init__(self, vertices):
+        self.vertices = vertices
+
+    def get_vertices(self):
+        return self.vertices
+
+
 class GeometryTemplate:
     def __init__(self, city, geometries=None, vertices=None):
         self.geometries : list[Geometry] = geometries if geometries is not None else []
@@ -22,7 +30,8 @@ class GeometryTemplate:
         return self.geometries.index(city_geometry)
 
     def to_cj(self):
-        templates_cj = [geometry.to_cj(self.vertices) for geometry in self.geometries]
+        city = FakeCity(self.vertices)
+        templates_cj = [geometry.to_cj(city) for geometry in self.geometries]
         return {
             'templates' : templates_cj,
             'vertices-templates' : self.vertices._vertices
