@@ -3,6 +3,7 @@ import json
 from .city import City
 from .cityobjects import CityObjects, CityObjectsParser
 from .vertices import Vertices, VerticesParser
+from .template.parser import GeometryTemplateParser
 from src.scripts.attribute import (
     get_attribute, 
     get_nested_attribute
@@ -35,6 +36,9 @@ class CityParser:
 
         v_parser = VerticesParser(city)
         city._vertices = v_parser.parse(get_attribute(data, 'vertices', default=[]))
+
+        gt_parser = GeometryTemplateParser(city)
+        city._geometry_template = gt_parser.parse(get_attribute(data, 'geometry-templates', default={}))
 
         co_parser = CityObjectsParser(city)
         city._cityobjects = co_parser.parse(get_attribute(data, 'CityObjects', default=[]))
