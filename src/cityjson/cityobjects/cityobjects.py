@@ -26,17 +26,17 @@ class CityObjects:
             if cityobject['type'] == citytype:
                 city_objects.append(cityobject)
         return city_objects
-    
+
     def round_attribute(self, attribute, decimals=0):
         for cityobject in self._cityobjects:
             cityobject.round_attribute(attribute, decimals)
-    
+
     def get_by_uuid(self, uuid) -> CityObject:
         for city_object in self._cityobjects:
             if city_object.uuid() == uuid:
                 return city_object
         return None
-    
+
     def add_cityobject(self, cityobject: CityObject):
         ctobj = self.get_by_uuid(cityobject.uuid)
         if ctobj is None:
