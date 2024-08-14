@@ -43,7 +43,5 @@ class CityParser:
         co_parser = CityObjectsParser(city)
         city._cityobjects = co_parser.parse(get_attribute(data, 'CityObjects', default=[]))
 
-        # city.geometry_template = # todo
-
         return city
 
