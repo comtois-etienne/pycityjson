@@ -1,6 +1,6 @@
 from .cityobjects import CityObjects
 from .vertices.vertices import Vertices
-from .template import GeometryTemplate
+from .templates import GeometryTemplates
 
 
 class City:
@@ -12,7 +12,7 @@ class City:
         self.origin = [0, 0, 0]
         self._vertices = None
         self._cityobjects = None
-        self.geometry_template = None
+        self._geometry_template = None
 
     def get_vertices(self):
         if self._vertices is None:
@@ -24,10 +24,10 @@ class City:
             self._cityobjects = CityObjects(self)
         return self._cityobjects
     
-    def get_geometry_template(self):
-        if self.geometry_template is None:
-            self.geometry_template = GeometryTemplate(self)
-        return self.geometry_template
+    def get_geometry_templates(self):
+        if self._geometry_template is None:
+            self._geometry_template = GeometryTemplates(self)
+        return self._geometry_template
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -39,7 +39,7 @@ class City:
         if key_lower == 'cityobjects' or key_lower == 'objects':
             return self.get_cityobjects()
         if key_lower == 'geometrytemplate' or key_lower == 'geometry-template':
-            return self.get_geometry_template()
+            return self.get_geometry_templates()
         if key_lower == 'epsg':
             return self.epsg()
         if key_lower == 'version':
@@ -62,8 +62,8 @@ class City:
     def to_cj(self, purge_vertices=False):
         self.get_vertices()
         self.get_cityobjects()
-        self.get_geometry_template()
-        
+        self.get_geometry_templates()
+
         if purge_vertices:
             self._vertices = Vertices(self)
         city = {
@@ -77,8 +77,8 @@ class City:
             'vertices': self._vertices.to_cj(),
             'metadata': self.metadata,
         }
-        if not self.geometry_template.is_empty():
-            city['geometry-templates'] = self.geometry_template.to_cj()
+        if not self._geometry_template.is_empty():
+            city['geometry-templates'] = self._geometry_template.to_cj()
         return city
     
     def precision(self):
