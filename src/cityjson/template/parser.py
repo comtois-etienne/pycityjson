@@ -2,7 +2,7 @@ from src.cityjson import City
 from src.cityjson.vertices import VerticesParser
 from src.cityjson.geometry import GeometryParser
 from src.scripts.attribute import get_attribute as get_att
-from .templates import GeometryTemplate
+from .template import GeometryTemplate
 
 
 class GeometryTemplateParser:
