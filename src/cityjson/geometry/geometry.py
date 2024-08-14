@@ -22,9 +22,8 @@ class CityGeometry:
         # todo
         pass
 
-    def get_vertices(self, flat=False):
-        # todo
-        pass
+    def get_vertices(self):
+        return self.primitive.get_vertices()
 
     def get_max(self, axis=0):
         # todo
