@@ -1,5 +1,6 @@
 from src.guid import guid, is_guid
 from src.scripts.attribute import round_attribute as _round
+from src.cityjson.geometry import CityGeometry
 
 
 FIRST_LEVEL_TYPES = [
@@ -55,7 +56,7 @@ class CityObject:
         self.city = city
 
         self.attributes = {} if attributes is None else attributes
-        self.geometry = [] if geometry is None else geometry # todo verify that it is a list of geometries
+        self.geometry: list[CityGeometry] = [] if geometry is None else geometry # todo verify that it is a list of geometries
         self.children = [] if children is None else children
 
         self.__uuid = self.attributes['uuid'] if 'uuid' in self.attributes else guid()
@@ -117,7 +118,7 @@ class CityObject:
         self.geometry.append(geometry)
 
     def get_vertices(self, flat=False):
-        return [g.to_cj(self.city.get_vertices()) for g in self.geometry]
+        return [g.to_cj(self.city) for g in self.geometry]
 
     def set_geographical_extent(self, overwrite=False):
         if self.geo_extent is None or overwrite:
