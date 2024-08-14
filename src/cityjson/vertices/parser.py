@@ -11,6 +11,8 @@ class VerticesParser:
 
     # data contains cityjson['vertices']
     def parse(self, data):
+        if len(data) == 0:
+            return Vertices(self.city)
         vertices = np.array(data)
         vertices = (vertices * np.array(self.scale)) + np.array(self.translate)
         vertices = np.round(vertices, self.precision)
