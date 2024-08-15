@@ -113,7 +113,7 @@ class MultiLineString(Primitive):
         return [face.to_cj(vertices) for face in self.children]
     
     def get_semantic_cj(self):
-        return self.semantic.to_cj()
+        return self.semantic.to_cj() if self.semantic is not None else None
     
     def get_semantic_values(self, semantics):
         for i in range(len(semantics)):
@@ -157,7 +157,10 @@ class MultiSurface(Primitive):
     def get_semantic_surfaces(self):
         semantics = {}
         for surface in self.children:
-            semantics[surface.semantic['uuid']] = surface.get_semantic_cj()
+            semantic = surface.get_semantic_cj()
+            if semantic is None:
+                return None
+            semantics[surface.semantic['uuid']] = semantic
         return list(semantics.values())
 
     # depth = 1
@@ -199,7 +202,10 @@ class Solid(Primitive):
         semantics = {}
         for multi_surface in self.children:
             for surface in multi_surface.children:
-                semantics[surface.semantic['uuid']] = surface.get_semantic_cj()
+                semantic = surface.get_semantic_cj()
+                if semantic is None:
+                    return None
+                semantics[surface.semantic['uuid']] = semantic
         return list(semantics.values())
 
     # depth = 2
@@ -244,7 +250,10 @@ class MultiSolid(Primitive):
         for solid in self.children:
             for multi_surface in solid.children:
                 for surface in multi_surface.children:
-                    semantics[surface.semantic['uuid']] = surface.get_semantic_cj()
+                    semantic = surface.get_semantic_cj()
+                    if semantic is None:
+                        return None
+                    semantics[surface.semantic['uuid']] = semantic
         return list(semantics.values())
     
     # depth = 3

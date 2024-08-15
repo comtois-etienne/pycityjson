@@ -59,7 +59,7 @@ class Geometry(CityGeometry):
             'boundaries': self.primitive.to_cj(vertices)
         }
         semantics = self.primitive.get_semantic_surfaces()
-        if semantics is not None and semantics[0]['type'] is not None:
+        if semantics is not None:
             citygeometry['semantics'] = {
                 'surfaces': semantics,
                 'values': self.primitive.get_semantic_values(semantics)

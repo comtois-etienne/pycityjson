@@ -1,3 +1,4 @@
+from src.scripts.attribute import get_nested_attribute
 from .semantic import SemanticParser
 from .primitive import (
     Primitive,
@@ -28,10 +29,11 @@ class PrimitiveParser:
 
     # data contains cityjson['CityObjects'][uuid]['geometry'][index]
     def parse(self, data) -> Primitive:
-        semantics = SemanticParser(self.city).parse(data['semantics']['surfaces'])
-        values = data['semantics']['values']
+        semantics_surface = get_nested_attribute(data, 'semantics', 'surfaces', default=None)
+        semantics_values = get_nested_attribute(data, 'semantics', 'values', default=None)
+        semantics = SemanticParser(self.city).parse(semantics_surface) if semantics_surface is not None else None
         boundaries = data['boundaries']
-        return self._parse(boundaries, semantics, values)
+        return self._parse(boundaries, semantics, semantics_values)
 
 
 class PointParser(PrimitiveParser):
