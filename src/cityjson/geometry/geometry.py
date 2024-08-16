@@ -12,7 +12,7 @@ class CityGeometry:
     def get_boundaries(self):
         pass
     
-    def get_vertices(self):
+    def get_vertices(self, flatten):
         pass
 
     def get_max(self, axis=0):
@@ -35,7 +35,7 @@ class Geometry(CityGeometry):
         self.lod = lod
 
     def __str__(self) -> str:
-        return f'{self.primitive.get_type()}(lod {self.lod})'
+        return f'Geometry{self.primitive.get_type()}(lod={self.lod})'
 
     def __repr__(self) -> str:
         return f'Geometry((lod({self.lod}))({repr(self.primitive)}))'
@@ -48,8 +48,8 @@ class Geometry(CityGeometry):
     def get_lod(self) -> str:
         return self.lod
 
-    def get_vertices(self):
-        return self.primitive.get_vertices()
+    def get_vertices(self, flatten=False):
+        return self.primitive.get_vertices(flatten)
 
     def to_cj(self, city) -> dict:
         vertices = city.get_vertices()

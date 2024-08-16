@@ -59,7 +59,7 @@ class GeometryParser:
         parser = GEOMETRY_PARSERS[dtype](self.city)
         primitive = parser.parse(data)
         if dtype in ALT_PRIMITIVE:
-            primitive.__type = primitive.__type_b
+            primitive.type = primitive.__ptype_b
         return Geometry(primitive, lod)
 
 
