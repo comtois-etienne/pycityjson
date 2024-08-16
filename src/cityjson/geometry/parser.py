@@ -1,3 +1,5 @@
+from src.scripts.matrix import TransformationMatrix
+
 from .geometry import (
     CityGeometry,
     Geometry,
@@ -76,8 +78,7 @@ class InstanceParser:
         matrix[3] = 0
         matrix[7] = 0
         matrix[11] = 0
-        geometry_instance = GeometryInstance(geometry)
-        geometry_instance.matrix = matrix
+        geometry_instance = GeometryInstance(geometry, TransformationMatrix(matrix))
         geometry_instance.origin = origin
         return geometry_instance
 

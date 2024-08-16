@@ -1,6 +1,5 @@
 from .primitive.primitive import Primitive
-from src.scripts.matrix import identity_matrix
-
+from src.scripts.matrix import TransformationMatrix
 
 class CityGeometry:
     def transform(self, matrix):
@@ -69,13 +68,18 @@ class Geometry(CityGeometry):
 
 # Contains 'GeometryInstance' (Template)
 class GeometryInstance(CityGeometry):
-    def __init__(self, geometry: Geometry):
+    def __init__(self, geometry: Geometry, matrix: TransformationMatrix):
         self.geometry = geometry
         self.origin = [0, 0, 0]
-        self.matrix = identity_matrix()
+        self.matrix = matrix
 
     def transform(self, matrix):
         # todo
+        pass
+
+    def get_vertices(self, flatten):
+        vertices = self.geometry.get_vertices(flatten)
+        matrix = self.matrix.get_np_matrix()
         pass
 
     def get_lod(self) -> str:
@@ -92,7 +96,7 @@ class GeometryInstance(CityGeometry):
             'type': 'GeometryInstance',
             'template': template_index,
             'boundaries': [boundary],
-            'transformationMatrix': self.matrix
+            'transformationMatrix': self.matrix.get_matrix()
         }
         return cityinstance
 
