@@ -96,7 +96,7 @@ class GeometryInstance(CityGeometry):
             'type': 'GeometryInstance',
             'template': template_index,
             'boundaries': [boundary],
-            'transformationMatrix': self.matrix.get_matrix()
+            'transformationMatrix': self.matrix.to_cj()
         }
         return cityinstance
 
