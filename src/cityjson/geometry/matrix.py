@@ -41,8 +41,10 @@ class TransformationMatrix:
 
     def get_matrix(self):
         return self.matrix
-    
+
     def get_np_matrix(self):
         return np.array(self.matrix).reshape(4, 4)
-    
-    
+
+    def combine(self, matrix) -> 'TransformationMatrix':
+        return TransformationMatrix(np.dot(self.get_np_matrix(), matrix.get_np_matrix()).flatten().tolist())
+

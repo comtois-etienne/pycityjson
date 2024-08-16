@@ -1,5 +1,5 @@
 from .primitive.primitive import Primitive
-from src.scripts.matrix import TransformationMatrix
+from .matrix import TransformationMatrix
 
 class CityGeometry:
     def transform(self, matrix):

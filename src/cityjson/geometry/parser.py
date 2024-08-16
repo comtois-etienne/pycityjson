@@ -1,4 +1,4 @@
-from src.scripts.matrix import TransformationMatrix
+from .matrix import TransformationMatrix
 
 from .geometry import (
     CityGeometry,
