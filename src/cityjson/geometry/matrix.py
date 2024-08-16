@@ -35,9 +35,16 @@ def rotate_z(angle):
     return matrix
 
 
+def round_matrix(matrix):
+    return [round(val, 16) for val in matrix]
+
+
 class TransformationMatrix:
     def __init__(self, matrix=None):
-        self.matrix = identity_matrix() if matrix is None else matrix
+        self.matrix = identity_matrix() if matrix is None else round_matrix(matrix)
+
+    def __str__(self):
+        return str(self.matrix)
 
     def get_matrix(self):
         return self.matrix
@@ -45,6 +52,7 @@ class TransformationMatrix:
     def get_np_matrix(self):
         return np.array(self.matrix).reshape(4, 4)
 
-    def combine(self, matrix) -> 'TransformationMatrix':
-        return TransformationMatrix(np.dot(self.get_np_matrix(), matrix.get_np_matrix()).flatten().tolist())
+    def dot(self, matrix) -> 'TransformationMatrix':
+        new_matrix = np.dot(self.get_np_matrix(), matrix.get_np_matrix()).flatten().tolist()
+        return TransformationMatrix(round_matrix(new_matrix))
 
