@@ -14,17 +14,17 @@ class City:
         self._geometry_template = None
         self._cityobjects = None
 
-    def get_vertices(self):
+    def get_vertices(self) -> Vertices:
         if self._vertices is None:
             self._vertices = Vertices(self)
         return self._vertices
 
-    def get_geometry_templates(self):
+    def get_geometry_templates(self) -> GeometryTemplate:
         if self._geometry_template is None:
             self._geometry_template = GeometryTemplate(self)
         return self._geometry_template
 
-    def get_cityobjects(self):
+    def get_cityobjects(self) -> CityObjects:
         if self._cityobjects is None:
             self._cityobjects = CityObjects(self)
         return self._cityobjects
@@ -59,7 +59,7 @@ class City:
     def __setitem__(self, key, value):
         self.metadata[key] = value
     
-    def to_cj(self, purge_vertices=False):
+    def to_cj(self, purge_vertices=True) -> dict:
         self.get_vertices()
         self.get_cityobjects()
         self.get_geometry_templates()
@@ -81,7 +81,7 @@ class City:
             city['geometry-templates'] = self._geometry_template.to_cj()
         return city
     
-    def precision(self):
+    def precision(self) -> int:
         return len(str(self.scale[0]).split('.')[1])
     
     def set_origin(self, vertice=None):
@@ -102,6 +102,7 @@ class City:
         self.metadata['referenceSystem'] = f'https://www.opengis.net/def/crs/EPSG/0/{epsg}'
 
     def set_geographical_extent(self):
+        self.to_cj(purge_vertices=True)
         self.metadata['geographicalExtent'] = [
             self._vertices.get_min(0), self._vertices.get_min(1), self._vertices.get_min(2),
             self._vertices.get_max(0), self._vertices.get_max(1), self._vertices.get_max(2)
