@@ -66,6 +66,13 @@ class TransformationMatrix:
     def get_np_matrix(self):
         return list_to_numpy(self.matrix)
 
+    def get_origin(self):
+        return [self.matrix[3], self.matrix[7], self.matrix[11]]
+
+    def recenter(self) -> 'TransformationMatrix':
+        origin = self.get_origin()
+        return self.move([-origin[0], -origin[1], -origin[2]])
+
     def dot(self, matrix) -> 'TransformationMatrix':
         new_matrix = np.dot(self.get_np_matrix(), matrix.get_np_matrix())
         new_matrix = round_matrix(numpy_to_list(new_matrix))

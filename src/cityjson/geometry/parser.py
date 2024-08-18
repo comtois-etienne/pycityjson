@@ -73,13 +73,8 @@ class InstanceParser:
     def parse(self, data) -> GeometryInstance:
         origin = self.city[data['boundaries'][0]]
         geometry = self.city.get_geometry_templates()[data['template']]
-        matrix = data['transformationMatrix'] # todo extract offset if exists in matrix
-        origin = [origin[0] + matrix[3], origin[1] + matrix[7], origin[2] + matrix[11]]
-        matrix[3] = 0
-        matrix[7] = 0
-        matrix[11] = 0
-        geometry_instance = GeometryInstance(geometry, TransformationMatrix(matrix))
-        geometry_instance.origin = origin
-        return geometry_instance
-
+        matrix = data['transformationMatrix']
+        matrix = TransformationMatrix(matrix)
+        matrix = matrix.move(origin)
+        return GeometryInstance(geometry, matrix)
 

@@ -2,7 +2,7 @@ from .primitive.primitive import Primitive
 from .matrix import TransformationMatrix
 
 class CityGeometry:
-    def transform(self, matrix):
+    def transform(self, matrix: TransformationMatrix):
         pass
 
     def get_lod(self) -> str:
@@ -41,11 +41,17 @@ class Geometry(CityGeometry):
             return False
         return self.__repr__() == repr(value)
 
+    def transform(self, matrix: TransformationMatrix):
+        pass
+
     def get_lod(self) -> str:
         return self.lod
 
     def get_vertices(self, flatten=False):
         return self.primitive.get_vertices(flatten)
+
+    def to_geometry(self) -> 'Geometry':
+        return self
 
     def to_cj(self, city) -> dict:
         vertices = city.get_vertices()
@@ -67,20 +73,24 @@ class Geometry(CityGeometry):
 class GeometryInstance(CityGeometry):
     def __init__(self, geometry: Geometry, matrix: TransformationMatrix):
         self.geometry = geometry
-        self.origin = [0, 0, 0]
         self.matrix = matrix
 
-    def get_vertices(self, flatten=False):
-        vertices = self.geometry.get_vertices(flatten)
-        matrix = self.matrix.move(self.origin)
-        return matrix.reproject_vertices(vertices)
+    def transform(self, matrix: TransformationMatrix):
+        pass # todo
 
     def get_lod(self) -> str:
         return self.geometry.get_lod()
 
+    def get_vertices(self, flatten=False):
+        vertices = self.geometry.get_vertices(flatten)
+        return self.matrix.reproject_vertices(vertices)
+
+    def to_geometry(self) -> Geometry:
+        pass
+
     def to_cj(self, city) -> dict:
         vertices = city.get_vertices()
-        boundary = vertices.add(self.origin)
+        boundary = vertices.add(self.matrix.get_origin())
 
         geometry_templates = city.get_geometry_templates()
         template_index = geometry_templates.add_template(self.geometry)
@@ -89,7 +99,7 @@ class GeometryInstance(CityGeometry):
             'type': 'GeometryInstance',
             'template': template_index,
             'boundaries': [boundary],
-            'transformationMatrix': self.matrix.to_cj()
+            'transformationMatrix': self.matrix.recenter().to_cj()
         }
         return cityinstance
 
