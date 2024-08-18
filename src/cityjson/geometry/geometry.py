@@ -1,6 +1,10 @@
 from .primitive.primitive import Primitive
 from .matrix import TransformationMatrix
 
+
+import numpy as np
+
+
 class CityGeometry:
     def transform(self, matrix: TransformationMatrix):
         pass
@@ -11,10 +15,19 @@ class CityGeometry:
     def get_vertices(self, flatten):
         pass
 
-    def get_max(self, axis=0):
-        pass
+    # todo test
+    def get_min_max(self):
+        vertices = self.get_vertices(flatten=True)
+        vertices = np.array(vertices)
+        min_x = np.min(vertices, axis=0)[0]
+        min_y = np.min(vertices, axis=0)[1]
+        min_z = np.min(vertices, axis=0)[2]
+        max_x = np.max(vertices, axis=0)[0]
+        max_y = np.max(vertices, axis=0)[1]
+        max_z = np.max(vertices, axis=0)[2]
+        return [min_x, min_y, min_z], [max_x, max_y, max_z]
 
-    def get_min(self, axis=0):
+    def duplicate(self) -> 'CityGeometry':
         pass
 
     def to_geometry_primitive(self) -> 'GeometryPrimitive':
@@ -54,6 +67,9 @@ class GeometryPrimitive(CityGeometry):
     def get_vertices(self, flatten=False):
         return self.primitive.get_vertices(flatten)
 
+    def duplicate(self) -> CityGeometry:
+        return GeometryPrimitive(self.primitive.copy(), self.lod)
+
     def to_geometry_primitive(self) -> 'GeometryPrimitive':
         return self
 
@@ -88,6 +104,9 @@ class GeometryInstance(CityGeometry):
     def get_vertices(self, flatten=False):
         vertices = self.geometry.get_vertices(flatten)
         return self.matrix.reproject_vertices(vertices)
+
+    def duplicate(self) -> CityGeometry:
+        return GeometryInstance(self.geometry, self.matrix.copy())
 
     def to_geometry_primitive(self) -> GeometryPrimitive:
         primitive = self.geometry.primitive.copy()
