@@ -74,11 +74,11 @@ class City:
                 'scale': self.scale,
                 'translate': self.origin
             },
-            'vertices': self._vertices.to_cj(),
-            'metadata': self.metadata,
+            'vertices': self._vertices.to_cj()
         }
         if not self._geometry_template.is_empty():
             city['geometry-templates'] = self._geometry_template.to_cj()
+        city['metadata'] = self.metadata
         return city
     
     def precision(self) -> int:
