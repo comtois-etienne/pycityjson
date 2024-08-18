@@ -60,8 +60,11 @@ class TransformationMatrix:
     def __str__(self):
         return str(self.matrix)
 
+    def copy(self) -> 'TransformationMatrix':
+        return TransformationMatrix(self.matrix.copy())
+
     def get_matrix(self):
-        return self.matrix
+        return self.matrix.copy()
 
     def get_np_matrix(self):
         return list_to_numpy(self.matrix)
