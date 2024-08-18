@@ -117,15 +117,16 @@ class CityObject:
     def add_geometry(self, geometry: CityGeometry):
         self.city_geometry.append(geometry)
 
-    def get_vertices(self, flat=False):
-        return [g.to_cj(self.city) for g in self.city_geometry]
+    def get_vertices(self, flatten=False):
+        return [g.get_vertices(flatten) for g in self.city_geometry]
 
     def set_geographical_extent(self, overwrite=False):
         if self.geo_extent is None or overwrite:
             g = self.get_geometry()[0] #todo multiple geometries
+            g_min, g_max = g.get_min_max()
             self.geo_extent = [
-                g.get_min(0), g.get_min(1), g.get_min(2),
-                g.get_max(0), g.get_max(1), g.get_max(2)
+                g_min[0], g_min[1], g_min[2],
+                g_max[0], g_max[1], g_max[2]
             ]
         return self.geo_extent
 
