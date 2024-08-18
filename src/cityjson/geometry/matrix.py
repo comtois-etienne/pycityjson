@@ -124,5 +124,10 @@ class TransformationMatrix:
         return vertice.tolist()
 
     def to_cj(self):
-        return self.matrix
+        matrix = self.matrix
+        for i in range(16):
+            int_val = int(matrix[i])
+            flt_val = matrix[i]
+            matrix[i] = flt_val if int_val != flt_val else int_val
+        return matrix
 
