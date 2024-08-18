@@ -56,7 +56,7 @@ class CityObject:
         self.city = city
 
         self.attributes = {} if attributes is None else attributes
-        self.geometry: list[CityGeometry] = [] if geometry is None else geometry # todo verify that it is a list of geometries
+        self.city_geometry: list[CityGeometry] = [] if geometry is None else geometry # todo verify that it is a list of geometries
         self.children = [] if children is None else children
 
         self.__uuid = self.attributes['uuid'] if 'uuid' in self.attributes else guid()
@@ -76,8 +76,8 @@ class CityObject:
             cj['geographicalExtent'] = self.geo_extent
         if self.attributes != {}:
             cj['attributes'] = self.attributes
-        if self.geometry is not None:
-            cj['geometry'] = [g.to_cj(self.city) for g in self.geometry]
+        if self.city_geometry is not None:
+            cj['geometry'] = [g.to_cj(self.city) for g in self.city_geometry]
         if self.children != []:
             cj['children'] = [child.uuid() for child in self.children]
         if self.parent is not None:
@@ -111,14 +111,14 @@ class CityObject:
         if old_key in self.attributes:
             self.attributes[new_key] = self.attributes[old_key]
 
-    def get_geometry(self):
-        return self.geometry
+    def get_geometry(self) -> list[CityGeometry]:
+        return self.city_geometry
     
-    def add_geometry(self, geometry):
-        self.geometry.append(geometry)
+    def add_geometry(self, geometry: CityGeometry):
+        self.city_geometry.append(geometry)
 
     def get_vertices(self, flat=False):
-        return [g.to_cj(self.city) for g in self.geometry]
+        return [g.to_cj(self.city) for g in self.city_geometry]
 
     def set_geographical_extent(self, overwrite=False):
         if self.geo_extent is None or overwrite:
