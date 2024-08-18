@@ -76,30 +76,30 @@ class GeometryPrimitive(CityGeometry):
 # Contains 'GeometryInstance' (Template)
 class GeometryInstance(CityGeometry):
     def __init__(self, geometry: GeometryPrimitive, matrix: TransformationMatrix):
-        self.geometry_p = geometry
+        self.geometry = geometry
         self.matrix = matrix
 
     def transform(self, matrix: TransformationMatrix):
         self.matrix = self.matrix.dot(matrix)
 
     def get_lod(self) -> str:
-        return self.geometry_p.get_lod()
+        return self.geometry.get_lod()
 
     def get_vertices(self, flatten=False):
-        vertices = self.geometry_p.get_vertices(flatten)
+        vertices = self.geometry.get_vertices(flatten)
         return self.matrix.reproject_vertices(vertices)
 
     def to_geometry_primitive(self) -> GeometryPrimitive:
-        primitive = self.geometry_p.primitive.copy()
+        primitive = self.geometry.primitive.copy()
         primitive.transform(self.matrix)
-        return GeometryPrimitive(primitive, self.geometry_p.lod)
+        return GeometryPrimitive(primitive, self.geometry.lod)
 
     def to_cj(self, city) -> dict:
         vertices = city.get_vertices()
         boundary = vertices.add(self.matrix.get_origin())
 
         geometry_templates = city.get_geometry_templates()
-        template_index = geometry_templates.add_template(self.geometry_p)
+        template_index = geometry_templates.add_template(self.geometry)
 
         cityinstance = {
             'type': 'GeometryInstance',
