@@ -2,7 +2,7 @@ from .matrix import TransformationMatrix
 
 from .geometry import (
     CityGeometry,
-    Geometry,
+    GeometryPrimitive,
     GeometryInstance
 )
 from .primitive.parser import (
@@ -53,7 +53,7 @@ class GeometryParser:
         self.city = city
 
     # data contains cityjson['CityObjects'][uuid]['geometry'][index]
-    def parse(self, data) -> Geometry:
+    def parse(self, data) -> GeometryPrimitive:
         lod = data['lod']
         dtype = data['type']
         if dtype not in GEOMETRY_PARSERS:
@@ -62,7 +62,7 @@ class GeometryParser:
         primitive = parser.parse(data)
         if dtype in ALT_PRIMITIVE:
             primitive.type = primitive.__ptype_b
-        return Geometry(primitive, lod)
+        return GeometryPrimitive(primitive, lod)
 
 
 class InstanceParser:

@@ -17,7 +17,7 @@ class CityGeometry:
     def get_min(self, axis=0):
         pass
 
-    def to_geometry(self) -> 'Geometry':
+    def to_geometry(self) -> 'GeometryPrimitive':
         pass
 
     def to_cj(self, city) -> dict:
@@ -25,7 +25,7 @@ class CityGeometry:
 
 
 # Contains MultiSolid, Solid, MultiSurface, MultiLineString...
-class Geometry(CityGeometry):
+class GeometryPrimitive(CityGeometry):
     def __init__(self, primitive: Primitive, lod: str = '1'):
         self.primitive = primitive
         self.lod = lod
@@ -37,12 +37,12 @@ class Geometry(CityGeometry):
         return f'Geometry((lod({self.lod}))({repr(self.primitive)}))'
 
     def __eq__(self, value: object) -> bool:
-        if not isinstance(value, Geometry):
+        if not isinstance(value, GeometryPrimitive):
             return False
         return self.__repr__() == repr(value)
 
     def transform(self, matrix: TransformationMatrix):
-        pass
+        self.primitive.transform(matrix)
 
     def get_lod(self) -> str:
         return self.lod
@@ -50,7 +50,7 @@ class Geometry(CityGeometry):
     def get_vertices(self, flatten=False):
         return self.primitive.get_vertices(flatten)
 
-    def to_geometry(self) -> 'Geometry':
+    def to_geometry(self) -> 'GeometryPrimitive':
         return self
 
     def to_cj(self, city) -> dict:
@@ -71,7 +71,7 @@ class Geometry(CityGeometry):
 
 # Contains 'GeometryInstance' (Template)
 class GeometryInstance(CityGeometry):
-    def __init__(self, geometry: Geometry, matrix: TransformationMatrix):
+    def __init__(self, geometry: GeometryPrimitive, matrix: TransformationMatrix):
         self.geometry = geometry
         self.matrix = matrix
 
@@ -85,8 +85,10 @@ class GeometryInstance(CityGeometry):
         vertices = self.geometry.get_vertices(flatten)
         return self.matrix.reproject_vertices(vertices)
 
-    def to_geometry(self) -> Geometry:
-        pass
+    def to_geometry(self) -> GeometryPrimitive:
+        primitive = self.geometry.primitive.copy()
+        primitive.transform(self.matrix)
+        return GeometryPrimitive(primitive, self.geometry.lod)
 
     def to_cj(self, city) -> dict:
         vertices = city.get_vertices()

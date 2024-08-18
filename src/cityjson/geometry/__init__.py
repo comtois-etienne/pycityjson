@@ -5,7 +5,7 @@ from .parser import (
 )
 from .geometry import (
     CityGeometry, 
-    Geometry,
+    GeometryPrimitive,
     GeometryInstance
 )
 
@@ -15,7 +15,7 @@ __all__ = [
     'GeometryParser',
     'InstanceParser',
     'CityGeometry',
-    'Geometry',
+    'GeometryPrimitive',
     'GeometryInstance',
 ]
 

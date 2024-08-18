@@ -1,5 +1,5 @@
 from src.cityjson.vertices import Vertices
-from src.cityjson.geometry import Geometry
+from src.cityjson.geometry import GeometryPrimitive
 
 
 class FakeCity:
@@ -12,7 +12,7 @@ class FakeCity:
 
 class GeometryTemplate:
     def __init__(self, city, geometries=None, vertices=None):
-        self.geometries : list[Geometry] = geometries if geometries is not None else []
+        self.geometries : list[GeometryPrimitive] = geometries if geometries is not None else []
         self.vertices = vertices if vertices is not None else Vertices(city)
 
     def __getitem__(self, key):
