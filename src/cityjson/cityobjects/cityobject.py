@@ -118,8 +118,15 @@ class CityObject:
         self.city_geometry.append(geometry)
 
     def get_vertices(self, flatten=False):
-        return [g.get_vertices(flatten) for g in self.city_geometry]
+        vertices = []
+        for g in self.city_geometry:
+            if flatten:
+                vertices += g.get_vertices(flatten)
+            else:
+                vertices.append(g.get_vertices(flatten))
+        return vertices
 
+    # todo test
     def set_geographical_extent(self, overwrite=False):
         if self.geo_extent is None or overwrite:
             g = self.get_geometry()[0] #todo multiple geometries
