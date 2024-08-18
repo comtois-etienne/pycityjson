@@ -8,9 +8,6 @@ class CityGeometry:
     def get_lod(self) -> str:
         pass
 
-    def get_boundaries(self):
-        pass
-    
     def get_vertices(self, flatten):
         pass
 
@@ -73,14 +70,10 @@ class GeometryInstance(CityGeometry):
         self.origin = [0, 0, 0]
         self.matrix = matrix
 
-    def transform(self, matrix):
-        # todo
-        pass
-
-    def get_vertices(self, flatten):
+    def get_vertices(self, flatten=False):
         vertices = self.geometry.get_vertices(flatten)
-        matrix = self.matrix.get_np_matrix()
-        pass
+        matrix = self.matrix.move(self.origin)
+        return matrix.reproject_vertices(vertices)
 
     def get_lod(self) -> str:
         return self.geometry.get_lod()
