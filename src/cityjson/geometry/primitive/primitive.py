@@ -1,6 +1,7 @@
 # https://www.cityjson.org/dev/geom-arrays/
 
 
+from ..matrix import TransformationMatrix
 from .semantic import Semantic
 
 
@@ -12,8 +13,15 @@ class Primitive:
         children = ', '.join([repr(child) for child in self.children])
         return f"{self.get_type()}({children})"
 
+    def transform(self, matrix: TransformationMatrix):
+        for child in self.children:
+            child.transform(matrix)
+
     def get_type(self):
         return self.type
+
+    def copy(self):
+        return self.__class__([child.copy() for child in self.children])
 
     def to_cj(self, vertices):
         return [child.to_cj(vertices) for child in self.children]
@@ -48,6 +56,14 @@ class Point:
 
     def __repr__(self):
         return f"Point({self.x}, {self.y}, {self.z})"
+
+    def copy(self):
+        return self.__class__(self.x, self.y, self.z)
+
+    def transform(self, matrix: TransformationMatrix):
+        vertice = [self.x, self.y, self.z]
+        vertice = matrix.reproject_vertice(vertice)
+        self.x, self.y, self.z = vertice
 
     def to_list(self):
         return [self.x, self.y, self.z]
