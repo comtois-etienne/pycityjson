@@ -53,7 +53,6 @@ def numpy_to_list(matrix_numpy):
 
 
 class TransformationMatrix:
-
     # matrix is a 4x4 matrix of shape 1x16
     def __init__(self, matrix=None):
         self.matrix: list = identity_matrix() if matrix is None else round_matrix(matrix)
@@ -72,31 +71,50 @@ class TransformationMatrix:
         new_matrix = round_matrix(numpy_to_list(new_matrix))
         return TransformationMatrix(new_matrix)
 
-    def move(self, x, y, z) -> 'TransformationMatrix':
+    def move(self, vertice) -> 'TransformationMatrix':
         new_matrix = self.get_np_matrix()
-        new_matrix[0][3] += x
-        new_matrix[1][3] += y
-        new_matrix[2][3] += z
+        new_matrix[0][3] += vertice[0]
+        new_matrix[1][3] += vertice[1]
+        new_matrix[2][3] += vertice[2]
         return TransformationMatrix(numpy_to_list(new_matrix))
 
-    def scale(self, x, y, z) -> 'TransformationMatrix':
+    def scale(self, vertice) -> 'TransformationMatrix':
         new_matrix = self.get_np_matrix()
-        new_matrix[0][0] *= x
-        new_matrix[1][1] *= y
-        new_matrix[2][2] *= z
+        new_matrix[0][0] *= vertice[0]
+        new_matrix[1][1] *= vertice[1]
+        new_matrix[2][2] *= vertice[2]
         return TransformationMatrix(numpy_to_list(new_matrix))
-    
+
     def rotate_x(self, angle_degree) -> 'TransformationMatrix':
         new_matrix = np.dot(self.get_np_matrix(), rotate_x(angle_degree))
         return TransformationMatrix(numpy_to_list(new_matrix))
-    
+
     def rotate_y(self, angle_degree) -> 'TransformationMatrix':
         new_matrix = np.dot(self.get_np_matrix(), rotate_y(angle_degree))
         return TransformationMatrix(numpy_to_list(new_matrix))
-    
+
     def rotate_z(self, angle_degree) -> 'TransformationMatrix':
         new_matrix = np.dot(self.get_np_matrix(), rotate_z(angle_degree))
         return TransformationMatrix(numpy_to_list(new_matrix))
+
+    def __reproject(self, vertices):
+        result = []
+        for item in vertices:
+            if isinstance(item[0], list):
+                result.append(self.__reproject(item))
+            else:
+                result.append(self.reproject_vertice(item))
+        return result
+
+    def reproject_vertices(self, vertices):
+        return self.__reproject(vertices)
+
+    def reproject_vertice(self, vertice):
+        matrix = self.get_np_matrix()
+        vertice = np.array([vertice[0], vertice[1], vertice[2], 1])
+        vertice = np.dot(matrix, vertice)
+        vertice = vertice[:-1]
+        return vertice.tolist()
 
     def to_cj(self):
         return self.matrix
