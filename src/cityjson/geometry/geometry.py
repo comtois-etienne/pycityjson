@@ -17,7 +17,11 @@ class CityGeometry:
     def get_min(self, axis=0):
         pass
 
-    def to_geometry(self) -> 'GeometryPrimitive':
+    def to_geometry_primitive(self) -> 'GeometryPrimitive':
+        pass
+
+    def to_geometry_instance(self) -> 'GeometryInstance':
+        # todo
         pass
 
     def to_cj(self, city) -> dict:
@@ -50,7 +54,7 @@ class GeometryPrimitive(CityGeometry):
     def get_vertices(self, flatten=False):
         return self.primitive.get_vertices(flatten)
 
-    def to_geometry(self) -> 'GeometryPrimitive':
+    def to_geometry_primitive(self) -> 'GeometryPrimitive':
         return self
 
     def to_cj(self, city) -> dict:
@@ -72,30 +76,30 @@ class GeometryPrimitive(CityGeometry):
 # Contains 'GeometryInstance' (Template)
 class GeometryInstance(CityGeometry):
     def __init__(self, geometry: GeometryPrimitive, matrix: TransformationMatrix):
-        self.geometry = geometry
+        self.geometry_p = geometry
         self.matrix = matrix
 
     def transform(self, matrix: TransformationMatrix):
         self.matrix = self.matrix.dot(matrix)
 
     def get_lod(self) -> str:
-        return self.geometry.get_lod()
+        return self.geometry_p.get_lod()
 
     def get_vertices(self, flatten=False):
-        vertices = self.geometry.get_vertices(flatten)
+        vertices = self.geometry_p.get_vertices(flatten)
         return self.matrix.reproject_vertices(vertices)
 
-    def to_geometry(self) -> GeometryPrimitive:
-        primitive = self.geometry.primitive.copy()
+    def to_geometry_primitive(self) -> GeometryPrimitive:
+        primitive = self.geometry_p.primitive.copy()
         primitive.transform(self.matrix)
-        return GeometryPrimitive(primitive, self.geometry.lod)
+        return GeometryPrimitive(primitive, self.geometry_p.lod)
 
     def to_cj(self, city) -> dict:
         vertices = city.get_vertices()
         boundary = vertices.add(self.matrix.get_origin())
 
         geometry_templates = city.get_geometry_templates()
-        template_index = geometry_templates.add_template(self.geometry)
+        template_index = geometry_templates.add_template(self.geometry_p)
 
         cityinstance = {
             'type': 'GeometryInstance',
