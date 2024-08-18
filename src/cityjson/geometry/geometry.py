@@ -76,7 +76,7 @@ class GeometryInstance(CityGeometry):
         self.matrix = matrix
 
     def transform(self, matrix: TransformationMatrix):
-        pass # todo
+        self.matrix = self.matrix.dot(matrix)
 
     def get_lod(self) -> str:
         return self.geometry.get_lod()
