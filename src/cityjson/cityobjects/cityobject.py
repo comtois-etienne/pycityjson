@@ -137,6 +137,10 @@ class CityObject:
             self.set_attribute('uuid', guid())
         return self.__uuid
 
+    def to_geometry_primitive(self):
+        for i, geometry in enumerate(self.city_geometry):
+            self.city_geometry[i] = geometry.to_geometry_primitive()
+
 
 class CityGroup(CityObject):
     def __init__(self, city, attributes=None, geometry=None, children=None, parent=None, children_roles=None):
