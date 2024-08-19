@@ -145,6 +145,10 @@ class CityObject:
             self.set_attribute('uuid', guid())
         return self.__uuid
 
+    def transform(self, matrix):
+        for geometry in self.city_geometry:
+            geometry.transform(matrix)
+
     def to_geometry_primitive(self):
         for i, geometry in enumerate(self.city_geometry):
             self.city_geometry[i] = geometry.to_geometry_primitive()
