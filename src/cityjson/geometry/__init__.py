@@ -9,6 +9,8 @@ from .geometry import (
     GeometryInstance
 )
 
+from .matrix import TransformationMatrix
+
 
 __all__ = [
     'CityGeometryParser',
@@ -17,5 +19,6 @@ __all__ = [
     'CityGeometry',
     'GeometryPrimitive',
     'GeometryInstance',
+    'TransformationMatrix',
 ]
 

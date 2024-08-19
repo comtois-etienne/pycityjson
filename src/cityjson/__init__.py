@@ -4,6 +4,8 @@ from .parser import CityParser
 from .vertices import Vertices
 from .cityobjects import CityObjects, CityObject
 
+from .geometry import TransformationMatrix
+
 
 __all__ = [
     'City',
@@ -11,5 +13,6 @@ __all__ = [
     'Vertices',
     'CityObjects',
     'CityObject',
+    'TransformationMatrix',
 ]
 
