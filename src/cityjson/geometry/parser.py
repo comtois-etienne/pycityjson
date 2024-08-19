@@ -75,6 +75,6 @@ class InstanceParser:
         geometry = self.city.get_geometry_templates()[data['template']]
         matrix = data['transformationMatrix']
         matrix = TransformationMatrix(matrix)
-        matrix = matrix.move(origin)
+        matrix = matrix.translate(origin)
         return GeometryInstance(geometry, matrix)
 

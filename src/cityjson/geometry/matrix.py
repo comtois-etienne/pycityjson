@@ -74,14 +74,14 @@ class TransformationMatrix:
 
     def recenter(self) -> 'TransformationMatrix':
         origin = self.get_origin()
-        return self.move([-origin[0], -origin[1], -origin[2]])
+        return self.translate([-origin[0], -origin[1], -origin[2]])
 
     def dot(self, matrix) -> 'TransformationMatrix':
         new_matrix = np.dot(self.get_np_matrix(), matrix.get_np_matrix())
         new_matrix = round_matrix(numpy_to_list(new_matrix))
         return TransformationMatrix(new_matrix)
 
-    def move(self, vertice) -> 'TransformationMatrix':
+    def translate(self, vertice) -> 'TransformationMatrix':
         new_matrix = self.get_np_matrix()
         new_matrix[0][3] += vertice[0]
         new_matrix[1][3] += vertice[1]
