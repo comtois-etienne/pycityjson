@@ -17,7 +17,7 @@ def rotate_x(angle_degree):
     matrix[6] = np.sin(angle)
     matrix[9] = -np.sin(angle)
     matrix[10] = np.cos(angle)
-    return list_to_numpy(matrix)
+    return matrix
 
 
 def rotate_y(angle_degree):
@@ -27,7 +27,7 @@ def rotate_y(angle_degree):
     matrix[2] = -np.sin(angle)
     matrix[8] = np.sin(angle)
     matrix[10] = np.cos(angle)
-    return list_to_numpy(matrix)
+    return matrix
 
 
 def rotate_z(angle_degree):
@@ -37,7 +37,7 @@ def rotate_z(angle_degree):
     matrix[1] = np.sin(angle)
     matrix[4] = -np.sin(angle)
     matrix[5] = np.cos(angle)
-    return list_to_numpy(matrix)
+    return matrix
 
 
 def round_matrix(matrix_list):
@@ -53,12 +53,12 @@ def numpy_to_list(matrix_numpy):
 
 
 class TransformationMatrix:
-    # matrix is a 4x4 matrix of shape 1x16
+    # matrix is a 4x4 matrix in a list of shape 1x16
     def __init__(self, matrix=None):
         self.matrix: list = identity_matrix() if matrix is None else round_matrix(matrix)
 
     def __str__(self):
-        return str(self.matrix)
+        return str(self.get_np_matrix().tolist())
 
     def copy(self) -> 'TransformationMatrix':
         return TransformationMatrix(self.matrix.copy())
@@ -76,10 +76,13 @@ class TransformationMatrix:
         origin = self.get_origin()
         return self.translate([-origin[0], -origin[1], -origin[2]])
 
-    def dot(self, matrix) -> 'TransformationMatrix':
-        new_matrix = np.dot(self.get_np_matrix(), matrix.get_np_matrix())
+    # the order is reversed to apply the transformations to the self.matrix
+    def dot(self, matrix, from_origin=False) -> 'TransformationMatrix':
+        origin = [0, 0, 0] if from_origin else self.get_origin()
+        new_matrix = self.copy() if from_origin else self.recenter()
+        new_matrix = np.dot(matrix.get_np_matrix(), new_matrix.get_np_matrix())
         new_matrix = round_matrix(numpy_to_list(new_matrix))
-        return TransformationMatrix(new_matrix)
+        return TransformationMatrix(new_matrix).translate(origin)
 
     def translate(self, vertice) -> 'TransformationMatrix':
         new_matrix = self.get_np_matrix()
@@ -95,17 +98,18 @@ class TransformationMatrix:
         new_matrix[2][2] *= vertice[2]
         return TransformationMatrix(numpy_to_list(new_matrix))
 
-    def rotate_x(self, angle_degree) -> 'TransformationMatrix':
-        new_matrix = np.dot(self.get_np_matrix(), rotate_x(angle_degree))
-        return TransformationMatrix(numpy_to_list(new_matrix))
+    def __rotate(self, angle_degree, from_origin, rotate_function) -> 'TransformationMatrix':
+        rot_matrix = TransformationMatrix(rotate_function(angle_degree))
+        return self.dot(rot_matrix, from_origin)
 
-    def rotate_y(self, angle_degree) -> 'TransformationMatrix':
-        new_matrix = np.dot(self.get_np_matrix(), rotate_y(angle_degree))
-        return TransformationMatrix(numpy_to_list(new_matrix))
+    def rotate_x(self, angle_degree, from_origin=False) -> 'TransformationMatrix':
+        return self.__rotate(angle_degree, from_origin, rotate_x)
 
-    def rotate_z(self, angle_degree) -> 'TransformationMatrix':
-        new_matrix = np.dot(self.get_np_matrix(), rotate_z(angle_degree))
-        return TransformationMatrix(numpy_to_list(new_matrix))
+    def rotate_y(self, angle_degree, from_origin=False) -> 'TransformationMatrix':
+        return self.__rotate(angle_degree, from_origin, rotate_y)
+
+    def rotate_z(self, angle_degree, from_origin=False) -> 'TransformationMatrix':
+        return self.__rotate(angle_degree, from_origin, rotate_z)
 
     def __reproject(self, vertices):
         result = []
