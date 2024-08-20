@@ -6,7 +6,7 @@ import numpy as np
 
 
 class CityGeometry:
-    def transform(self, matrix: TransformationMatrix):
+    def transform(self, matrix: TransformationMatrix, center=None):
         pass
 
     def get_lod(self) -> str:
@@ -27,7 +27,11 @@ class CityGeometry:
         max_z = np.max(vertices, axis=0)[2]
         return [min_x, min_y, min_z], [max_x, max_y, max_z]
 
+    # different than copy - see each implementation
     def duplicate(self) -> 'CityGeometry':
+        pass
+
+    def get_origin(self):
         pass
 
     def to_geometry_primitive(self) -> 'GeometryPrimitive':
@@ -58,8 +62,11 @@ class GeometryPrimitive(CityGeometry):
             return False
         return self.__repr__() == repr(value)
 
-    def transform(self, matrix: TransformationMatrix):
-        self.primitive.transform(matrix)
+    # GeometryPrimitive doens't have a transformation matrix
+    # center is used as an anchor point for the transformation
+    def transform(self, matrix: TransformationMatrix, center=None):
+        center = self.get_origin() if center is None else center
+        self.primitive.transform(matrix, center) # todo center
 
     def get_lod(self) -> str:
         return self.lod
@@ -69,6 +76,14 @@ class GeometryPrimitive(CityGeometry):
 
     def duplicate(self) -> CityGeometry:
         return GeometryPrimitive(self.primitive.copy(), self.lod)
+
+    def get_origin(self):
+        g_min, g_max = self.get_min_max()
+        return [
+            (g_min[0] + g_max[0]) / 2, 
+            (g_min[1] + g_max[1]) / 2, 
+            g_min[2]
+        ]
 
     def to_geometry_primitive(self) -> 'GeometryPrimitive':
         return self
@@ -95,7 +110,8 @@ class GeometryInstance(CityGeometry):
         self.geometry = geometry
         self.matrix = matrix
 
-    def transform(self, matrix: TransformationMatrix):
+    # center is in self.matrix
+    def transform(self, matrix: TransformationMatrix, center=None):
         self.matrix = self.matrix.dot(matrix)
 
     def get_lod(self) -> str:
@@ -107,6 +123,9 @@ class GeometryInstance(CityGeometry):
 
     def duplicate(self) -> CityGeometry:
         return GeometryInstance(self.geometry, self.matrix.copy())
+
+    def get_origin(self):
+        return self.matrix.get_origin()
 
     def to_geometry_primitive(self) -> GeometryPrimitive:
         primitive = self.geometry.primitive.copy()

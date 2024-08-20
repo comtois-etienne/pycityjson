@@ -1,6 +1,7 @@
 from src.guid import guid, is_guid
 from src.scripts.attribute import round_attribute as _round
 from src.cityjson.geometry import CityGeometry
+import numpy as np
 
 
 FIRST_LEVEL_TYPES = [
@@ -127,14 +128,20 @@ class CityObject:
         return vertices
 
     # todo test
-    def set_geographical_extent(self, overwrite=False):
-        if self.geo_extent is None or overwrite:
-            g = self.get_geometry()[0] #todo multiple geometries
-            g_min, g_max = g.get_min_max()
-            self.geo_extent = [
-                g_min[0], g_min[1], g_min[2],
-                g_max[0], g_max[1], g_max[2]
-            ]
+    def set_geographical_extent(self, overwrite=True):
+        if overwrite is False and self.geo_extent is not None:
+            return self.geo_extent
+        if len(self.city_geometry) == 0:
+            return None
+
+        o_min, o_max = self.get_geometry()[0].get_min_max()
+        o_min, o_max = np.array(o_min), np.array(o_max)
+        for geometry in self.city_geometry[1:]:
+            g_min, g_max = geometry.get_min_max()
+            o_min = np.minimum(o_min, np.array(g_min))
+            o_max = np.maximum(o_max, np.array(g_max))
+
+        self.geo_extent = [o_min[0], o_min[1], o_min[2], o_max[0], o_max[1], o_max[2]]
         return self.geo_extent
 
     def is_uuid_valid(self):
@@ -145,9 +152,19 @@ class CityObject:
             self.set_attribute('uuid', guid())
         return self.__uuid
 
-    def transform(self, matrix):
+    # center by default is the center of the geographical extent at ground level
+    # use the center of an instance geometry if it exists so the transformations are consistent
+    def transform(self, matrix, center=None):
+        if center is None:
+            geo_extent = self.set_geographical_extent()
+            center = [
+                (geo_extent[0] + geo_extent[3]) / 2, 
+                (geo_extent[1] + geo_extent[4]) / 2, 
+                geo_extent[2]
+            ]
         for geometry in self.city_geometry:
-            geometry.transform(matrix)
+            geometry.transform(matrix, center)
+        self.set_geographical_extent()
 
     def to_geometry_primitive(self):
         for i, geometry in enumerate(self.city_geometry):

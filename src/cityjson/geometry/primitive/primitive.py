@@ -13,9 +13,9 @@ class Primitive:
         children = ', '.join([repr(child) for child in self.children])
         return f"{self.get_type()}({children})"
 
-    def transform(self, matrix: TransformationMatrix):
+    def transform(self, matrix: TransformationMatrix, center=[0,0,0]):
         for child in self.children:
-            child.transform(matrix)
+            child.transform(matrix, center)
 
     def get_type(self):
         return self.type
@@ -60,10 +60,12 @@ class Point:
     def copy(self):
         return self.__class__(self.x, self.y, self.z)
 
-    def transform(self, matrix: TransformationMatrix):
-        vertice = [self.x, self.y, self.z]
+    def transform(self, matrix: TransformationMatrix, center=[0,0,0]):
+        vertice = [self.x - center[0], self.y - center[1], self.z - center[2]]
         vertice = matrix.reproject_vertice(vertice)
-        self.x, self.y, self.z = vertice
+        self.x = vertice[0] + center[0]
+        self.y = vertice[1] + center[1]
+        self.z = vertice[2] + center[2]
 
     def to_list(self):
         return [self.x, self.y, self.z]
