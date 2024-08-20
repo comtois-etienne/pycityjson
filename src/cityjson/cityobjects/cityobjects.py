@@ -38,7 +38,7 @@ class CityObjects:
         return None
 
     def add_cityobject(self, cityobject: CityObject):
-        ctobj = self.get_by_uuid(cityobject.uuid)
+        ctobj = self.get_by_uuid(cityobject.uuid())
         if ctobj is None:
             self._cityobjects.append(cityobject)
 

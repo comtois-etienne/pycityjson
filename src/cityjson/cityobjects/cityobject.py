@@ -63,9 +63,6 @@ class CityObject:
         self.__uuid = self.attributes['uuid'] if 'uuid' in self.attributes else guid()
         self.type = type #todo verif with types
         self.geo_extent = None
-
-        for child in self.children:
-            child.set_parent(self)
         self.parent = parent
 
     def __repr__(self):
@@ -77,7 +74,7 @@ class CityObject:
             cj['geographicalExtent'] = self.geo_extent
         if self.attributes != {}:
             cj['attributes'] = self.attributes
-        if self.city_geometry is not None:
+        if len(self.city_geometry):
             cj['geometry'] = [g.to_cj(self.city) for g in self.city_geometry]
         if self.children != []:
             cj['children'] = [child.uuid() for child in self.children]
@@ -89,9 +86,11 @@ class CityObject:
         self.parent = parent
 
     def add_child(self, child):
-        self.children.append(child)
+        if child not in self.children:
+            self.children.append(child)
         child.set_parent(self)
-        self.city.add_cityobject(child)
+        city_objects = self.city.get_city_objects()
+        city_objects.add_cityobject(child)
 
     def set_attribute(self, key, value):
         self.attributes[key] = value
@@ -151,6 +150,16 @@ class CityObject:
         if not is_guid(self.__uuid):
             self.set_attribute('uuid', guid())
         return self.__uuid
+    
+    def to_citygroup(self, children_roles=None) -> 'CityGroup':
+        return CityGroup(
+            self.city,
+            self.attributes,
+            self.city_geometry,
+            self.children,
+            self.parent,
+            children_roles
+        )
 
     # center by default is the center of the geographical extent at ground level
     # use the center of an instance geometry if it exists so the transformations are consistent

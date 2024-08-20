@@ -1,5 +1,5 @@
 from src.scripts.attribute import get_attribute
-from .cityobject import CityObject
+from .cityobject import CityObject, CityGroup
 from .cityobjects import CityObjects
 from src.cityjson.geometry import CityGeometryParser
 
@@ -21,7 +21,7 @@ class CityObjectParser:
             city_object.parent = city_objects.get_by_uuid(city_object.parent)
     
     # data contains cityjson['CityObjects'][uuid]
-    def parse(self, uuid, data):
+    def parse(self, uuid, data) -> CityObject:
         geometry = [self.geometry_parser.parse(g) for g in get_attribute(data, 'geometry', default=[])]
 
         # todo citygroupparser
@@ -36,6 +36,8 @@ class CityObjectParser:
 
         city_object.geo_extent = get_attribute(data, 'geographicalExtent', default=None)
         city_object.set_attribute('uuid', uuid)
+        if city_object.type == 'CityGroup':
+            city_object = city_object.to_citygroup(get_attribute(data, 'children_roles', default=[]))
         return city_object
 
 
