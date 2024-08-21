@@ -66,7 +66,7 @@ class GeometryPrimitive(CityGeometry):
     # center is used as an anchor point for the transformation
     def transform(self, matrix: TransformationMatrix, center=None):
         center = self.get_origin() if center is None else center
-        self.primitive.transform(matrix, center) # todo center
+        self.primitive.transform(matrix, center)
 
     def get_lod(self) -> str:
         return self.lod
