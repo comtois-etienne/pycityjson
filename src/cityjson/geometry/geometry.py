@@ -19,13 +19,9 @@ class CityGeometry:
     def get_min_max(self):
         vertices = self.get_vertices(flatten=True)
         vertices = np.array(vertices)
-        min_x = np.min(vertices, axis=0)[0]
-        min_y = np.min(vertices, axis=0)[1]
-        min_z = np.min(vertices, axis=0)[2]
-        max_x = np.max(vertices, axis=0)[0]
-        max_y = np.max(vertices, axis=0)[1]
-        max_z = np.max(vertices, axis=0)[2]
-        return [min_x, min_y, min_z], [max_x, max_y, max_z]
+        v_min = np.minimum(vertices, axis=0)
+        v_max = np.maximum(vertices, axis=0)
+        return v_min.to_list(), v_max.to_list()
 
     # different than copy - see each implementation
     def duplicate(self) -> 'CityGeometry':
