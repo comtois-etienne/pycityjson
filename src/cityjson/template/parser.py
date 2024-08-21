@@ -12,11 +12,12 @@ class GeometryTemplateParser:
     # data contains cityjson['geometry-templates']
     def parse(self, data) -> GeometryTemplate:
         city = City()
-        city.scale = [1.0, 1.0, 1.0]
-
         v_parser = VerticesParser(city)
-        city._vertices = v_parser.parse(get_attribute(data, 'vertices-templates', default=[]))
+        v_parser.scale = [1.0, 1.0, 1.0]
+        v_parser.precision = self.city.precision()
 
+        city._vertices = v_parser.parse(get_attribute(data, 'vertices-templates', default=[]))
+        
         gm_parser = GeometryParser(city)
         templates_data = get_attribute(data, 'templates', default=[])
         templates = [gm_parser.parse(template) for template in templates_data]

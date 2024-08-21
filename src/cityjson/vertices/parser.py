@@ -15,7 +15,8 @@ class VerticesParser:
             return Vertices(self.city)
         vertices = np.array(data)
         vertices = (vertices * np.array(self.scale)) + np.array(self.translate)
-        vertices = np.round(vertices, self.precision)
+        if self.precision is not None:
+            vertices = np.round(vertices, self.precision)
         vertices = vertices.tolist()
         return Vertices(self.city, vertices)
 
