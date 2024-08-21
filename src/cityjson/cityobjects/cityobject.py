@@ -53,17 +53,18 @@ SECOND_LEVEL_TYPES = {
 
 
 class CityObject:
-    def __init__(self, city, type, attributes=None, geometry=None, children=None, parent=None):
+    def __init__(self, city, type, attributes=None, geometry=None, children=None, parents=None):
         self.city = city
 
         self.attributes = {} if attributes is None else attributes
         self.city_geometry: list[CityGeometry] = [] if geometry is None else geometry # todo verify that it is a list of geometries
+        
         self.children = [] if children is None else children
+        self.parents = [] if parents is None else parents
 
         self.__uuid = self.attributes['uuid'] if 'uuid' in self.attributes else guid()
         self.type = type #todo verif with types
         self.geo_extent = None
-        self.parent = parent
 
     def __repr__(self):
         return f"CityObject({self.type}({self.__uuid}))"
@@ -78,18 +79,22 @@ class CityObject:
             cj['geometry'] = [g.to_cj(self.city) for g in self.city_geometry]
         if self.children != []:
             cj['children'] = [child.uuid() for child in self.children]
-        if self.parent is not None:
-            cj['parent'] = self.parent.uuid()
+        if self.parents != []:
+            cj['parent'] = [parent.uuid() for parent in self.parents]
         return cj
 
-    def set_parent(self, parent):
-        self.parent = parent
+    def add_parent(self, parent):
+        if parent not in self.parents:
+            self.parents.append(parent)
+            parent.add_child(self)
+        city_objects = self.city.get_cityobjects()
+        city_objects.add_cityobject(parent)
 
     def add_child(self, child):
         if child not in self.children:
             self.children.append(child)
-        child.set_parent(self)
-        city_objects = self.city.get_city_objects()
+            child.add_parent(self)
+        city_objects = self.city.get_cityobjects()
         city_objects.add_cityobject(child)
 
     def set_attribute(self, key, value):
@@ -157,7 +162,7 @@ class CityObject:
             self.attributes,
             self.city_geometry,
             self.children,
-            self.parent,
+            self.parents,
             children_roles
         )
 

@@ -10,15 +10,18 @@ class CityObjectParser:
         self.geometry_parser = CityGeometryParser(self.city)
 
     def _link_children(self, city_object, city_objects):
-        children = []
-        for child_uuid in city_object.children:
+        children_uuids = city_object.children
+        city_object.children = []
+        for child_uuid in children_uuids:
             child = city_objects.get_by_uuid(child_uuid)
-            children.append(child) if child is not None else None
-        city_object.children = children
+            city_object.add_child(child) if child is not None else None
 
-    def _link_parent(self, city_object, city_objects):
-        if city_object.parent is not None:
-            city_object.parent = city_objects.get_by_uuid(city_object.parent)
+    def _link_parents(self, city_object, city_objects):
+        parents_uuids = city_object.parents
+        city_object.parents = []
+        for parent_uuid in parents_uuids:
+            parent = city_objects.get_by_uuid(parent_uuid)
+            city_object.add_parent(parent) if parent is not None else None
     
     # data contains cityjson['CityObjects'][uuid]
     def parse(self, uuid, data) -> CityObject:
@@ -31,7 +34,7 @@ class CityObjectParser:
             attributes = get_attribute(data, 'attributes', default={}),
             geometry = geometry,
             children = get_attribute(data, 'children', default=[]),
-            parent = get_attribute(data, 'parent', default=None)
+            parents = get_attribute(data, 'parents', default=None)
         )
 
         city_object.geo_extent = get_attribute(data, 'geographicalExtent', default=None)
@@ -55,7 +58,7 @@ class CityObjectsParser:
             city_objects.add_cityobject(cityobject)
 
         for city_object in city_objects:
-            parser._link_parent(city_object, city_objects)
+            parser._link_parents(city_object, city_objects)
             parser._link_children(city_object, city_objects)
 
         return city_objects
