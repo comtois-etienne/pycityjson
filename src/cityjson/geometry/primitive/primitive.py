@@ -38,6 +38,29 @@ class Primitive:
                 vertices.append(child.get_vertices(flatten))
         return vertices
 
+    def get_min_max(self):
+        vertices = self.get_vertices(flatten=True)
+        min_x = min([vertice[0] for vertice in vertices])
+        min_y = min([vertice[1] for vertice in vertices])
+        min_z = min([vertice[2] for vertice in vertices])
+        max_x = max([vertice[0] for vertice in vertices])
+        max_y = max([vertice[1] for vertice in vertices])
+        max_z = max([vertice[2] for vertice in vertices])
+        return [min_x, min_y, min_z], [max_x, max_y, max_z]
+
+    def normalize(self):
+        _min, _ = self.get_min_max()
+        matrix = TransformationMatrix().translate([-_min[0], -_min[1], -_min[2]])
+        self.transform(matrix)
+
+        _min, _max = self.get_min_max()
+        scale = [1 / (_max[0] - _min[0]), 1 / (_max[1] - _min[1]), 1 / (_max[2] - _min[2])]
+        matrix = TransformationMatrix().scale(scale)
+        self.transform(matrix)
+
+        matrix = TransformationMatrix().translate([-0.5, -0.5, 0])
+        self.transform(matrix)
+
     def get_semantic_surfaces(self):
         return None
 
