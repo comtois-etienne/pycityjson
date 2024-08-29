@@ -45,7 +45,7 @@ def round_matrix(matrix_list):
 
 
 def list_to_numpy(matrix_list):
-    return np.array(matrix_list).reshape(4, 4)
+    return np.array(matrix_list).reshape(4, 4).astype(float)
 
 
 def numpy_to_list(matrix_numpy):
@@ -84,18 +84,18 @@ class TransformationMatrix:
         new_matrix = round_matrix(numpy_to_list(new_matrix))
         return TransformationMatrix(new_matrix).translate(origin)
 
-    def translate(self, vertice) -> 'TransformationMatrix':
+    def translate(self, vector) -> 'TransformationMatrix':
         new_matrix = self.get_np_matrix()
-        new_matrix[0][3] += vertice[0]
-        new_matrix[1][3] += vertice[1]
-        new_matrix[2][3] += vertice[2]
+        new_matrix[0][3] += vector[0]
+        new_matrix[1][3] += vector[1]
+        new_matrix[2][3] += vector[2]
         return TransformationMatrix(numpy_to_list(new_matrix))
 
-    def scale(self, vertice) -> 'TransformationMatrix':
+    def scale(self, vector) -> 'TransformationMatrix':
         new_matrix = self.get_np_matrix()
-        new_matrix[0][0] *= vertice[0]
-        new_matrix[1][1] *= vertice[1]
-        new_matrix[2][2] *= vertice[2]
+        new_matrix[0][0] *= vector[0]
+        new_matrix[1][1] *= vector[1]
+        new_matrix[2][2] *= vector[2]
         return TransformationMatrix(numpy_to_list(new_matrix))
 
     def __rotate(self, angle_degree, from_origin, rotate_function) -> 'TransformationMatrix':
