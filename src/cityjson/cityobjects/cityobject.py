@@ -21,7 +21,7 @@ FIRST_LEVEL_TYPES = [
     "Tunnel",
     "WaterBody",
     "WaterWay"
-    # +Extension
+    # +Extension # todo implement
 ]
 
 # They need a first level parent to exist
@@ -96,6 +96,9 @@ class CityObject:
             child.add_parent(self)
         city_objects = self.city.get_cityobjects()
         city_objects.add_cityobject(child)
+
+    def get_attribute(self, key):
+        return self.attributes[key] if key in self.attributes else None
 
     def set_attribute(self, key, value):
         self.attributes[key] = value
