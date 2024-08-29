@@ -1,6 +1,8 @@
 from src.cityjson.vertices import Vertices
 from src.cityjson.geometry import GeometryPrimitive
 
+import numpy as np
+
 
 class FakeCity:
     def __init__(self, vertices):
@@ -12,6 +14,7 @@ class FakeCity:
 
 class GeometryTemplate:
     def __init__(self, city, geometries=None, vertices=None):
+        self.city = city
         self.geometries : list[GeometryPrimitive] = geometries if geometries is not None else []
         self.vertices = vertices if vertices is not None else Vertices(city)
 
@@ -32,8 +35,12 @@ class GeometryTemplate:
     def to_cj(self):
         city = FakeCity(self.vertices)
         templates_cj = [geometry.to_cj(city) for geometry in self.geometries]
+        precision = self.city.precision()
+        vertices = np.array(self.vertices._vertices)
+        vertices = np.round(vertices, precision)
+
         return {
             'templates' : templates_cj,
-            'vertices-templates' : self.vertices._vertices
+            'vertices-templates' : vertices.tolist()
         }
 
