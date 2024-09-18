@@ -29,13 +29,12 @@ class Vertices:
         return iter(self._vertices)
 
     def __contains__(self, item):
-        return self.exists(item)
-
-    def exists(self, vertice):
-        return vertice_to_string(vertice) in self._vertices_dict
+        if not isinstance(item, list) and len(item) != 3:
+            return False
+        return vertice_to_string(item) in self._vertices_dict
 
     def get_index(self, vertice):
-        if not self.exists(vertice):
+        if vertice not in self:
             return None
         return self._vertices_dict[vertice_to_string(vertice)]
 
@@ -52,7 +51,7 @@ class Vertices:
         return max(self.__get_axis(axis))
 
     def add(self, vertice):
-        if not self.exists(vertice):
+        if vertice not in self:
             self._vertices_dict[vertice_to_string(vertice)] = len(self._vertices)
             self._vertices.append(vertice)
         return self.get_index(vertice)
