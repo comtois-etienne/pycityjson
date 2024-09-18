@@ -1,7 +1,7 @@
-from .template import GeometryTemplate
+from .template import GeometryTemplates
 
 
 __all__ = [
-    'GeometryTemplate', 
+    'GeometryTemplates', 
 ]
 

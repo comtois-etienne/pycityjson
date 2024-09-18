@@ -130,6 +130,7 @@ class TransformationMatrix:
         vertice = vertice[:-1]
         return vertice.tolist()
 
+    # todo refactor or rename
     def to_cj(self):
         matrix = self.matrix
         for i in range(16):

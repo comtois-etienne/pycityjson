@@ -1,4 +1,3 @@
-import numpy as np
 
 
 def vertice_to_string(vertice):
@@ -10,8 +9,7 @@ def string_to_vertice(string):
 
 
 class Vertices:
-    def __init__(self, city, vertices=None):
-        self.city = city
+    def __init__(self, vertices=None):
         self._vertices = [] if vertices is None else vertices
         self._vertices_dict = {vertice_to_string(vertice): i for i, vertice in enumerate(self._vertices)}
 
@@ -58,10 +56,4 @@ class Vertices:
 
     def __get_axis(self, axis=0):
         return [coord[axis] for coord in self._vertices]
-
-    def to_cj(self):
-        vertices = np.array(self._vertices)
-        vertices = ( vertices - np.array(self.city.origin) ) / np.array(self.city.scale)
-        vertices = np.round(vertices).astype(int)
-        return vertices.tolist()
 

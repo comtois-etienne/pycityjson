@@ -85,11 +85,10 @@ class GeometryPrimitive(CityGeometry):
         return self
 
     def to_cj(self, city) -> dict:
-        vertices = city.get_vertices()
         citygeometry = {
             'type': self.primitive.get_type(),
             'lod': self.lod,
-            'boundaries': self.primitive.to_cj(vertices)
+            'boundaries': self.primitive.to_cj(city.vertices)
         }
         semantics = self.primitive.get_semantic_surfaces()
         if semantics is not None:
@@ -129,11 +128,8 @@ class GeometryInstance(CityGeometry):
         return GeometryPrimitive(primitive, self.geometry.lod)
 
     def to_cj(self, city) -> dict:
-        vertices = city.get_vertices()
-        boundary = vertices.add(self.matrix.get_origin())
-
-        geometry_templates = city.get_geometry_templates()
-        template_index = geometry_templates.add_template(self.geometry)
+        boundary = city.vertices.add(self.matrix.get_origin())
+        template_index = city.geometry_templates.add_template(self.geometry)
 
         cityinstance = {
             'type': 'GeometryInstance',

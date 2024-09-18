@@ -1,6 +1,6 @@
 from .cityobjects import CityObjects
 from .vertices.vertices import Vertices
-from .template import GeometryTemplate
+from .template import GeometryTemplates
 
 
 class City:
@@ -10,19 +10,9 @@ class City:
         self.metadata = {}
         self.scale = [0.001, 0.001, 0.001]
         self.origin = [0, 0, 0]
-        self._vertices = None
-        self._geometry_template = None
+        self.vertices = Vertices()
+        self.geometry_templates = GeometryTemplates()
         self._cityobjects = None
-
-    def get_vertices(self) -> Vertices:
-        if self._vertices is None:
-            self._vertices = Vertices(self)
-        return self._vertices
-
-    def get_geometry_templates(self) -> GeometryTemplate:
-        if self._geometry_template is None:
-            self._geometry_template = GeometryTemplate(self)
-        return self._geometry_template
 
     def get_cityobjects(self) -> CityObjects:
         if self._cityobjects is None:
@@ -31,15 +21,15 @@ class City:
 
     def __getitem__(self, key):
         if isinstance(key, int):
-            return self.get_vertices()[key]
+            return self.vertices[key]
         
         key_lower = str(key).lower()
         if key_lower == 'vertices':
-            return self.get_vertices()
+            return self.vertices
         if key_lower == 'cityobjects' or key_lower == 'objects':
             return self.get_cityobjects()
         if key_lower == 'geometrytemplate' or key_lower == 'geometry-template':
-            return self.get_geometry_templates()
+            return self.geometry_templates
         if key_lower == 'epsg':
             return self.epsg()
         if key_lower == 'version':
@@ -64,9 +54,9 @@ class City:
     
     def set_origin(self, vertice=None):
         if vertice is None:
-            x = self._vertices.get_min(0)
-            y = self._vertices.get_min(1)
-            z = self._vertices.get_min(2)
+            x = self.vertices.get_min(0)
+            y = self.vertices.get_min(1)
+            z = self.vertices.get_min(2)
             vertice = [x, y, z]
         self.origin = vertice
 
@@ -82,7 +72,7 @@ class City:
     def set_geographical_extent(self):
         self.to_cj(purge_vertices=True)
         self.metadata['geographicalExtent'] = [
-            self._vertices.get_min(0), self._vertices.get_min(1), self._vertices.get_min(2),
-            self._vertices.get_max(0), self._vertices.get_max(1), self._vertices.get_max(2)
+            self.vertices.get_min(0), self.vertices.get_min(1), self.vertices.get_min(2),
+            self.vertices.get_max(0), self.vertices.get_max(1), self.vertices.get_max(2)
         ]
 

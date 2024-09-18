@@ -1,4 +1,6 @@
 from src.cityjson import City, Vertices
+from src.cityjsonio.vertices import VerticesToCityJsonSerializer as VerticesSerializer
+from src.cityjsonio.template import GeometryTemplateToCityJsonSerializer as GeometryTemplateSerializer
 
 
 class CityToCityJsonSerializer:
@@ -6,12 +8,14 @@ class CityToCityJsonSerializer:
         self.city = city
 
     def serialize(self, purge_vertices=True) -> dict:
-        self.city.get_vertices()
         self.city.get_cityobjects()
-        self.city.get_geometry_templates()
 
         if purge_vertices:
-            self.city._vertices = Vertices(self.city)
+            self.city.vertices = Vertices()
+            self.city.geometry_templates.vertices = Vertices()
+
+        vertices_serializer = VerticesSerializer(self.city.vertices, self.city.origin, self.city.scale)
+        geometry_template_serializer = GeometryTemplateSerializer(self.city.geometry_templates, self.city.precision())
 
         city_dict = {
             'type': self.city.type,
@@ -21,10 +25,10 @@ class CityToCityJsonSerializer:
                 'scale': self.city.scale,
                 'translate': self.city.origin
             },
-            'vertices': self.city._vertices.to_cj()
+            'vertices': vertices_serializer.serialize()
         }
-        if not self.city._geometry_template.is_empty():
-            city_dict['geometry-templates'] = self.city._geometry_template.to_cj()
+        if not self.city.geometry_templates.is_empty():
+            city_dict['geometry-templates'] = geometry_template_serializer.serialize()
         city_dict['metadata'] = self.city.metadata
 
         return city_dict

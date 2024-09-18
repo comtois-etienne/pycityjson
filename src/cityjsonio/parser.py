@@ -23,11 +23,11 @@ class CityParser:
         self.city.scale = get_nested_attribute(self.data, 'transform', 'scale', default=[0.001, 0.001, 0.001])
         self.city.origin = get_nested_attribute(self.data, 'transform', 'translate', default=[0, 0, 0])
 
-        v_parser = VerticesParser(self.city)
-        self.city._vertices = v_parser.parse(get_attribute(self.data, 'vertices', default=[]))
+        v_parser = VerticesParser(self.city.origin, self.city.scale, self.city.precision())
+        self.city.vertices = v_parser.parse(get_attribute(self.data, 'vertices', default=[]))
 
         gt_parser = GeometryTemplateParser(self.city)
-        self.city._geometry_template = gt_parser.parse(get_attribute(self.data, 'geometry-templates', default={}))
+        self.city.geometry_templates = gt_parser.parse(get_attribute(self.data, 'geometry-templates', default={}))
 
         co_parser = CityObjectsParser(self.city)
         self.city._cityobjects = co_parser.parse(get_attribute(self.data, 'CityObjects', default=[]))

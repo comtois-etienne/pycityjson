@@ -4,10 +4,17 @@ from .parser import (
     InstanceParser,
 )
 
+from .cityjson import (
+    # GeometryInstanceToCityJsonSerializer, 
+    GeometryPrimitiveToCityJsonSerializer
+)
+
 
 __all__ = [
     'CityGeometryParser',
     'GeometryParser',
     'InstanceParser',
+    # 'GeometryInstanceToCityJsonSerializer',
+    'GeometryPrimitiveToCityJsonSerializer'
 ]
 

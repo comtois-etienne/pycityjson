@@ -23,6 +23,7 @@ class Primitive:
     def copy(self):
         return self.__class__([child.copy() for child in self.children])
 
+    # todo refactor or rename
     def to_cj(self, vertices):
         return [child.to_cj(vertices) for child in self.children]
 

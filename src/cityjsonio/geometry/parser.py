@@ -1,4 +1,4 @@
-from src.cityjson import TransformationMatrix
+from src.cityjson import City, TransformationMatrix
 
 from src.cityjson.geometry import (
     CityGeometry,
@@ -32,7 +32,7 @@ GEOMETRY_PARSERS = {
 
 
 class CityGeometryParser:
-    def __init__(self, city):
+    def __init__(self, city: City):
         self.city = city
 
     # data contains cityjson['CityObjects'][uuid]['geometry'][index]
@@ -49,7 +49,7 @@ class CityGeometryParser:
 
 
 class GeometryParser:
-    def __init__(self, city):
+    def __init__(self, city: City):
         self.city = city
 
     # data contains cityjson['CityObjects'][uuid]['geometry'][index]
@@ -66,13 +66,13 @@ class GeometryParser:
 
 
 class InstanceParser:
-    def __init__(self, city):
+    def __init__(self, city: City):
         self.city = city
     
     # data contains cityjson['CityObjects'][uuid]['geometry'][index]
     def parse(self, data) -> GeometryInstance:
         origin = self.city[data['boundaries'][0]]
-        geometry = self.city.get_geometry_templates()[data['template']]
+        geometry = self.city.geometry_templates[data['template']]
         matrix = data['transformationMatrix']
         matrix = TransformationMatrix(matrix)
         matrix = matrix.translate(origin)
