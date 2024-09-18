@@ -1,8 +1,3 @@
-from .parser import (
-    CityGeometryParser,
-    GeometryParser,
-    InstanceParser,
-)
 from .geometry import (
     CityGeometry, 
     GeometryPrimitive,

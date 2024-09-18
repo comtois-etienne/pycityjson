@@ -1,7 +1,6 @@
 from src.scripts.attribute import get_attribute
-from .cityobject import CityObject, CityGroup
-from .cityobjects import CityObjects
-from src.cityjson.geometry import CityGeometryParser
+from src.cityjson import CityObject, CityObjects
+from ..geometry import CityGeometryParser
 
 
 class CityObjectParser:
@@ -27,7 +26,6 @@ class CityObjectParser:
     def parse(self, uuid, data) -> CityObject:
         geometry = [self.geometry_parser.parse(g) for g in get_attribute(data, 'geometry', default=[])]
 
-        # todo citygroupparser
         city_object = CityObject(
             city = self.city,
             type = get_attribute(data, 'type', default='GenericCityObject'),

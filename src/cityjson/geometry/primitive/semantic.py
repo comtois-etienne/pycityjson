@@ -72,17 +72,3 @@ class Semantic:
     def to_cj(self):
         return self.semantic
 
-
-class SemanticParser:
-    def __init__(self, city):
-        self.city = city
-
-    def parse(self, data) -> list[Semantic]:
-        semantics = []
-        for s in data:
-            semantic = Semantic(s['type'])
-            for key, value in s.items():
-                semantic[key] = value
-            semantics.append(semantic)
-        return semantics
-

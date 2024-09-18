@@ -1,11 +1,11 @@
-from .matrix import TransformationMatrix
+from src.cityjson import TransformationMatrix
 
-from .geometry import (
+from src.cityjson.geometry import (
     CityGeometry,
     GeometryPrimitive,
     GeometryInstance
 )
-from .primitive.parser import (
+from .primitive import (
     MultiSolidParser,
     SolidParser,
     MultiSurfaceParser,

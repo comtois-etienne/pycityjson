@@ -1,8 +1,10 @@
 from src.cityjson import City
-from src.cityjson.vertices import VerticesParser
-from src.cityjson.geometry import GeometryParser
+from src.cityjson.template import GeometryTemplate
+
+from src.cityjsonio.vertices import VerticesParser
+from src.cityjsonio.geometry import GeometryParser
+
 from src.scripts.attribute import get_attribute
-from .template import GeometryTemplate
 
 
 class GeometryTemplateParser:

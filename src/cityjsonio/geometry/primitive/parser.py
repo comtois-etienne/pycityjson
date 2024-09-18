@@ -1,6 +1,7 @@
 from src.scripts.attribute import get_nested_attribute
-from .semantic import SemanticParser
-from .primitive import (
+
+from src.cityjson.geometry.primitive import (
+    Semantic,
     Primitive,
     Point,
     MultiPoint,
@@ -9,6 +10,20 @@ from .primitive import (
     Solid,
     MultiSolid
 )
+
+
+class SemanticParser:
+    def __init__(self, city):
+        self.city = city
+
+    def parse(self, data) -> list[Semantic]:
+        semantics = []
+        for s in data:
+            semantic = Semantic(s['type'])
+            for key, value in s.items():
+                semantic[key] = value
+            semantics.append(semantic)
+        return semantics
 
 
 class PrimitiveParser:

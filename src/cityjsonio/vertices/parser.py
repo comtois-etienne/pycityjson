@@ -1,9 +1,10 @@
 import numpy as np
-from .vertices import Vertices
+
+from src.cityjson import City, Vertices
 
 
 class VerticesParser:
-    def __init__(self, city):
+    def __init__(self, city: City):
         self.city = city
         self.translate = city.origin
         self.scale = city.scale
