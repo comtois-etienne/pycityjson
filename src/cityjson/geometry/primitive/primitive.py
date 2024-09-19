@@ -26,12 +26,11 @@ class Primitive:
     def copy(self):
         return self.__class__([child.copy() for child in self.children])
 
-    # todo refactor or rename
-    def to_cj(self, vertices):
-        return [child.to_cj(vertices) for child in self.children]
-
     def add_child(self, child):
         self.children.append(child)
+
+    def index_vertices(self, vertices):
+        return [child.index_vertices(vertices) for child in self.children]
 
     def get_vertices(self, flatten=False):
         vertices = []
@@ -97,7 +96,7 @@ class Point:
     def to_list(self):
         return [self.x, self.y, self.z]
 
-    def to_cj(self, vertices):
+    def index_vertices(self, vertices):
         index = vertices.add(self.to_list())
         return index
 

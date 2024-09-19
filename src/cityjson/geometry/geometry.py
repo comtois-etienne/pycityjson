@@ -88,7 +88,7 @@ class GeometryPrimitive(CityGeometry):
         citygeometry = {
             'type': self.primitive.get_type(),
             'lod': self.lod,
-            'boundaries': self.primitive.to_cj(city.vertices)
+            'boundaries': self.primitive.index_vertices(city.vertices)
         }
         semantics = self.primitive.get_semantic_surfaces()
         if semantics is not None:

@@ -12,7 +12,7 @@ class GeometryPrimitiveToCityJsonSerializer:
         citygeometry = {
             'type': primitive.get_type(),
             'lod': geometry_primitive.lod,
-            'boundaries': primitive.to_cj(self.vertices)
+            'boundaries': primitive.index_vertices(self.vertices)
         }
         semantics = primitive.get_semantic_surfaces()
         if semantics is not None:
