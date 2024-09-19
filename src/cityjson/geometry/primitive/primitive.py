@@ -6,6 +6,9 @@ from .semantic import Semantic
 
 
 class Primitive:
+    def get_children(self):
+        return self.children
+
     def __str__(self):
         return f"{self.get_type()}(len={len(self.children)})"
 
