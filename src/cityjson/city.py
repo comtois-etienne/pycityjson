@@ -65,7 +65,6 @@ class City:
         self.metadata['referenceSystem'] = f'https://www.opengis.net/def/crs/EPSG/0/{epsg}'
 
     def set_geographical_extent(self):
-        self.to_cj(purge_vertices=True)
         self.metadata['geographicalExtent'] = [
             self.vertices.get_min(0), self.vertices.get_min(1), self.vertices.get_min(2),
             self.vertices.get_max(0), self.vertices.get_max(1), self.vertices.get_max(2)
