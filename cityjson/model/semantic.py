@@ -1,4 +1,4 @@
-from src.guid import guid
+from ..guid import guid
 
 
 SEMANTIC = {

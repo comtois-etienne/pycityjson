@@ -1,9 +1,9 @@
 import numpy as np
 
-from src.cityjson import City, CityObjects, CityObject, TransformationMatrix, Vertices
-from src.cityjson.geometry import GeometryPrimitive, GeometryInstance, CityGeometry
-from src.cityjson.template import GeometryTemplates
-from src.cityjson.primitive import *
+from ..model import City, CityObjects, CityObject, TransformationMatrix, Vertices
+from ..model.geometry import GeometryPrimitive, GeometryInstance, CityGeometry
+from ..model.template import GeometryTemplates
+from ..model.primitive import *
 
 
 def get_attribute(data, key, *, default=None):

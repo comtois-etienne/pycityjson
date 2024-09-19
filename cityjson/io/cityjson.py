@@ -1,8 +1,8 @@
 import numpy as np
 
-from src.cityjson import City, CityObjects, CityObject, CityGroup, TransformationMatrix, Vertices
-from src.cityjson.geometry import GeometryPrimitive, GeometryInstance, CityGeometry
-from src.cityjson.template import GeometryTemplates
+from cityjson.model import City, CityObjects, CityObject, CityGroup, TransformationMatrix, Vertices
+from cityjson.model.geometry import GeometryPrimitive, GeometryInstance, CityGeometry
+from cityjson.model.template import GeometryTemplates
 
 
 class TransformationMatrixSerializer:

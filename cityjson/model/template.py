@@ -1,5 +1,5 @@
 from .vertices import Vertices
-from src.cityjson.geometry import GeometryPrimitive
+from .geometry import GeometryPrimitive
 
 
 class GeometryTemplates:

@@ -1,5 +1,5 @@
 import json
-from src.cityjson import City
+from cityjson.model import City
 from .parser import CityParser
 from .cityjson import CitySerializer
 

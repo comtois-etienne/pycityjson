@@ -1,5 +1,5 @@
-from src.guid import guid, is_guid
-from src.cityjson.geometry import CityGeometry
+from ..guid import guid, is_guid
+from .geometry import CityGeometry
 import numpy as np
 
 
