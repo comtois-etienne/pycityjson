@@ -13,12 +13,12 @@ class GeometryTemplateToCityJsonSerializer:
         self.precision = precision
 
     def serialize(self) -> dict:
-        templates_cj = [self.serializer.serialize(geometry) for geometry in self.geometry_template.geometries]
+        templates = [self.serializer.serialize(geometry) for geometry in self.geometry_template.geometries]
         vertices = np.array(self.geometry_template.vertices._vertices)
         vertices = np.round(vertices, self.precision)
 
         return {
-            'templates' : templates_cj,
+            'templates' : templates,
             'vertices-templates' : vertices.tolist()
         }
 
