@@ -3,17 +3,7 @@ import numpy as np
 from src.cityjson import City, CityObjects, CityObject, TransformationMatrix, Vertices
 from src.cityjson.geometry import GeometryPrimitive, GeometryInstance, CityGeometry
 from src.cityjson.template import GeometryTemplates
-
-from src.cityjson.primitive import (
-    Semantic,
-    Primitive,
-    Point,
-    MultiPoint,
-    MultiLineString,
-    MultiSurface,
-    Solid,
-    MultiSolid
-)
+from src.cityjson.primitive import *
 
 
 def get_attribute(data, key, *, default=None):
@@ -123,9 +113,6 @@ class MultiSurfaceParser(PrimitiveParser):
             boundary, semantics, values
         )
 
-    def parse(self, data) -> Primitive:
-        return super().parse(data)
-
 
 class SolidParser(PrimitiveParser):
     __primitive = Solid
@@ -137,9 +124,6 @@ class SolidParser(PrimitiveParser):
             self.__child_parser, 
             boundary, semantics, values
         )
-    
-    def parse(self, data) -> Primitive:
-        return super().parse(data)
 
 
 class MultiSolidParser(PrimitiveParser):
@@ -152,9 +136,6 @@ class MultiSolidParser(PrimitiveParser):
             self.__child_parser, 
             boundary, semantics, values
         )
-
-    def parse(self, data) -> Primitive:
-        return super().parse(data)
 
 
 ALT_PRIMITIVE = [
