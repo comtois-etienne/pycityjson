@@ -4,7 +4,7 @@ from src.cityjson import City, CityObjects, CityObject, TransformationMatrix, Ve
 from src.cityjson.geometry import GeometryPrimitive, GeometryInstance, CityGeometry
 from src.cityjson.template import GeometryTemplates
 
-from src.cityjson.geometry.primitive import (
+from src.cityjson.primitive import (
     Semantic,
     Primitive,
     Point,

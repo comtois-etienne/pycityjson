@@ -1,4 +1,4 @@
-from src.cityjson.vertices import Vertices
+from .vertices import Vertices
 from src.cityjson.geometry import GeometryPrimitive
 
 

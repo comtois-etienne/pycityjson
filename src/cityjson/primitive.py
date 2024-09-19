@@ -1,7 +1,7 @@
 # https://www.cityjson.org/dev/geom-arrays/
 
 
-from ..matrix import TransformationMatrix
+from .matrix import TransformationMatrix
 from .semantic import Semantic
 
 
