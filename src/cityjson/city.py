@@ -12,12 +12,7 @@ class City:
         self.origin = [0, 0, 0]
         self.vertices = Vertices()
         self.geometry_templates = GeometryTemplates()
-        self._cityobjects = None
-
-    def get_cityobjects(self) -> CityObjects:
-        if self._cityobjects is None:
-            self._cityobjects = CityObjects(self)
-        return self._cityobjects
+        self.cityobjects = CityObjects()
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -27,7 +22,7 @@ class City:
         if key_lower == 'vertices':
             return self.vertices
         if key_lower == 'cityobjects' or key_lower == 'objects':
-            return self.get_cityobjects()
+            return self.cityobjects
         if key_lower == 'geometrytemplate' or key_lower == 'geometry-template':
             return self.geometry_templates
         if key_lower == 'epsg':
@@ -44,7 +39,7 @@ class City:
             return self.scale
         if key_lower == 'origin':
             return self.origin
-        return self.get_cityobjects()[key]
+        return self.cityobjects[key]
 
     def __setitem__(self, key, value):
         self.metadata[key] = value

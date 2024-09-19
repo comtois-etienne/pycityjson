@@ -37,6 +37,12 @@ class CityGeometry:
         # todo
         pass
 
+    def as_geometry_primitive(self) -> 'GeometryPrimitive':
+        return self
+
+    def as_geometry_instance(self) -> 'GeometryInstance':
+        return self
+
     def to_cj(self, city) -> dict:
         pass
 

@@ -30,7 +30,7 @@ class CityParser:
         self.city.geometry_templates = gt_parser.parse(get_attribute(self.data, 'geometry-templates', default={}))
 
         co_parser = CityObjectsParser(self.city)
-        self.city._cityobjects = co_parser.parse(get_attribute(self.data, 'CityObjects', default=[]))
+        self.city.cityobjects = co_parser.parse(get_attribute(self.data, 'CityObjects', default=[]))
 
     def get_city(self) -> City:
         return self.city

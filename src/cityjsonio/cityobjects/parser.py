@@ -1,10 +1,10 @@
 from src.scripts.attribute import get_attribute
-from src.cityjson import CityObject, CityObjects
+from src.cityjson import City, CityObject, CityObjects
 from ..geometry import CityGeometryParser
 
 
 class CityObjectParser:
-    def __init__(self, city):
+    def __init__(self, city: City):
         self.city = city
         self.geometry_parser = CityGeometryParser(self.city)
 
@@ -27,7 +27,7 @@ class CityObjectParser:
         geometry = [self.geometry_parser.parse(g) for g in get_attribute(data, 'geometry', default=[])]
 
         city_object = CityObject(
-            city = self.city,
+            cityobjects = self.city.cityobjects,
             type = get_attribute(data, 'type', default='GenericCityObject'),
             attributes = get_attribute(data, 'attributes', default={}),
             geometry = geometry,
@@ -48,7 +48,7 @@ class CityObjectsParser:
 
     # data contains cityjson['CityObjects']
     def parse(self, data) -> CityObjects:
-        city_objects = CityObjects(self.city)
+        city_objects = CityObjects()
         parser = CityObjectParser(self.city)
 
         for uuid, data in data.items():

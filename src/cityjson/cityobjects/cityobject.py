@@ -53,8 +53,8 @@ SECOND_LEVEL_TYPES = {
 
 
 class CityObject:
-    def __init__(self, city, type, attributes=None, geometry=None, children=None, parents=None):
-        self.city = city
+    def __init__(self, cityobjects, type, attributes=None, geometry=None, children=None, parents=None):
+        self.cityobjects = cityobjects
 
         self.attributes = {} if attributes is None else attributes
         self.city_geometry: list[CityGeometry] = [] if geometry is None else geometry # todo verify that it is a list of geometries
@@ -69,33 +69,17 @@ class CityObject:
     def __repr__(self):
         return f"CityObject({self.type}({self.__uuid}))"
 
-    def to_cj(self):
-        cj = {'type': self.type}
-        if self.geo_extent is not None:
-            cj['geographicalExtent'] = self.geo_extent
-        if self.attributes != {}:
-            cj['attributes'] = self.attributes
-        if len(self.city_geometry):
-            cj['geometry'] = [g.to_cj(self.city) for g in self.city_geometry]
-        if self.children != []:
-            cj['children'] = [child.uuid() for child in self.children]
-        if self.parents != []:
-            cj['parent'] = [parent.uuid() for parent in self.parents]
-        return cj
-
     def add_parent(self, parent):
         if parent not in self.parents:
             self.parents.append(parent)
             parent.add_child(self)
-        city_objects = self.city.get_cityobjects()
-        city_objects.add_cityobject(parent)
+        self.cityobjects.add_cityobject(parent)
 
     def add_child(self, child):
         if child not in self.children:
             self.children.append(child)
             child.add_parent(self)
-        city_objects = self.city.get_cityobjects()
-        city_objects.add_cityobject(child)
+        self.cityobjects.add_cityobject(child)
 
     def get_attribute(self, key):
         return self.attributes[key] if key in self.attributes else None
@@ -158,10 +142,13 @@ class CityObject:
         if not is_guid(self.__uuid):
             self.set_attribute('uuid', guid())
         return self.__uuid
-    
+
+    def is_citygroup(self):
+        return self.type == 'CityObjectGroup'
+
     def to_citygroup(self, children_roles=None) -> 'CityGroup':
         return CityGroup(
-            self.city,
+            self.cityobjects,
             self.attributes,
             self.city_geometry,
             self.children,
@@ -189,9 +176,9 @@ class CityObject:
 
 
 class CityGroup(CityObject):
-    def __init__(self, city, attributes=None, geometry=None, children=None, parent=None, children_roles=None):
+    def __init__(self, cityobjects, attributes=None, geometry=None, children=None, parent=None, children_roles=None):
         super().__init__(
-            city, 
+            cityobjects, 
             'CityObjectGroup', 
             attributes, 
             geometry, 
@@ -204,10 +191,4 @@ class CityGroup(CityObject):
         super().add_child(child)
         if role is not None:
             self.children_roles.append(role)
-
-    def to_cj(self):
-        cj = super().to_cj()
-        if self.children_roles != [] and len(self.children_roles) == len(self.children):
-            cj['childrenRoles'] = self.children_roles
-        return cj
 

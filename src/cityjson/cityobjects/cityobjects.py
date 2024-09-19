@@ -2,8 +2,7 @@ from .cityobject import CityObject
 
 
 class CityObjects:
-    def __init__(self, city, cityobjects = None):
-        self._city = city
+    def __init__(self, cityobjects = None):
         self._cityobjects : list[CityObject] = [] if cityobjects is None else cityobjects
 
     def __len__(self):
@@ -47,11 +46,5 @@ class CityObjects:
         for city_object in self._cityobjects:
             if attribute in city_object.attributes and city_object.attributes[attribute] == value:
                 city_objects.append(city_object)
-        return city_objects
-
-    def to_cj(self):
-        city_objects = {}
-        for cityobject in self._cityobjects:
-            city_objects[cityobject.uuid()] = cityobject.to_cj()
         return city_objects
 
