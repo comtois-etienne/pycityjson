@@ -29,18 +29,15 @@ class CityGeometry:
     def get_origin(self):
         pass
 
+    def is_geometry_primitive(self) -> bool:
+        return isinstance(self, GeometryPrimitive)
+
     def to_geometry_primitive(self) -> 'GeometryPrimitive':
-        pass
-
-    def to_geometry_instance(self) -> 'GeometryInstance':
-        # todo
-        pass
-
-    def as_geometry_primitive(self) -> 'GeometryPrimitive':
         return self
 
-    def as_geometry_instance(self) -> 'GeometryInstance':
-        return self
+    # def to_geometry_instance(self) -> 'GeometryInstance':
+    #     # todo
+    #     pass
 
     def to_cj(self, city) -> dict:
         pass
@@ -85,9 +82,6 @@ class GeometryPrimitive(CityGeometry):
             (g_min[1] + g_max[1]) / 2, 
             g_min[2]
         ]
-
-    def to_geometry_primitive(self) -> 'GeometryPrimitive':
-        return self
 
     def to_cj(self, city) -> dict:
         citygeometry = {
