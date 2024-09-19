@@ -1,7 +1,13 @@
 from src.guid import guid, is_guid
-from src.scripts.attribute import round_attribute as _round
 from src.cityjson.geometry import CityGeometry
 import numpy as np
+
+
+def _round_attribute(data, attribute, decimals=0):
+    if attribute in data:
+        data[attribute] = round(data[attribute], decimals)
+    if decimals == 0:
+        data[attribute] = int(data[attribute])
 
 
 FIRST_LEVEL_TYPES = [
@@ -93,7 +99,7 @@ class CityObject:
         return self.__uuid
 
     def round_attribute(self, attribute, decimals=0):
-        _round(self.attributes, attribute, decimals)
+        _round_attribute(self.attributes, attribute, decimals)
 
     def rename_attribute(self, old_key, new_key):
         if old_key in self.attributes:

@@ -1,9 +1,3 @@
-from .parser import (
-    CityGeometryParser,
-    GeometryParser,
-    InstanceParser,
-)
-
 from .cityjson import (
     CityGeometryToCityJsonSerializer,
     GeometryPrimitiveToCityJsonSerializer
@@ -11,9 +5,6 @@ from .cityjson import (
 
 
 __all__ = [
-    'CityGeometryParser',
-    'GeometryParser',
-    'InstanceParser',
     'CityGeometryToCityJsonSerializer',
     'GeometryPrimitiveToCityJsonSerializer'
 ]
