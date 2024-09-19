@@ -9,7 +9,8 @@ def string_to_vertice(string):
 
 
 class Vertices:
-    def __init__(self, vertices=None):
+    def __init__(self, vertices=None, start_index=0):
+        self._start_index = start_index
         self._vertices = [] if vertices is None else vertices
         self._vertices_dict = {vertice_to_string(vertice): i for i, vertice in enumerate(self._vertices)}
 
@@ -34,7 +35,7 @@ class Vertices:
     def get_index(self, vertice):
         if vertice not in self:
             return None
-        return self._vertices_dict[vertice_to_string(vertice)]
+        return self._vertices_dict[vertice_to_string(vertice)] + self._start_index
 
     def get_vertice(self, index):
         if index < 0 or index >= len(self._vertices):
