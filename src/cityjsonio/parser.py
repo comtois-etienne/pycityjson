@@ -1,4 +1,5 @@
 import numpy as np
+
 from src.cityjson import City, CityObjects, CityObject, TransformationMatrix, Vertices
 from src.cityjson.geometry import GeometryPrimitive, GeometryInstance, CityGeometry
 from src.cityjson.template import GeometryTemplates

@@ -1,7 +1,7 @@
 from src.cityjson import City
 from src.scripts.jsonio import read_json, write_json
 from .parser import CityParser
-from .cityjson import CityToCityJsonSerializer
+from .cityjson import CitySerializer
 
 
 def read(file_path) -> City:
@@ -12,7 +12,7 @@ def read(file_path) -> City:
 
 
 def write_as_cityjson(city: City, file_path, *, purge_vertices=True, pretty=False):
-    city_serializer = CityToCityJsonSerializer(city)
+    city_serializer = CitySerializer(city)
     city_dict = city_serializer.serialize(purge_vertices)
     indent = 1 if pretty else 0
     write_json(city_dict, file_path, indent)
@@ -24,7 +24,7 @@ def write_as_wavefront(city: City, file_path):
 
 __all__ = [
     'CityParser',
-    'CityToCityJsonSerializer',
+    'CitySerializer',
     'read',
 ]
 

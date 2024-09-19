@@ -1,7 +1,7 @@
 from .city import City
 
 from .vertices import Vertices
-from .cityobjects import CityObjects, CityObject
+from .cityobjects import CityObjects, CityObject, CityGroup
 
 from .geometry import TransformationMatrix
 
@@ -11,6 +11,7 @@ __all__ = [
     'Vertices',
     'CityObjects',
     'CityObject',
+    'CityGroup',
     'TransformationMatrix',
 ]
 
