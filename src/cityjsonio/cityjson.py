@@ -14,9 +14,22 @@ class CityToCityJsonSerializer:
             self.city.vertices = Vertices()
             self.city.geometry_templates.vertices = Vertices()
 
-        cityobjects_serializer = CityObjectsSerializer(self.city.cityobjects, self.city)
-        vertices_serializer = VerticesSerializer(self.city.vertices, self.city.origin, self.city.scale)
-        geometry_template_serializer = GeometryTemplateSerializer(self.city.geometry_templates, self.city.precision())
+        cityobjects_serializer = CityObjectsSerializer(
+            self.city.cityobjects, 
+            self.city.vertices, 
+            self.city.geometry_templates
+        )
+
+        vertices_serializer = VerticesSerializer(
+            self.city.vertices, 
+            self.city.origin, 
+            self.city.scale
+        )
+
+        geometry_template_serializer = GeometryTemplateSerializer(
+            self.city.geometry_templates, 
+            self.city.precision()
+        )
 
         city_dict = {
             'type': self.city.type,

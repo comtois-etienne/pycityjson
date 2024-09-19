@@ -39,9 +39,6 @@ class CityGeometry:
     #     # todo
     #     pass
 
-    def to_cj(self, city) -> dict:
-        pass
-
 
 # Contains MultiSolid, Solid, MultiSurface, MultiLineString...
 class GeometryPrimitive(CityGeometry):
@@ -83,20 +80,6 @@ class GeometryPrimitive(CityGeometry):
             g_min[2]
         ]
 
-    def to_cj(self, city) -> dict:
-        citygeometry = {
-            'type': self.primitive.get_type(),
-            'lod': self.lod,
-            'boundaries': self.primitive.index_vertices(city.vertices)
-        }
-        semantics = self.primitive.get_semantic_surfaces()
-        if semantics is not None:
-            citygeometry['semantics'] = {
-                'surfaces': semantics,
-                'values': self.primitive.get_semantic_values(semantics)
-            }
-        return citygeometry
-
 
 # Contains 'GeometryInstance' (Template)
 class GeometryInstance(CityGeometry):
@@ -125,16 +108,4 @@ class GeometryInstance(CityGeometry):
         primitive = self.geometry.primitive.copy()
         primitive.transform(self.matrix)
         return GeometryPrimitive(primitive, self.geometry.lod)
-
-    def to_cj(self, city) -> dict:
-        boundary = city.vertices.add(self.matrix.get_origin())
-        template_index = city.geometry_templates.add_template(self.geometry)
-
-        cityinstance = {
-            'type': 'GeometryInstance',
-            'template': template_index,
-            'boundaries': [boundary],
-            'transformationMatrix': self.matrix.recenter().to_cj()
-        }
-        return cityinstance
 

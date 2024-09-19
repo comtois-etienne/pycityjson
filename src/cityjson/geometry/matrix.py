@@ -62,8 +62,8 @@ class TransformationMatrix:
 
     def copy(self) -> 'TransformationMatrix':
         return TransformationMatrix(self.matrix.copy())
-
-    def get_matrix(self):
+    
+    def tolist(self):
         return self.matrix.copy()
 
     def get_np_matrix(self):
@@ -129,13 +129,4 @@ class TransformationMatrix:
         vertice = np.dot(matrix, vertice)
         vertice = vertice[:-1]
         return vertice.tolist()
-
-    # todo refactor or rename
-    def to_cj(self):
-        matrix = self.matrix
-        for i in range(16):
-            int_val = int(matrix[i])
-            flt_val = matrix[i]
-            matrix[i] = flt_val if int_val != flt_val else int_val
-        return matrix
 

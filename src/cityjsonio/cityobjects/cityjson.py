@@ -1,11 +1,14 @@
-from src.cityjson import City, CityObjects, CityObject
+from src.cityjson import CityObjects, CityObject, Vertices
 from src.cityjson.cityobjects import CityGroup
+from src.cityjson.template import GeometryTemplates
+
+from src.cityjsonio.geometry import CityGeometryToCityJsonSerializer as CityGeometrySerializer
 
 
 class CityObjectsToCityJsonSerializer:
-    def __init__(self, cityobjects: CityObjects, city: City):
+    def __init__(self, cityobjects: CityObjects, vertices: Vertices, geometry_templates: GeometryTemplates):
         self.cityobjects = cityobjects
-        self.city = city
+        self.serializer = CityGeometrySerializer(vertices, geometry_templates)
 
     def _serialize_cityobject(self, cityobject: CityObject) -> dict:
         cj = {'type': cityobject.type}
@@ -14,8 +17,7 @@ class CityObjectsToCityJsonSerializer:
         if cityobject.attributes != {}:
             cj['attributes'] = cityobject.attributes
         if len(cityobject.geometries) > 0:
-            # todo rm city
-            cj['geometry'] = [g.to_cj(self.city) for g in cityobject.geometries]
+            cj['geometry'] = [self.serializer.serialize(g) for g in cityobject.geometries]
         if cityobject.children != []:
             cj['children'] = [child.uuid() for child in cityobject.children]
         if cityobject.parents != []:
