@@ -30,7 +30,7 @@ class CityObjectParser:
             cityobjects = self.city.cityobjects,
             type = get_attribute(data, 'type', default='GenericCityObject'),
             attributes = get_attribute(data, 'attributes', default={}),
-            geometry = geometry,
+            geometries = geometry,
             children = get_attribute(data, 'children', default=[]),
             parents = get_attribute(data, 'parents', default=None)
         )

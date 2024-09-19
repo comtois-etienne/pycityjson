@@ -53,11 +53,11 @@ SECOND_LEVEL_TYPES = {
 
 
 class CityObject:
-    def __init__(self, cityobjects, type, attributes=None, geometry=None, children=None, parents=None):
+    def __init__(self, cityobjects, type, attributes=None, geometries=None, children=None, parents=None):
         self.cityobjects = cityobjects
 
         self.attributes = {} if attributes is None else attributes
-        self.city_geometry: list[CityGeometry] = [] if geometry is None else geometry # todo verify that it is a list of geometries
+        self.geometries: list[CityGeometry] = [] if geometries is None else geometries # todo verify that it is a list of geometries
         
         self.children = [] if children is None else children
         self.parents = [] if parents is None else parents
@@ -102,16 +102,13 @@ class CityObject:
     def duplicate_attribute(self, old_key, new_key):
         if old_key in self.attributes:
             self.attributes[new_key] = self.attributes[old_key]
-
-    def get_geometry(self) -> list[CityGeometry]:
-        return self.city_geometry
     
     def add_geometry(self, geometry: CityGeometry):
-        self.city_geometry.append(geometry)
+        self.geometries.append(geometry)
 
     def get_vertices(self, flatten=False):
         vertices = []
-        for g in self.city_geometry:
+        for g in self.geometries:
             if flatten:
                 vertices += g.get_vertices(flatten)
             else:
@@ -122,12 +119,12 @@ class CityObject:
     def set_geographical_extent(self, overwrite=True):
         if overwrite is False and self.geo_extent is not None:
             return self.geo_extent
-        if len(self.city_geometry) == 0:
+        if len(self.geometries) == 0:
             return None
 
-        o_min, o_max = self.get_geometry()[0].get_min_max()
+        o_min, o_max = self.geometries[0].get_min_max()
         o_min, o_max = np.array(o_min), np.array(o_max)
-        for geometry in self.city_geometry[1:]:
+        for geometry in self.geometries[1:]:
             g_min, g_max = geometry.get_min_max()
             o_min = np.minimum(o_min, np.array(g_min))
             o_max = np.maximum(o_max, np.array(g_max))
@@ -150,7 +147,7 @@ class CityObject:
         return CityGroup(
             self.cityobjects,
             self.attributes,
-            self.city_geometry,
+            self.geometries,
             self.children,
             self.parents,
             children_roles
@@ -166,22 +163,22 @@ class CityObject:
                 (geo_extent[1] + geo_extent[4]) / 2, 
                 geo_extent[2]
             ]
-        for geometry in self.city_geometry:
+        for geometry in self.geometries:
             geometry.transform(matrix, center)
         self.set_geographical_extent()
 
     def to_geometry_primitive(self):
-        for i, geometry in enumerate(self.city_geometry):
-            self.city_geometry[i] = geometry.to_geometry_primitive()
+        for i, geometry in enumerate(self.geometries):
+            self.geometries[i] = geometry.to_geometry_primitive()
 
 
 class CityGroup(CityObject):
-    def __init__(self, cityobjects, attributes=None, geometry=None, children=None, parent=None, children_roles=None):
+    def __init__(self, cityobjects, attributes=None, geometries=None, children=None, parent=None, children_roles=None):
         super().__init__(
             cityobjects, 
             'CityObjectGroup', 
             attributes, 
-            geometry, 
+            geometries, 
             children, 
             parent
         )
