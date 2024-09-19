@@ -15,7 +15,7 @@ class GeometryTemplates:
     def is_empty(self):
         return len(self.geometries) == 0
 
-    def add_template(self, city_geometry):
+    def add_template(self, city_geometry: GeometryPrimitive):
         # todo check if the template already exists (not only with the adress)
         if city_geometry not in self.geometries:
             self.geometries.append(city_geometry)
