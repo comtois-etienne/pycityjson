@@ -133,7 +133,7 @@ class MultiLineString(Primitive):
         if self.semantic is None:
             return super().__repr__()
         children = ', '.join([repr(child) for child in self.children])
-        semantic = self.semantic.to_cj()
+        semantic = self.semantic.semantic
         return f"{self.get_type()}((Semantic({semantic}))=({children}))"
 
     def set_exterior_face(self, exterior: MultiPoint):
@@ -143,7 +143,7 @@ class MultiLineString(Primitive):
             self.children[0] = exterior
     
     def get_semantic_cj(self):
-        return self.semantic.to_cj() if self.semantic is not None else None
+        return self.semantic.semantic if self.semantic is not None else None
     
     def get_semantic_values(self, semantics):
         for i in range(len(semantics)):

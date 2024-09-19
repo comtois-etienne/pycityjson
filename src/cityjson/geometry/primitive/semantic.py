@@ -69,6 +69,3 @@ class Semantic:
     def add_uuid(self, uuid: str = None):
         self.semantic['uuid'] = guid() if uuid is None else uuid
 
-    def to_cj(self):
-        return self.semantic
-
