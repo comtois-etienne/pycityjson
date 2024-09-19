@@ -13,7 +13,7 @@ class CityObjectsToCityJsonSerializer:
             cj['geographicalExtent'] = cityobject.geo_extent
         if cityobject.attributes != {}:
             cj['attributes'] = cityobject.attributes
-        if len(cityobject.city_geometry):
+        if len(cityobject.city_geometry) > 0:
             # todo rm city
             cj['geometry'] = [g.to_cj(self.city) for g in cityobject.city_geometry]
         if cityobject.children != []:
