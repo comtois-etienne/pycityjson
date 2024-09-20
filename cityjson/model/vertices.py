@@ -58,3 +58,6 @@ class Vertices:
     def __get_axis(self, axis=0):
         return [coord[axis] for coord in self._vertices]
 
+    def tolist(self):
+        return self._vertices
+

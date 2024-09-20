@@ -1,5 +1,5 @@
-from .cityobjects import CityObjects
-from .vertices.vertices import Vertices
+from .cityobject import CityObjects
+from .vertices import Vertices
 from .template import GeometryTemplates
 
 

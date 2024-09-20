@@ -1,7 +1,6 @@
-from .primitive.primitive import Primitive
-from .matrix import TransformationMatrix
-
 import numpy as np
+from .primitive import Primitive
+from .matrix import TransformationMatrix
 
 
 class CityGeometry:
