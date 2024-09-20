@@ -127,5 +127,5 @@ class WavefrontSerializer:
         material = [f'mtllib cityjson.mtl'] # todo use material in the cityjson file
         vertices = self.vertices.tolist()
         vertices = [f'v {x} {y} {z}' for x, y, z in vertices]
-        return material + vertices + self.wavefront
+        return material + [''] + vertices + self.wavefront
 
