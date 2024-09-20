@@ -2,6 +2,7 @@ import json
 from cityjson.model import City
 from .parser import CityParser
 from .cityjson import CitySerializer
+from .wavefront import WavefrontSerializer
 
 
 def read_json(file_path):
@@ -40,7 +41,11 @@ def write_as_cityjson(city: City, file_path, *, purge_vertices=True, pretty=Fals
 
 
 def write_as_wavefront(city: City, file_path):
-    pass
+    wavefront_serializer = WavefrontSerializer(city)
+    wavefront_str: list[str] = wavefront_serializer.serialize()
+    with open(file_path, 'w') as wavefront_file:
+        for line in wavefront_str:
+            wavefront_file.write(f'{line}\n')
 
 
 __all__ = [
@@ -48,5 +53,6 @@ __all__ = [
     'CitySerializer',
     'read',
     'write_as_cityjson',
+    'write_as_wavefront',
 ]
 
