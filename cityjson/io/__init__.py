@@ -40,9 +40,9 @@ def write_as_cityjson(city: City, file_path, *, purge_vertices=True, pretty=Fals
     write_json(city_dict, file_path, indent)
 
 
-def write_as_wavefront(city: City, file_path):
+def write_as_wavefront(city: City, file_path, as_one_geometry=False):
     wavefront_serializer = WavefrontSerializer(city)
-    wavefront_str: list[str] = wavefront_serializer.serialize()
+    wavefront_str: list[str] = wavefront_serializer.serialize(as_one_geometry)
     with open(file_path, 'w') as wavefront_file:
         for line in wavefront_str:
             wavefront_file.write(f'{line}\n')

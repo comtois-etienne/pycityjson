@@ -66,6 +66,11 @@ class WavefrontSerializer:
         self.wavefront = [] # list of strings
         self.current_type = ''
         self.precision = 10**(self.city.precision())
+        self.as_one_geometry = False
+
+    def _vertices_to_wavefront(self):
+        vertices = self.vertices.tolist()
+        return [f'v {x} {y} {z}' for x, y, z in vertices]
 
     def _serialize_multi_line_string(self, multi_line_string: MultiLineString):
         children = multi_line_string.children
@@ -73,6 +78,7 @@ class WavefrontSerializer:
         exterior_shape = np.array(exterior_shape) * self.precision
         exterior_shape = exterior_shape.round().astype(int).tolist()
         # todo semantics
+        # todo holes
         # interior_shapes = [child.get_vertices() for child in children[1:]]
         # triangles, _ = triangulate_rings(interior_shapes, exterior_shape)
         # for triangle in triangles:
@@ -105,19 +111,21 @@ class WavefrontSerializer:
 
     def _serialize_geometry(self, geometry: CityGeometry):
         geometry = geometry.to_geometry_primitive()
-        lod = geometry.get_lod().strip().replace(' ', '_')
-        lod = lod if lod.startswith('lod') else f'lod_{lod}'
-        self.wavefront.append(f'g {lod}')
-        self.wavefront.append(f'usemtl {self.current_type}') # todo use material in the cityjson file
+        if not self.as_one_geometry:
+            lod = geometry.get_lod().strip().replace(' ', '_')
+            lod = lod if lod.startswith('lod') else f'lod_{lod}'
+            self.wavefront.append(f'g {lod}')
+            self.wavefront.append(f'usemtl {self.current_type}') # todo use material in the cityjson file
         self._serialize_primitive(geometry.primitive)
 
     def _serialize_cityobject(self, city_objects: CityObject):
         self.current_type = city_objects.type
-        self.wavefront.append(f'o {city_objects.uuid()} {self.current_type}')
+        if not self.as_one_geometry:
+            self.wavefront.append(f'o {city_objects.uuid()} {self.current_type}')
         for geometry in city_objects.geometries:
             self._serialize_geometry(geometry)
-    
-    def serialize(self) -> list[str]:
+
+    def _serialize_city(self):
         for city_object in self.city.cityobjects._cityobjects:
             if city_object.type == 'CityObjectGroup':
                 pass
@@ -125,7 +133,13 @@ class WavefrontSerializer:
             self._serialize_cityobject(city_object)
 
         material = [f'mtllib cityjson.mtl'] # todo use material in the cityjson file
-        vertices = self.vertices.tolist()
-        vertices = [f'v {x} {y} {z}' for x, y, z in vertices]
+        vertices = self._vertices_to_wavefront()
         return material + [''] + vertices + self.wavefront
+
+    def serialize(self, as_one_geometry=False) -> list[str]:
+        self.as_one_geometry = as_one_geometry
+        if as_one_geometry:
+            self.wavefront.append('')
+            self.wavefront.append('g cityjson')
+        return self._serialize_city()
 
