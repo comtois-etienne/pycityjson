@@ -100,6 +100,7 @@ class WavefrontSerializer:
             self._serialize_solid(child)
 
     def _serialize_primitive(self, primitive: Primitive):
+        # todo : I hate this
         if isinstance(primitive, MultiLineString):
             self._serialize_multi_line_string(primitive)
         if isinstance(primitive, MultiSurface):
