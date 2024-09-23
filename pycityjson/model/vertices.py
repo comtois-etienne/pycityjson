@@ -1,7 +1,5 @@
-
-
 def vertice_to_string(vertice):
-    return f"{vertice[0]} {vertice[1]} {vertice[2]}"
+    return f'{vertice[0]} {vertice[1]} {vertice[2]}'
 
 
 def string_to_vertice(string):
@@ -60,4 +58,3 @@ class Vertices:
 
     def tolist(self):
         return self._vertices
-

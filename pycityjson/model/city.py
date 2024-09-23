@@ -1,6 +1,6 @@
 from .cityobject import CityObjects
-from .vertices import Vertices
 from .template import GeometryTemplates
+from .vertices import Vertices
 
 
 class City:
@@ -17,7 +17,7 @@ class City:
     def __getitem__(self, key):
         if isinstance(key, int):
             return self.vertices[key]
-        
+
         key_lower = str(key).lower()
         if key_lower == 'vertices':
             return self.vertices
@@ -46,7 +46,7 @@ class City:
 
     def precision(self) -> int:
         return len(str(self.scale[0]).split('.')[1])
-    
+
     def set_origin(self, vertice=None):
         if vertice is None:
             x = self.vertices.get_min(0)
@@ -66,7 +66,10 @@ class City:
 
     def set_geographical_extent(self):
         self.metadata['geographicalExtent'] = [
-            self.vertices.get_min(0), self.vertices.get_min(1), self.vertices.get_min(2),
-            self.vertices.get_max(0), self.vertices.get_max(1), self.vertices.get_max(2)
+            self.vertices.get_min(0),
+            self.vertices.get_min(1),
+            self.vertices.get_min(2),
+            self.vertices.get_max(0),
+            self.vertices.get_max(1),
+            self.vertices.get_max(2),
         ]
-

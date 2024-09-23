@@ -10,13 +10,13 @@ class Primitive:
         return self.children
 
     def __str__(self):
-        return f"{self.get_type()}(len={len(self.children)})"
+        return f'{self.get_type()}(len={len(self.children)})'
 
     def __repr__(self) -> str:
         children = ', '.join([repr(child) for child in self.children])
-        return f"{self.get_type()}({children})"
+        return f'{self.get_type()}({children})'
 
-    def transform(self, matrix: TransformationMatrix, center=[0,0,0]):
+    def transform(self, matrix: TransformationMatrix, center=[0, 0, 0]):
         for child in self.children:
             child.transform(matrix, center)
 
@@ -57,7 +57,11 @@ class Primitive:
         self.transform(matrix)
 
         _min, _max = self.get_min_max()
-        scale = [1 / (_max[0] - _min[0]), 1 / (_max[1] - _min[1]), 1 / (_max[2] - _min[2])]
+        scale = [
+            1 / (_max[0] - _min[0]),
+            1 / (_max[1] - _min[1]),
+            1 / (_max[2] - _min[2]),
+        ]
         matrix = TransformationMatrix().scale(scale)
         self.transform(matrix)
 
@@ -78,15 +82,15 @@ class Point:
         self.z = z
 
     def __str__(self):
-        return f"({self.x}, {self.y}, {self.z})"
+        return f'({self.x}, {self.y}, {self.z})'
 
     def __repr__(self):
-        return f"Point({self.x}, {self.y}, {self.z})"
+        return f'Point({self.x}, {self.y}, {self.z})'
 
     def copy(self):
         return self.__class__(self.x, self.y, self.z)
 
-    def transform(self, matrix: TransformationMatrix, center=[0,0,0]):
+    def transform(self, matrix: TransformationMatrix, center=[0, 0, 0]):
         vertice = [self.x - center[0], self.y - center[1], self.z - center[2]]
         vertice = matrix.reproject_vertice(vertice)
         self.x = vertice[0] + center[0]
@@ -103,7 +107,7 @@ class Point:
 
 # collection of points -> used to create shape
 class MultiPoint(Primitive):
-    __ptype = "MultiPoint"
+    __ptype = 'MultiPoint'
     __depth = 1
 
     def __init__(self, points: list[Point] = None):
@@ -112,7 +116,7 @@ class MultiPoint(Primitive):
 
     def get_vertices(self, flatten=False):
         return [point.to_list() for point in self.children]
-    
+
     def get_semantic_values(self, semantics):
         return None
 
@@ -121,10 +125,10 @@ class MultiPoint(Primitive):
 # first multi point is the exterior ring
 # the rest are interior rings
 class MultiLineString(Primitive):
-    __ptype = "MultiLineString"
+    __ptype = 'MultiLineString'
     __depth = 2
 
-    def __init__(self, faces: list[MultiPoint] = None, semantic: Semantic=None):
+    def __init__(self, faces: list[MultiPoint] = None, semantic: Semantic = None):
         self.type = self.__ptype
         self.semantic = semantic
         self.children = [] if faces is None else faces
@@ -134,17 +138,17 @@ class MultiLineString(Primitive):
             return super().__repr__()
         children = ', '.join([repr(child) for child in self.children])
         semantic = self.semantic.semantic
-        return f"{self.get_type()}((Semantic({semantic}))=({children}))"
+        return f'{self.get_type()}((Semantic({semantic}))=({children}))'
 
     def set_exterior_face(self, exterior: MultiPoint):
         if len(self.children) == 0:
             self.children.append(exterior)
         else:
             self.children[0] = exterior
-    
+
     def get_semantic_cj(self):
         return self.semantic.semantic if self.semantic is not None else None
-    
+
     def get_semantic_values(self, semantics):
         for i in range(len(semantics)):
             if semantics[i] == self.semantic:
@@ -154,9 +158,9 @@ class MultiLineString(Primitive):
 
 # Used to create a landscape of a building wall
 class MultiSurface(Primitive):
-    __ptype = "MultiSurface" # separate surfaces with holes
-    __ptype_a = "MultiSurface" # separate surfaces with holes
-    __ptype_b = "CompositeSurface" # adjacents surfaces without overlap
+    __ptype = 'MultiSurface'  # separate surfaces with holes
+    __ptype_a = 'MultiSurface'  # separate surfaces with holes
+    __ptype_b = 'CompositeSurface'  # adjacents surfaces without overlap
     __depth = 3
 
     def __init__(self, surfaces: list[MultiLineString] = None):
@@ -175,7 +179,7 @@ class MultiSurface(Primitive):
 
 # Used to create a building
 class Solid(Primitive):
-    __ptype = "Solid"
+    __ptype = 'Solid'
     __depth = 4
 
     def __init__(self, multi_surfaces: list[MultiSurface] = None):
@@ -194,9 +198,9 @@ class Solid(Primitive):
 
 
 class MultiSolid(Primitive):
-    __ptype = "MultiSolid"
-    __ptype_a = "MultiSolid" # separate solids
-    __ptype_b = "CompositeSolid" # adjacents solids
+    __ptype = 'MultiSolid'
+    __ptype_a = 'MultiSolid'  # separate solids
+    __ptype_b = 'CompositeSolid'  # adjacents solids
     __depth = 5
 
     def __init__(self, solids: list[Solid] = None):
@@ -213,4 +217,3 @@ class MultiSolid(Primitive):
                         return None
                     semantics[surface.semantic['uuid']] = semantic
         return list(semantics.values())
-

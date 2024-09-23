@@ -2,12 +2,7 @@ import numpy as np
 
 
 def identity_matrix():
-    return [
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1
-    ]
+    return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
 
 
 def rotate_x(angle_degree):
@@ -62,7 +57,7 @@ class TransformationMatrix:
 
     def copy(self) -> 'TransformationMatrix':
         return TransformationMatrix(self.matrix.copy())
-    
+
     def tolist(self):
         return self.matrix.copy()
 
@@ -129,4 +124,3 @@ class TransformationMatrix:
         vertice = np.dot(matrix, vertice)
         vertice = vertice[:-1]
         return vertice.tolist()
-

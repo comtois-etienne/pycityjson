@@ -1,7 +1,9 @@
 import json
+
 from pycityjson.model import City
-from .parser import CityParser
+
 from .cityjson import CitySerializer
+from .parser import CityParser
 from .wavefront import WavefrontSerializer
 
 
@@ -27,7 +29,7 @@ def write_json(str_json, file_path, indent=0):
 
 
 def read(file_path) -> City:
-    cityjson  = read_json(file_path)
+    cityjson = read_json(file_path)
     city_parser = CityParser(cityjson)
     city_parser.parse()
     return city_parser.get_city()
@@ -55,4 +57,3 @@ __all__ = [
     'write_as_cityjson',
     'write_as_wavefront',
 ]
-

@@ -16,3 +16,6 @@ https://www.cityjson.org/datasets/
 - shapefile pour les secteurs - villes - geotiff
 - separer data (dataclass) et fonctions?
 
+# Ruff
+- lint `ruff check --fix .`
+- format `ruff format .`

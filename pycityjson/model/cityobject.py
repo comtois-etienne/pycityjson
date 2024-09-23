@@ -1,6 +1,8 @@
-from ..guid import guid, is_guid
-from .geometry import CityGeometry
 import numpy as np
+
+from pycityjson.guid import guid, is_guid
+
+from .geometry import CityGeometry
 
 
 def _round_attribute(data, attribute, decimals=0):
@@ -11,69 +13,77 @@ def _round_attribute(data, attribute, decimals=0):
 
 
 FIRST_LEVEL_TYPES = [
-    "Bridge",
-    "Building",
-    "CityFurniture",
-    "CityObjectGroup",
-    "GenericCityObject",
-    "LandUse",
-    "OtherConstruction",
-    "PlantCover",
-    "SolitaryVegetationObject",
-    "TINRelief",
-    "TransportSquare",
-    "Railway",
-    "Road",
-    "Tunnel",
-    "WaterBody",
-    "WaterWay"
+    'Bridge',
+    'Building',
+    'CityFurniture',
+    'CityObjectGroup',
+    'GenericCityObject',
+    'LandUse',
+    'OtherConstruction',
+    'PlantCover',
+    'SolitaryVegetationObject',
+    'TINRelief',
+    'TransportSquare',
+    'Railway',
+    'Road',
+    'Tunnel',
+    'WaterBody',
+    'WaterWay',
     # +Extension # todo implement
 ]
 
 # They need a first level parent to exist
 SECOND_LEVEL_TYPES = {
-    "Bridge": [
-        "BridgePart",
-        "BridgeInstallation",
-        "BrigeConstructiveElement",
-        "BridgeRoom",
-        "BridgeFurniture",
+    'Bridge': [
+        'BridgePart',
+        'BridgeInstallation',
+        'BrigeConstructiveElement',
+        'BridgeRoom',
+        'BridgeFurniture',
     ],
-    "Building": [
-        "BuildingPart",
-        "BuildingInstallation",
-        "BuildingConstructiveElement",
-        "BuildingFurniture",
-        "BuildingStorey",
-        "BuildingRoom",
-        "BuildingUnit",
+    'Building': [
+        'BuildingPart',
+        'BuildingInstallation',
+        'BuildingConstructiveElement',
+        'BuildingFurniture',
+        'BuildingStorey',
+        'BuildingRoom',
+        'BuildingUnit',
     ],
-    "Tunnel": [
-        "TunnelPart",
-        "TunnelInstallation",
-        "TunnelConstructiveElement",
-        "TunnelHollowSpace",
-        "TunnelFurniture",
+    'Tunnel': [
+        'TunnelPart',
+        'TunnelInstallation',
+        'TunnelConstructiveElement',
+        'TunnelHollowSpace',
+        'TunnelFurniture',
     ],
 }
 
 
 class CityObject:
-    def __init__(self, cityobjects, type, attributes=None, geometries=None, children=None, parents=None):
+    def __init__(
+        self,
+        cityobjects,
+        type,
+        attributes=None,
+        geometries=None,
+        children=None,
+        parents=None,
+    ):
         self.cityobjects = cityobjects
 
         self.attributes = {} if attributes is None else attributes
-        self.geometries: list[CityGeometry] = [] if geometries is None else geometries # todo verify that it is a list of geometries
-        
+        self.geometries: list[CityGeometry] = [] if geometries is None else geometries  # todo verify that it is a list of geometries
+
         self.children = [] if children is None else children
         self.parents = [] if parents is None else parents
 
         self.__uuid = self.attributes['uuid'] if 'uuid' in self.attributes else guid()
-        self.type = type #todo verif with types
+        self.type = type  # todo verif with types
         self.geo_extent = None
 
     def __repr__(self):
-        return f"CityObject({self.type}({self.__uuid}))"
+        return f'CityObject({self.type}({self.__uuid}))'
 
     def add_parent(self, parent):
         if parent not in self.parents:
@@ -108,7 +118,7 @@ class CityObject:
     def duplicate_attribute(self, old_key, new_key):
         if old_key in self.attributes:
             self.attributes[new_key] = self.attributes[old_key]
-    
+
     def add_geometry(self, geometry: CityGeometry):
         self.geometries.append(geometry)
 
@@ -156,7 +166,7 @@ class CityObject:
             self.geometries,
             self.children,
             self.parents,
-            children_roles
+            children_roles,
         )
 
     # center by default is the center of the geographical extent at ground level
@@ -165,9 +175,9 @@ class CityObject:
         if center is None:
             geo_extent = self.set_geographical_extent()
             center = [
-                (geo_extent[0] + geo_extent[3]) / 2, 
-                (geo_extent[1] + geo_extent[4]) / 2, 
-                geo_extent[2]
+                (geo_extent[0] + geo_extent[3]) / 2,
+                (geo_extent[1] + geo_extent[4]) / 2,
+                geo_extent[2],
             ]
         for geometry in self.geometries:
             geometry.transform(matrix, center)
@@ -179,15 +189,16 @@ class CityObject:
 
 
 class CityGroup(CityObject):
-    def __init__(self, cityobjects, attributes=None, geometries=None, children=None, parent=None, children_roles=None):
-        super().__init__(
-            cityobjects, 
-            'CityObjectGroup', 
-            attributes, 
-            geometries, 
-            children, 
-            parent
-        )
+    def __init__(
+        self,
+        cityobjects,
+        attributes=None,
+        geometries=None,
+        children=None,
+        parent=None,
+        children_roles=None,
+    ):
+        super().__init__(cityobjects, 'CityObjectGroup', attributes, geometries, children, parent)
         self.children_roles = [] if children_roles is None else children_roles
 
     def add_child(self, child, role=None):
@@ -197,8 +208,8 @@ class CityGroup(CityObject):
 
 
 class CityObjects:
-    def __init__(self, cityobjects = None):
-        self._cityobjects : list[CityObject] = [] if cityobjects is None else cityobjects
+    def __init__(self, cityobjects=None):
+        self._cityobjects: list[CityObject] = [] if cityobjects is None else cityobjects
 
     def __len__(self):
         return len(self._cityobjects)
@@ -242,4 +253,3 @@ class CityObjects:
             if attribute in city_object.attributes and city_object.attributes[attribute] == value:
                 city_objects.append(city_object)
         return city_objects
-

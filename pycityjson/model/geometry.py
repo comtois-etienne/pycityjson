@@ -1,6 +1,7 @@
 import numpy as np
-from .primitive import Primitive
+
 from .matrix import TransformationMatrix
+from .primitive import Primitive
 
 
 class CityGeometry:
@@ -73,11 +74,7 @@ class GeometryPrimitive(CityGeometry):
 
     def get_origin(self):
         g_min, g_max = self.get_min_max()
-        return [
-            (g_min[0] + g_max[0]) / 2, 
-            (g_min[1] + g_max[1]) / 2, 
-            g_min[2]
-        ]
+        return [(g_min[0] + g_max[0]) / 2, (g_min[1] + g_max[1]) / 2, g_min[2]]
 
 
 # Contains 'GeometryInstance' (Template)
@@ -107,4 +104,3 @@ class GeometryInstance(CityGeometry):
         primitive = self.geometry.primitive.copy()
         primitive.transform(self.matrix)
         return GeometryPrimitive(primitive, self.geometry.lod)
-

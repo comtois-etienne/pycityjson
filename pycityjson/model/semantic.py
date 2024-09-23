@@ -1,5 +1,4 @@
-from ..guid import guid
-
+from pycityjson.guid import guid
 
 SEMANTIC = {
     # for "Building", "BuildingPart", "BuildingRoom", "BuildingStorey", "BuildingUnit", "BuildingInstallation"
@@ -14,12 +13,10 @@ SEMANTIC = {
     'interior_wall': 'InteriorWallSurface',
     'ceiling': 'CeilingSurface',
     'floor': 'FloorSurface',
-
     # for "WaterBody"
     'water': 'WaterSurface',
     'water_ground': 'WaterGroundSurface',
     'water_closure': 'WaterClosureSurface',
-
     # for "Road", "Railway", "TransportSquare"
     'road': 'TrafficArea',
     'auxiliary_road': 'AuxiliaryTrafficArea',
@@ -35,7 +32,7 @@ def _get_semantic(name):
         return SEMANTIC[name]
     if name in SEMANTIC.values():
         return name
-    name = name.replace(" ", "")
+    name = name.replace(' ', '')
     if not name.startswith('+'):
         name = '+' + name
     return name
@@ -49,12 +46,12 @@ class Semantic:
 
     def __getitem__(self, key):
         return self.semantic[key]
-    
+
     def __setitem__(self, key, value):
         self.semantic[key] = value
 
     def __repr__(self):
-        return f"Semantic({self.semantic})"
+        return f'Semantic({self.semantic})'
 
     def __eq__(self, other):
         if isinstance(other, Semantic) or isinstance(other, dict):
@@ -68,4 +65,3 @@ class Semantic:
 
     def add_uuid(self, uuid: str = None):
         self.semantic['uuid'] = guid() if uuid is None else uuid
-

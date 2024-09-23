@@ -1,15 +1,31 @@
 import numpy as np
 
-from ..model import City, CityObjects, CityObject, TransformationMatrix, Vertices
-from ..model.geometry import GeometryPrimitive, GeometryInstance, CityGeometry
-from ..model.template import GeometryTemplates
-from ..model.primitive import *
+from pycityjson.model import (
+    City,
+    CityGeometry,
+    CityObject,
+    CityObjects,
+    GeometryInstance,
+    GeometryPrimitive,
+    GeometryTemplates,
+    MultiLineString,
+    MultiPoint,
+    MultiSolid,
+    MultiSurface,
+    Point,
+    Primitive,
+    Semantic,
+    Solid,
+    TransformationMatrix,
+    Vertices,
+)
 
 
 def get_attribute(data, key, *, default=None):
     if key in data:
         return data[key]
     return default
+
 
 def get_nested_attribute(data, key_a, key_b, *, default=None):
     if key_a in data and key_b in data[key_a]:
@@ -37,14 +53,14 @@ class PrimitiveParser:
 
     # parsing children
     def _parse(self, primitive_class, child_parser_class, boundary, semantics=None, values=None) -> Primitive:
-        primitive = primitive_class(semantic = semantics[values]) if isinstance(values, int) else primitive_class()
+        primitive = primitive_class(semantic=semantics[values]) if isinstance(values, int) else primitive_class()
 
         child_parser = child_parser_class(self.city)
         for i, child in enumerate(boundary):
             value = None if values is None or isinstance(values, int) else values[i]
             child = child_parser._parse(child, semantics, value)
             primitive.add_child(child)
-        
+
         return primitive
 
     # data contains cityjson['CityObjects'][uuid]['geometry'][index]
@@ -73,11 +89,7 @@ class MultiPointParser(PrimitiveParser):
     __child_parser = PointParser
 
     def _parse(self, boundary, semantics=None, values=None):
-        return super()._parse(
-            self.__primitive, 
-            self.__child_parser, 
-            boundary, semantics, values
-        )
+        return super()._parse(self.__primitive, self.__child_parser, boundary, semantics, values)
 
     def parse(self, data) -> MultiPoint:
         boundaries = data['boundaries']
@@ -90,11 +102,7 @@ class MultiLineStringParser(PrimitiveParser):
     __child_parser = MultiPointParser
 
     def _parse(self, boundary, semantics=None, values=None):
-        return super()._parse(
-            self.__primitive, 
-            self.__child_parser, 
-            boundary, semantics, values
-        )
+        return super()._parse(self.__primitive, self.__child_parser, boundary, semantics, values)
 
     # no semantics
     def parse(self, data) -> Primitive:
@@ -107,11 +115,7 @@ class MultiSurfaceParser(PrimitiveParser):
     __child_parser = MultiLineStringParser
 
     def _parse(self, boundary, semantics, values):
-        return super()._parse(
-            self.__primitive, 
-            self.__child_parser, 
-            boundary, semantics, values
-        )
+        return super()._parse(self.__primitive, self.__child_parser, boundary, semantics, values)
 
 
 class SolidParser(PrimitiveParser):
@@ -119,11 +123,7 @@ class SolidParser(PrimitiveParser):
     __child_parser = MultiSurfaceParser
 
     def _parse(self, boundary, semantics, values):
-        return super()._parse(
-            self.__primitive, 
-            self.__child_parser, 
-            boundary, semantics, values
-        )
+        return super()._parse(self.__primitive, self.__child_parser, boundary, semantics, values)
 
 
 class MultiSolidParser(PrimitiveParser):
@@ -131,17 +131,10 @@ class MultiSolidParser(PrimitiveParser):
     __child_parser = SolidParser
 
     def _parse(self, boundary, semantics, values):
-        return super()._parse(
-            self.__primitive, 
-            self.__child_parser, 
-            boundary, semantics, values
-        )
+        return super()._parse(self.__primitive, self.__child_parser, boundary, semantics, values)
 
 
-ALT_PRIMITIVE = [
-    'CompositeSolid',
-    'CompositeSurface'
-]
+ALT_PRIMITIVE = ['CompositeSolid', 'CompositeSurface']
 
 GEOMETRY_PARSERS = {
     'CompositeSolid': MultiSolidParser,
@@ -191,7 +184,7 @@ class GeometryParser:
 class InstanceParser:
     def __init__(self, city: City):
         self.city = city
-    
+
     # data contains cityjson['CityObjects'][uuid]['geometry'][index]
     def parse(self, data) -> GeometryInstance:
         origin = self.city[data['boundaries'][0]]
@@ -211,7 +204,7 @@ class GeometryTemplateParser:
         city = City()
         v_parser = VerticesParser([0, 0, 0], [1.0, 1.0, 1.0], self.city.precision())
         city.vertices = v_parser.parse(get_attribute(data, 'vertices-templates', default=[]))
-        
+
         gm_parser = GeometryParser(city)
         templates_data = get_attribute(data, 'templates', default=[])
         templates = [gm_parser.parse(template) for template in templates_data]
@@ -243,12 +236,12 @@ class CityObjectParser:
         geometry = [self.geometry_parser.parse(g) for g in get_attribute(data, 'geometry', default=[])]
 
         city_object = CityObject(
-            cityobjects = self.city.cityobjects,
-            type = get_attribute(data, 'type', default='GenericCityObject'),
-            attributes = get_attribute(data, 'attributes', default={}),
-            geometries = geometry,
-            children = get_attribute(data, 'children', default=[]),
-            parents = get_attribute(data, 'parents', default=None)
+            cityobjects=self.city.cityobjects,
+            type=get_attribute(data, 'type', default='GenericCityObject'),
+            attributes=get_attribute(data, 'attributes', default={}),
+            geometries=geometry,
+            children=get_attribute(data, 'children', default=[]),
+            parents=get_attribute(data, 'parents', default=None),
         )
 
         city_object.geo_extent = get_attribute(data, 'geographicalExtent', default=None)
@@ -320,4 +313,3 @@ class CityParser:
 
     def get_city(self) -> City:
         return self.city
-

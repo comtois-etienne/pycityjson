@@ -1,8 +1,17 @@
 import numpy as np
 
-from pycityjson.model import City, CityObjects, CityObject, CityGroup, TransformationMatrix, Vertices
-from pycityjson.model.geometry import GeometryPrimitive, GeometryInstance, CityGeometry
-from pycityjson.model.template import GeometryTemplates
+from pycityjson.model import (
+    City,
+    CityGeometry,
+    CityGroup,
+    CityObject,
+    CityObjects,
+    GeometryInstance,
+    GeometryPrimitive,
+    GeometryTemplates,
+    TransformationMatrix,
+    Vertices,
+)
 
 
 class TransformationMatrixSerializer:
@@ -38,13 +47,13 @@ class GeometryPrimitiveSerializer:
         citygeometry = {
             'type': primitive.get_type(),
             'lod': geometry_primitive.lod,
-            'boundaries': primitive.index_vertices(self.vertices)
+            'boundaries': primitive.index_vertices(self.vertices),
         }
         semantics = primitive.get_semantic_surfaces()
         if semantics is not None:
             citygeometry['semantics'] = {
                 'surfaces': semantics,
-                'values': primitive.get_semantic_values(semantics)
+                'values': primitive.get_semantic_values(semantics),
             }
         return citygeometry
 
@@ -64,7 +73,7 @@ class GeometryInstanceSerializer:
             'type': 'GeometryInstance',
             'template': template_index,
             'boundaries': [boundary],
-            'transformationMatrix': matrix
+            'transformationMatrix': matrix,
         }
         return cityinstance
 
@@ -80,14 +89,16 @@ class GeometryTemplateSerializer:
         vertices = np.array(self.geometry_template.vertices._vertices)
         vertices = np.round(vertices, self.precision)
 
-        return {
-            'templates' : templates,
-            'vertices-templates' : vertices.tolist()
-        }
+        return {'templates': templates, 'vertices-templates': vertices.tolist()}
 
 
 class CityObjectsSerializer:
-    def __init__(self, cityobjects: CityObjects, vertices: Vertices, geometry_templates: GeometryTemplates):
+    def __init__(
+        self,
+        cityobjects: CityObjects,
+        vertices: Vertices,
+        geometry_templates: GeometryTemplates,
+    ):
         self.cityobjects = cityobjects
         self.serializer = CityGeometrySerializer(vertices, geometry_templates)
 
@@ -131,7 +142,7 @@ class VerticesSerializer:
 
     def serialize(self) -> list:
         vertices = np.array(self.vertices._vertices)
-        vertices = ( vertices - np.array(self.origin) ) / np.array(self.scale)
+        vertices = (vertices - np.array(self.origin)) / np.array(self.scale)
         vertices = np.round(vertices).astype(int)
         return vertices.tolist()
 
@@ -145,36 +156,21 @@ class CitySerializer:
             self.city.vertices = Vertices()
             self.city.geometry_templates.vertices = Vertices()
 
-        cityobjects_serializer = CityObjectsSerializer(
-            self.city.cityobjects, 
-            self.city.vertices, 
-            self.city.geometry_templates
-        )
+        cityobjects_serializer = CityObjectsSerializer(self.city.cityobjects, self.city.vertices, self.city.geometry_templates)
 
-        vertices_serializer = VerticesSerializer(
-            self.city.vertices, 
-            self.city.origin, 
-            self.city.scale
-        )
+        vertices_serializer = VerticesSerializer(self.city.vertices, self.city.origin, self.city.scale)
 
-        geometry_template_serializer = GeometryTemplateSerializer(
-            self.city.geometry_templates, 
-            self.city.precision()
-        )
+        geometry_template_serializer = GeometryTemplateSerializer(self.city.geometry_templates, self.city.precision())
 
         city_dict = {
             'type': self.city.type,
             'version': self.city.version,
             'CityObjects': cityobjects_serializer.serialize(),
-            'transform': {
-                'scale': self.city.scale,
-                'translate': self.city.origin
-            },
-            'vertices': vertices_serializer.serialize()
+            'transform': {'scale': self.city.scale, 'translate': self.city.origin},
+            'vertices': vertices_serializer.serialize(),
         }
         if not self.city.geometry_templates.is_empty():
             city_dict['geometry-templates'] = geometry_template_serializer.serialize()
         city_dict['metadata'] = self.city.metadata
 
         return city_dict
-

@@ -1,10 +1,10 @@
-from .vertices import Vertices
 from .geometry import GeometryPrimitive
+from .vertices import Vertices
 
 
 class GeometryTemplates:
     def __init__(self, geometries=None, vertices=None):
-        self.geometries : list[GeometryPrimitive] = geometries if geometries is not None else []
+        self.geometries: list[GeometryPrimitive] = geometries if geometries is not None else []
         self.vertices = vertices if vertices is not None else Vertices()
 
     def __getitem__(self, key):
@@ -20,4 +20,3 @@ class GeometryTemplates:
         if city_geometry not in self.geometries:
             self.geometries.append(city_geometry)
         return self.geometries.index(city_geometry)
-
