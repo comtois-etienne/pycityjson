@@ -1,7 +1,7 @@
 import numpy as np
 
 from pycityjson.model import City, CityGeometry, CityObject, MultiLineString, MultiSolid, MultiSurface, Primitive, Solid, Vertices
-
+from pycityjson.model import TransformationMatrix
 
 class WavefrontSerializer:
     def __init__(self, city: City):
@@ -12,9 +12,13 @@ class WavefrontSerializer:
         self.current_type = ''
         self.precision = 10 ** (self.city.precision())
         self.as_one_geometry = False
+        self.swap_yz = False
 
     def _vertices_to_wavefront(self):
         vertices = self.vertices.tolist()
+        if self.swap_yz:
+            matrix = TransformationMatrix().rotate_x(90)
+            vertices = matrix.reproject_vertices(vertices)
         return [f'v {x} {y} {z}' for x, y, z in vertices]
 
     def _serialize_multi_line_string(self, multi_line_string: MultiLineString):
@@ -76,8 +80,9 @@ class WavefrontSerializer:
         vertices = self._vertices_to_wavefront()
         return material + [''] + vertices + self.wavefront
 
-    def serialize(self, as_one_geometry=False) -> list[str]:
+    def serialize(self, *, as_one_geometry=False, swap_yz=False) -> list[str]:
         self.as_one_geometry = as_one_geometry
+        self.swap_yz = swap_yz
         if as_one_geometry:
             self.wavefront.append('')
             self.wavefront.append('g cityjson')
