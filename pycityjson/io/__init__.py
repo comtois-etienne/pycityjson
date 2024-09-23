@@ -1,5 +1,5 @@
 import json
-from cityjson.model import City
+from pycityjson.model import City
 from .parser import CityParser
 from .cityjson import CitySerializer
 from .wavefront import WavefrontSerializer
