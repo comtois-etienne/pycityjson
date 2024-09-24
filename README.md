@@ -1,4 +1,4 @@
-# pycityjson
+# PyCityJSON
 Python CityJSON io, editor and modeling library
 
 Loading a file :  
