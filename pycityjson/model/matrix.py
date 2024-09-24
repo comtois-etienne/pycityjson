@@ -1,4 +1,13 @@
+from dataclasses import dataclass
+
 import numpy as np
+
+
+@dataclass
+class Vector:
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
 
 
 def identity_matrix():
@@ -79,7 +88,10 @@ class TransformationMatrix:
         new_matrix = round_matrix(numpy_to_list(new_matrix))
         return TransformationMatrix(new_matrix).translate(origin)
 
-    def translate(self, vector) -> 'TransformationMatrix':
+    def translate(self, vector: list | Vector) -> 'TransformationMatrix':
+        if isinstance(vector, Vector):
+            vector = [vector.x, vector.y, vector.z]
+
         new_matrix = self.get_np_matrix()
         new_matrix[0][3] += vector[0]
         new_matrix[1][3] += vector[1]

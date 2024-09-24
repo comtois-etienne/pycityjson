@@ -17,13 +17,15 @@ quote-style = "single"
 
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 numpy = "^2.1.1"
 
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.5"
 ruff = "^0.6.7"
+pytest = "^8.3.3"
+pytest-unordered = "^0.6.1"
 
 [build-system]
 requires = ["poetry-core"]

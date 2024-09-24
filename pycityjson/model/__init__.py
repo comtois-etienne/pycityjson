@@ -1,7 +1,7 @@
 from .city import City
 from .cityobject import CityGroup, CityObject, CityObjects
 from .geometry import CityGeometry, GeometryInstance, GeometryPrimitive
-from .matrix import TransformationMatrix
+from .matrix import TransformationMatrix, Vector
 from .primitive import (
     MultiLineString,
     MultiPoint,
@@ -23,6 +23,7 @@ __all__ = [
     'CityGroup',
     'GeometryTemplates',
     'TransformationMatrix',
+    'Vector',
     'CityGeometry',
     'GeometryPrimitive',
     'GeometryInstance',

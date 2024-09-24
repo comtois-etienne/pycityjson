@@ -153,8 +153,8 @@ class CitySerializer:
 
     def serialize(self, purge_vertices=True) -> dict:
         if purge_vertices:
-            self.city.vertices = Vertices()
-            self.city.geometry_templates.vertices = Vertices()
+            self.city.vertices = Vertices(precision=self.city.precision())
+            self.city.geometry_templates.vertices = Vertices(precision=self.city.precision())
 
         cityobjects_serializer = CityObjectsSerializer(self.city.cityobjects, self.city.vertices, self.city.geometry_templates)
 
@@ -165,12 +165,16 @@ class CitySerializer:
         city_dict = {
             'type': self.city.type,
             'version': self.city.version,
-            'CityObjects': cityobjects_serializer.serialize(),
             'transform': {'scale': self.city.scale, 'translate': self.city.origin},
-            'vertices': vertices_serializer.serialize(),
         }
+
+        # WARNING: Order matters
+        city_dict['CityObjects'] = cityobjects_serializer.serialize()
+        city_dict['vertices'] = vertices_serializer.serialize()
+
         if not self.city.geometry_templates.is_empty():
             city_dict['geometry-templates'] = geometry_template_serializer.serialize()
+
         city_dict['metadata'] = self.city.metadata
 
         return city_dict
