@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+
 @dataclass
 class Vector:
     x: float = 0.0

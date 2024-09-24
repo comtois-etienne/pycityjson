@@ -1,16 +1,17 @@
-from typing import TypeAlias, Any
+from typing import Any, TypeAlias
 
 import numpy as np
 
 Vertex: TypeAlias = list[float]
 
+
 class Vertices:
-    def __init__(self, vertices: list[Vertex]=None, precision: int = 3, start_index: int =0):
+    def __init__(self, vertices: list[Vertex] = None, precision: int = 3, start_index: int = 0):
         """
         :param vertices: Initial vertices of the collection
         :param precision: the number of decimal places to round the vertices. Must be a positive integer [0, infinity]
         TODO: check if comment good?
-        :param start_index: N based index to start the indexation of the vertices at 0 or  
+        :param start_index: N based index to start the indexation of the vertices at 0 or
         """
         self.start_index = start_index
         self.__precision = precision
@@ -39,7 +40,7 @@ class Vertices:
     def __contains__(self, item: Any) -> bool:
         if not isinstance(item, list) and len(item) != 3:
             return False
-        
+
         return self.__vertex_to_string(item) in self._vertices_dict
 
     def get_index(self, vertex: Vertex) -> int | None:

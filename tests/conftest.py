@@ -1,15 +1,31 @@
-from os import path
+import json
+import tempfile
 
 import pytest
 
+
+class FileManager:
+    def save_json(self, content: dict) -> str:
+        """
+        Save the content into a JSON file and return the file path.
+        """
+        file_path = tempfile.mktemp()
+
+        with open(file_path, 'w') as file:
+            file.write(json.dumps(content))
+
+        return file_path
+
+    def get_empty_file_path(self) -> str:
+        """
+        TODO: comment
+        """
+        return tempfile.mktemp()
+
+
 @pytest.fixture
-def get_file_path():
+def file_manager():
     """
     TODO: comment
     """
-    file_folder = path.abspath(path.join(path.dirname(__file__), 'test_files'))
-
-    def _get_file_path(file_name: str) -> str:
-        return path.join(file_folder, file_name)
-
-    return _get_file_path
+    return FileManager()
