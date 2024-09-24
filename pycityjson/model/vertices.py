@@ -1,7 +1,5 @@
 from typing import Any, TypeAlias
 
-import numpy as np
-
 Vertex: TypeAlias = list[float]
 
 
@@ -66,7 +64,7 @@ class Vertices:
         Add a vertex to the collection with a given precision. Will round the vertex to the precision given in the
         constructor.
         """
-        vertex = [np.round(coord, self.__precision) for coord in vertex]
+        vertex = [round(coord, self.__precision) for coord in vertex]
 
         if vertex not in self:
             self._vertices_dict[self.__vertex_to_string(vertex)] = len(self._vertices)
