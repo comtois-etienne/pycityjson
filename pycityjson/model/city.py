@@ -10,8 +10,9 @@ class City:
         self.metadata = {}
         self.scale = [0.001, 0.001, 0.001]
         self.origin = [0, 0, 0]
-        self.vertices = Vertices()
-        self.geometry_templates = GeometryTemplates()
+        precision = self.precision()
+        self.vertices = Vertices(precision=precision) # Must be initialized after the scale
+        self.geometry_templates = GeometryTemplates([], Vertices(precision=precision))
         self.cityobjects = CityObjects()
 
     def __getitem__(self, key):

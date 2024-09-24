@@ -3,9 +3,9 @@ from .vertices import Vertices
 
 
 class GeometryTemplates:
-    def __init__(self, geometries=None, vertices=None):
-        self.geometries: list[GeometryPrimitive] = geometries if geometries is not None else []
-        self.vertices = vertices if vertices is not None else Vertices()
+    def __init__(self, geometries: list[GeometryPrimitive], vertices: Vertices):
+        self.geometries = geometries
+        self.vertices = vertices
 
     def __getitem__(self, key):
         if isinstance(key, int):

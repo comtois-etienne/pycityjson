@@ -273,20 +273,24 @@ class CityObjectsParser:
 
 class VerticesParser:
     def __init__(self, origin, scale, precision):
-        self.translate = origin
-        self.scale = scale
-        self.precision = precision
+        self.__translate = origin
+        self.__scale = scale
+        self.__precision = precision
 
     # data contains cityjson['vertices']
     def parse(self, data):
         if len(data) == 0:
-            return Vertices()
+            return Vertices(precision=self.__precision)
+
         vertices = np.array(data)
-        vertices = (vertices * np.array(self.scale)) + np.array(self.translate)
-        if self.precision is not None:
-            vertices = np.round(vertices, self.precision)
+        vertices = (vertices * np.array(self.__scale)) + np.array(self.__translate)
+
+        if self.__precision is not None:
+            vertices = np.round(vertices, self.__precision)
+
         vertices = vertices.tolist()
-        return Vertices(vertices)
+
+        return Vertices(vertices, precision=self.__precision)
 
 
 class CityParser:

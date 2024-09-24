@@ -6,7 +6,7 @@ from pycityjson.model import City, CityGeometry, CityObject, MultiLineString, Mu
 class WavefrontSerializer:
     def __init__(self, city: City):
         self.city = city
-        self.vertices = Vertices()
+        self.vertices = Vertices(precision=city.precision())
         self.vertices.start_index = 1
         self.wavefront = []  # list of strings
         self.current_type = ''
