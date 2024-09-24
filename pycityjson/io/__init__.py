@@ -2,9 +2,9 @@ import json
 
 from pycityjson.model import City
 
-from .cityjson import CitySerializer
-from .parser import CityParser
-from .wavefront import WavefrontSerializer
+from .cityjson_output import CitySerializer
+from .cityjson_input import CityParser
+from .wavefront_output import WavefrontSerializer
 
 
 def read_json(file_path):
