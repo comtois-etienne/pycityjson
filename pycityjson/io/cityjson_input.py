@@ -21,23 +21,36 @@ from pycityjson.model import (
 )
 
 
-def get_attribute(data, key, *, default=None):
+def get_attribute(data: dict, key: str, *, default=None):
+    """
+    :param data: dictionary to search for the key
+    :param key: key to search in the dictionary
+    :param default: default value to return if the key is not found
+    """
     if key in data:
         return data[key]
     return default
 
 
-def get_nested_attribute(data, key_a, key_b, *, default=None):
+def get_nested_attribute(data: dict, key_a: str, key_b: str, *, default=None):
+    """
+    :param data: dictionary to search for the key
+    :param key_a: first level key to search in the dictionary
+    :param key_b: second level key to search in the dictionary
+    """
     if key_a in data and key_b in data[key_a]:
         return data[key_a][key_b]
     return default
 
 
 class SemanticParser:
-    def __init__(self, city):
-        self.city = city
+    def __init__(self, city: City):
+        self.city: City = city
 
-    def parse(self, data) -> list[Semantic]:
+    def parse(self, data: list[dict]) -> list[Semantic]:
+        """
+        :param data: list of raw semantics data. each element is a dictionary with at least a 'type' key
+        """
         semantics = []
         for s in data:
             semantic = Semantic(s['type'])
@@ -48,11 +61,19 @@ class SemanticParser:
 
 
 class PrimitiveParser:
-    def __init__(self, city):
-        self.city = city
+    def __init__(self, city: City):
+        self.city: City = city
 
-    # parsing children
-    def _parse(self, primitive_class, child_parser_class, boundary, semantics=None, values=None) -> Primitive:
+    def _parse(self, primitive_class: 'PrimitiveParser', child_parser_class: 'PrimitiveParser', boundary: list, semantics: list=None, values: list=None) -> Primitive:
+        """
+        Used to parse the children of the primitive
+
+        :param primitive_class: class of the primitive to create
+        :param child_parser_class: parser class of the children of the primitive
+        :param boundary: list of the boundary indexes of the primitive
+        :param semantics: list of the semantics of the primitive
+        :param values: list of the indexes of the semantics for each MultiLineString
+        """
         primitive = primitive_class(semantic=semantics[values]) if isinstance(values, int) else primitive_class()
 
         child_parser = child_parser_class(self.city)
@@ -63,8 +84,13 @@ class PrimitiveParser:
 
         return primitive
 
-    # data contains cityjson['CityObjects'][uuid]['geometry'][index]
-    def parse(self, data) -> Primitive:
+    def parse(self, data: dict) -> Primitive:
+        """
+        Used to parse with the correct primitive parser
+        data contains cityjson['CityObjects'][uuid]['geometry'][index]
+
+        :param data: dictionary containing the geometry data at a specific index
+        """
         semantics_surface = get_nested_attribute(data, 'semantics', 'surfaces', default=None)
         semantics_values = get_nested_attribute(data, 'semantics', 'values', default=None)
         semantics = SemanticParser(self.city).parse(semantics_surface) if semantics_surface is not None else None
@@ -76,11 +102,21 @@ class PointParser(PrimitiveParser):
     __primitive = Point
     __child_parser = None
 
-    def _parse(self, boundary, semantics=None, values=None):
+    def _parse(self, boundary: int, semantics=None, values=None) -> Point:
+        """
+        :param boundary: index of the point in the vertices
+        :param semantics: not used
+        :param values: not used
+        """
         point = self.city[boundary]
         return self.__primitive(point[0], point[1], point[2])
 
-    def parse(self, data) -> Point:
+    def parse(self, data: int) -> Point:
+        """
+        used to override the parent method only
+        data contains the index of the point in the vertices
+        :param data: index of the point in the vertices
+        """
         return self._parse(data)
 
 
@@ -88,10 +124,21 @@ class MultiPointParser(PrimitiveParser):
     __primitive = MultiPoint
     __child_parser = PointParser
 
-    def _parse(self, boundary, semantics=None, values=None):
+    def _parse(self, boundary: list[int], semantics=None, values=None) -> MultiPoint:
+        """
+        Used when a child of a MultiLineString
+        :param boundary: list of the indexes of the points in the vertices
+        :param semantics: not used
+        :param values: not used
+        """
         return super()._parse(self.__primitive, self.__child_parser, boundary, semantics, values)
 
-    def parse(self, data) -> MultiPoint:
+    def parse(self, data: dict) -> MultiPoint:
+        """
+        Used when the geometry in the CityObject is a MultiPoint
+        It cannot have semantics
+        :param data: dict containing the geometry data (see PrimitiveParser.parse)
+        """
         boundaries = data['boundaries']
         return self._parse(boundaries)
 
@@ -101,11 +148,21 @@ class MultiLineStringParser(PrimitiveParser):
     __primitive = MultiLineString
     __child_parser = MultiPointParser
 
-    def _parse(self, boundary, semantics=None, values=None):
+    def _parse(self, boundary: list[list[int]], semantics: list[dict]=None, values: int=None) -> MultiLineString:
+        """
+        Use when a child of a MultiSurface
+        :param boundary: list of raw MultiPoint primitives
+        :param semantics: list of the semantics of the primitive
+        :param values: the index of the semantics for the MultiLineString
+        """
         return super()._parse(self.__primitive, self.__child_parser, boundary, semantics, values)
 
-    # no semantics
-    def parse(self, data) -> Primitive:
+    def parse(self, data: dict) -> MultiLineString:
+        """
+        Used when the geometry in the CityObject is a MultiLineString
+        It cannot have semantics when at the top level of the geometry
+        :param data: dict containing the geometry data (see PrimitiveParser.parse)
+        """
         boundaries = data['boundaries']
         return self._parse(boundaries)
 
@@ -114,7 +171,13 @@ class MultiSurfaceParser(PrimitiveParser):
     __primitive = MultiSurface
     __child_parser = MultiLineStringParser
 
-    def _parse(self, boundary, semantics, values):
+    def _parse(self, boundary: list[list[list[int]]], semantics: list[dict], values: list[int]) -> MultiSurface:
+        """
+        Used when a child of a Solid
+        :param boundary: list of raw MultiLineString primitives
+        :param semantics: list of the semantics of the primitive
+        :param values: list of the indexes of the semantics for each MultiLineString
+        """
         return super()._parse(self.__primitive, self.__child_parser, boundary, semantics, values)
 
 
@@ -122,7 +185,13 @@ class SolidParser(PrimitiveParser):
     __primitive = Solid
     __child_parser = MultiSurfaceParser
 
-    def _parse(self, boundary, semantics, values):
+    def _parse(self, boundary: list[list[list[list[int]]]], semantics: list[dict], values: list[list[int]]) -> Solid:
+        """
+        Used when a child of a MultiSolid
+        :param boundary: list of raw MultiSurface primitives
+        :param semantics: list of the semantics of the primitive
+        :param values: list the semantics for each MultiSurface
+        """
         return super()._parse(self.__primitive, self.__child_parser, boundary, semantics, values)
 
 
@@ -130,7 +199,12 @@ class MultiSolidParser(PrimitiveParser):
     __primitive = MultiSolid
     __child_parser = SolidParser
 
-    def _parse(self, boundary, semantics, values):
+    def _parse(self, boundary: list[list[list[list[list[int]]]]], semantics: list[dict], values: list[list[list[int]]]) -> MultiSolid:
+        """
+        :param boundary: list of raw Solid primitives
+        :param semantics: list of the semantics of the primitive
+        :param values: list of the semantics for each Solid
+        """
         return super()._parse(self.__primitive, self.__child_parser, boundary, semantics, values)
 
 
