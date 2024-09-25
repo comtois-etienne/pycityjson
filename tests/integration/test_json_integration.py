@@ -365,7 +365,7 @@ class TestJsonIntegration:
                 [unordered([i_0_0_0, i_10_0_0, i_10_10_0, i_0_10_0])],  # 4
                 [unordered([i_0_0_0, i_0_0_10, i_0_10_10, i_0_10_0])],  # 5
                 [unordered([i_0_10_0, i_10_10_0, i_10_10_10, i_0_10_10])],  # 6
-            )
+            ),
         ]
 
         cube_2_faces = [
@@ -376,7 +376,7 @@ class TestJsonIntegration:
                 [unordered([i_10_0_10, i_20_0_10, i_20_10_10, i_10_10_10])],  # 4
                 [unordered([i_10_0_10, i_10_0_20, i_10_10_20, i_10_10_10])],  # 5
                 [unordered([i_10_10_10, i_20_10_10, i_20_10_20, i_10_10_20])],  # 6
-            )
+            ),
         ]
 
         assert loaded_result['CityObjects']['id-1']['geometry'][0]['boundaries'] == cube_1_faces
@@ -811,7 +811,7 @@ class TestJsonIntegration:
                 [unordered([i_0_0_0, i_10_0_0, i_10_10_0, i_0_10_0])],  # 4
                 [unordered([i_0_0_0, i_0_0_10, i_0_10_10, i_0_10_0])],  # 5
                 [unordered([i_0_10_0, i_10_10_0, i_10_10_10, i_0_10_10])],  # 6
-            )
+            ),
         ]
 
         cube_2_faces = [
@@ -822,7 +822,7 @@ class TestJsonIntegration:
                 [unordered([i_10_0_10, i_20_0_10, i_20_10_10, i_10_10_10])],  # 4
                 [unordered([i_10_0_10, i_10_0_20, i_10_10_20, i_10_10_10])],  # 5
                 [unordered([i_10_10_10, i_20_10_10, i_20_10_20, i_10_10_20])],  # 6
-            )
+            ),
         ]
         primitive_geometry = next(filter(lambda g: g['type'] != 'GeometryInstance', loaded_result['CityObjects']['id-2']['geometry']))
         instance_geometry = next(filter(lambda g: g['type'] == 'GeometryInstance', loaded_result['CityObjects']['id-2']['geometry']))

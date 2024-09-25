@@ -1,7 +1,7 @@
 import numpy as np
 
-from pycityjson.model import City, CityGeometry, CityObject, MultiLineString, MultiSolid, MultiSurface, Primitive, Solid, Vertices
-from pycityjson.model import TransformationMatrix
+from pycityjson.model import City, CityGeometry, CityObject, MultiLineString, MultiSolid, MultiSurface, Primitive, Solid, TransformationMatrix, Vertices
+
 
 class WavefrontSerializer:
     def __init__(self, city: City):

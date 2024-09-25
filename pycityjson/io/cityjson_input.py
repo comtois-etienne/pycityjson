@@ -64,7 +64,7 @@ class PrimitiveParser:
     def __init__(self, city: City):
         self.city: City = city
 
-    def _parse(self, primitive_class: 'PrimitiveParser', child_parser_class: 'PrimitiveParser', boundary: list, semantics: list=None, values: list=None) -> Primitive:
+    def _parse(self, primitive_class: 'PrimitiveParser', child_parser_class: 'PrimitiveParser', boundary: list, semantics: list = None, values: list = None) -> Primitive:
         """
         Used to parse the children of the primitive
 
@@ -148,7 +148,7 @@ class MultiLineStringParser(PrimitiveParser):
     __primitive = MultiLineString
     __child_parser = MultiPointParser
 
-    def _parse(self, boundary: list[list[int]], semantics: list[dict]=None, values: int=None) -> MultiLineString:
+    def _parse(self, boundary: list[list[int]], semantics: list[dict] = None, values: int = None) -> MultiLineString:
         """
         Use when a child of a MultiSurface
         :param boundary: list of raw MultiPoint primitives

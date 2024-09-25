@@ -208,7 +208,7 @@ class CityGroup(CityObject):
 
 
 class CityObjects:
-    def __init__(self, cityobjects: list[CityObject]=None):
+    def __init__(self, cityobjects: list[CityObject] = None):
         self.__cityobjects: list[CityObject] = [] if cityobjects is None else cityobjects
 
     def __len__(self) -> int:
@@ -256,6 +256,6 @@ class CityObjects:
             if attribute in city_object.attributes and city_object.attributes[attribute] == value:
                 city_objects.append(city_object)
         return city_objects
-    
+
     def tolist(self) -> list[CityObject]:
         return self.__cityobjects

@@ -1,5 +1,5 @@
-from typing import Any, TypeAlias
 from copy import copy
+from typing import Any, TypeAlias
 
 Vertex: TypeAlias = list[float]
 

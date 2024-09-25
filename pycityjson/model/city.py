@@ -4,7 +4,7 @@ from .vertices import Vertices
 
 
 class City:
-    def __init__(self, type: str='CityJSON', version: str='2.0'):
+    def __init__(self, type: str = 'CityJSON', version: str = '2.0'):
         self.type: str = type
         self.version: str = version
         self.metadata: dict = {}

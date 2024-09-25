@@ -2,8 +2,8 @@ import json
 
 from pycityjson.model import City
 
-from .cityjson_output import CitySerializer
 from .cityjson_input import CityParser
+from .cityjson_output import CitySerializer
 from .wavefront_output import WavefrontSerializer
 
 
