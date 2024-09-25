@@ -86,7 +86,7 @@ class GeometryTemplateSerializer:
 
     def serialize(self) -> dict:
         templates = [self.serializer.serialize(geometry) for geometry in self.geometry_template.geometries]
-        vertices = np.array(self.geometry_template.vertices._vertices)
+        vertices = np.array(self.geometry_template.vertices.tolist())
         vertices = np.round(vertices, self.precision)
 
         return {'templates': templates, 'vertices-templates': vertices.tolist()}
@@ -141,7 +141,7 @@ class VerticesSerializer:
         self.scale = [0.001, 0.001, 0.001] if scale is None else scale
 
     def serialize(self) -> list:
-        vertices = np.array(self.vertices._vertices)
+        vertices = np.array(self.vertices.tolist())
         vertices = (vertices - np.array(self.origin)) / np.array(self.scale)
         vertices = np.round(vertices).astype(int)
         return vertices.tolist()
