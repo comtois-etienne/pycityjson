@@ -48,13 +48,13 @@ class City:
     def precision(self) -> int:
         return len(str(self.scale[0]).split('.')[1])
 
-    def set_origin(self, vertice=None):
-        if vertice is None:
+    def set_origin(self, vertex=None):
+        if vertex is None:
             x = self.vertices.get_min(0)
             y = self.vertices.get_min(1)
             z = self.vertices.get_min(2)
-            vertice = [x, y, z]
-        self.origin = vertice
+            vertex = [x, y, z]
+        self.origin = vertex
 
     def epsg(self):
         if 'referenceSystem' not in self.metadata:

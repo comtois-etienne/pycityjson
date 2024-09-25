@@ -27,7 +27,7 @@ class WavefrontSerializer:
         exterior_shape = np.array(exterior_shape) * self.precision
         exterior_shape = exterior_shape.round().astype(int).tolist()
         # todo: holes
-        indexes = [self.vertices.add(vertice) for vertice in exterior_shape]
+        indexes = [self.vertices.add(vertex) for vertex in exterior_shape]
         self.wavefront.append(f'f {" ".join(map(str, indexes))}')
 
     def _serialize_multi_surface(self, multi_surface: MultiSurface):

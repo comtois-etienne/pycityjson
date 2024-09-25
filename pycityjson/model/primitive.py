@@ -43,12 +43,12 @@ class Primitive:
 
     def get_min_max(self):
         vertices = self.get_vertices(flatten=True)
-        min_x = min([vertice[0] for vertice in vertices])
-        min_y = min([vertice[1] for vertice in vertices])
-        min_z = min([vertice[2] for vertice in vertices])
-        max_x = max([vertice[0] for vertice in vertices])
-        max_y = max([vertice[1] for vertice in vertices])
-        max_z = max([vertice[2] for vertice in vertices])
+        min_x = min([vertex[0] for vertex in vertices])
+        min_y = min([vertex[1] for vertex in vertices])
+        min_z = min([vertex[2] for vertex in vertices])
+        max_x = max([vertex[0] for vertex in vertices])
+        max_y = max([vertex[1] for vertex in vertices])
+        max_z = max([vertex[2] for vertex in vertices])
         return [min_x, min_y, min_z], [max_x, max_y, max_z]
 
     def normalize(self):
@@ -91,11 +91,11 @@ class Point:
         return self.__class__(self.x, self.y, self.z)
 
     def transform(self, matrix: TransformationMatrix, center=[0, 0, 0]):
-        vertice = [self.x - center[0], self.y - center[1], self.z - center[2]]
-        vertice = matrix.reproject_vertice(vertice)
-        self.x = vertice[0] + center[0]
-        self.y = vertice[1] + center[1]
-        self.z = vertice[2] + center[2]
+        vertex = [self.x - center[0], self.y - center[1], self.z - center[2]]
+        vertex = matrix.reproject_vertex(vertex)
+        self.x = vertex[0] + center[0]
+        self.y = vertex[1] + center[1]
+        self.z = vertex[2] + center[2]
 
     def to_list(self):
         return [self.x, self.y, self.z]

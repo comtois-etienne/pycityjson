@@ -124,15 +124,15 @@ class TransformationMatrix:
             if isinstance(item[0], list):
                 result.append(self.__reproject(item))
             else:
-                result.append(self.reproject_vertice(item))
+                result.append(self.reproject_vertex(item))
         return result
 
     def reproject_vertices(self, vertices):
         return self.__reproject(vertices)
 
-    def reproject_vertice(self, vertice):
+    def reproject_vertex(self, vertex):
         matrix = self.get_np_matrix()
-        vertice = np.array([vertice[0], vertice[1], vertice[2], 1])
-        vertice = np.dot(matrix, vertice)
-        vertice = vertice[:-1]
-        return vertice.tolist()
+        vertex = np.array([vertex[0], vertex[1], vertex[2], 1])
+        vertex = np.dot(matrix, vertex)
+        vertex = vertex[:-1]
+        return vertex.tolist()
