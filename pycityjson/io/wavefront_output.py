@@ -70,7 +70,7 @@ class WavefrontSerializer:
             self._serialize_geometry(geometry)
 
     def _serialize_city(self):
-        for city_object in self.city.cityobjects._cityobjects:
+        for city_object in self.city.cityobjects:
             if city_object.type == 'CityObjectGroup':
                 pass
             self.wavefront.append('')

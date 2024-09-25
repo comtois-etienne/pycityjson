@@ -208,36 +208,39 @@ class CityGroup(CityObject):
 
 
 class CityObjects:
-    def __init__(self, cityobjects=None):
-        self._cityobjects: list[CityObject] = [] if cityobjects is None else cityobjects
+    def __init__(self, cityobjects: list[CityObject]=None):
+        self.__cityobjects: list[CityObject] = [] if cityobjects is None else cityobjects
 
-    def __len__(self):
-        return len(self._cityobjects)
+    def __len__(self) -> int:
+        """
+        returns the number of CityObject
+        """
+        return len(self.__cityobjects)
 
     def __repr__(self):
-        return f'{self._cityobjects}'
+        return f'{self.__cityobjects}'
 
     def __getitem__(self, key):
         if isinstance(key, int):
-            return self._cityobjects[key]
+            return self.__cityobjects[key]
         return self.get_by_uuid(key)
 
     def __iter__(self):
-        return iter(self._cityobjects)
+        return iter(self.__cityobjects)
 
     def _get_by_type(self, citytype):
         city_objects = []
-        for cityobject in self._cityobjects:
+        for cityobject in self.__cityobjects:
             if cityobject['type'] == citytype:
                 city_objects.append(cityobject)
         return city_objects
 
     def round_attribute(self, attribute, decimals=0):
-        for cityobject in self._cityobjects:
+        for cityobject in self.__cityobjects:
             cityobject.round_attribute(attribute, decimals)
 
     def get_by_uuid(self, uuid) -> CityObject:
-        for city_object in self._cityobjects:
+        for city_object in self.__cityobjects:
             if city_object.uuid() == uuid:
                 return city_object
         return None
@@ -245,11 +248,14 @@ class CityObjects:
     def add_cityobject(self, cityobject: CityObject):
         ctobj = self.get_by_uuid(cityobject.uuid())
         if ctobj is None:
-            self._cityobjects.append(cityobject)
+            self.__cityobjects.append(cityobject)
 
     def get_by_attribute(self, attribute, value):
         city_objects = []
-        for city_object in self._cityobjects:
+        for city_object in self.__cityobjects:
             if attribute in city_object.attributes and city_object.attributes[attribute] == value:
                 city_objects.append(city_object)
         return city_objects
+    
+    def tolist(self) -> list[CityObject]:
+        return self.__cityobjects
