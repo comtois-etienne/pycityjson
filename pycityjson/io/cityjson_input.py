@@ -223,16 +223,20 @@ GEOMETRY_PARSERS = {
 
 class CityGeometryParser:
     def __init__(self, city: City):
-        self.city = city
+        self.__city: City = city
 
-    # data contains cityjson['CityObjects'][uuid]['geometry'][index]
-    def parse(self, data) -> CityGeometry:
+    def parse(self, data: dict) -> CityGeometry:
+        """
+        data contains cityjson['CityObjects'][uuid]['geometry'][index]
+        will parse with the correct parser (PrimitiveParser or InstanceParser)
+        :param data: dict containing one geometry data
+        """
         dtype = data['type']
         if dtype in GEOMETRY_PARSERS:
-            parser = GeometryParser(self.city)
+            parser = GeometryParser(self.__city)
             return parser.parse(data)
         elif dtype == 'GeometryInstance':
-            parser = InstanceParser(self.city)
+            parser = InstanceParser(self.__city)
             return parser.parse(data)
         else:
             raise ValueError(f'Unknown geometry type: {dtype}')
@@ -240,15 +244,18 @@ class CityGeometryParser:
 
 class GeometryParser:
     def __init__(self, city: City):
-        self.city = city
+        self.__city: City = city
 
-    # data contains cityjson['CityObjects'][uuid]['geometry'][index]
-    def parse(self, data) -> GeometryPrimitive:
+    def parse(self, data: dict) -> GeometryPrimitive:
+        """
+        data contains cityjson['CityObjects'][uuid]['geometry'][index]
+        :param data: dict containing one geometry data of type Primitive
+        """
         lod = data['lod']
         dtype = data['type']
         if dtype not in GEOMETRY_PARSERS:
             raise ValueError(f'Unknown geometry type: {dtype}')
-        parser = GEOMETRY_PARSERS[dtype](self.city)
+        parser = GEOMETRY_PARSERS[dtype](self.__city)
         primitive = parser.parse(data)
         if dtype in ALT_PRIMITIVE:
             primitive.type = dtype
@@ -257,12 +264,15 @@ class GeometryParser:
 
 class InstanceParser:
     def __init__(self, city: City):
-        self.city = city
+        self.__city: City = city
 
-    # data contains cityjson['CityObjects'][uuid]['geometry'][index]
-    def parse(self, data) -> GeometryInstance:
-        origin = self.city[data['boundaries'][0]]
-        geometry = self.city.geometry_templates[data['template']]
+    def parse(self, data: dict) -> GeometryInstance:
+        """
+        data contains cityjson['CityObjects'][uuid]['geometry'][index]
+        :param data: dict containing one geometry data of type Instance
+        """
+        origin = self.__city[data['boundaries'][0]]
+        geometry = self.__city.geometry_templates[data['template']]
         matrix = data['transformationMatrix']
         matrix = TransformationMatrix(matrix)
         matrix = matrix.translate(origin)
@@ -271,12 +281,16 @@ class InstanceParser:
 
 class GeometryTemplateParser:
     def __init__(self, city):
-        self.city = city
+        self.__city: City = city
 
-    # data contains cityjson['geometry-templates']
-    def parse(self, data) -> GeometryTemplates:
-        city = City()
-        v_parser = VerticesParser([0, 0, 0], [1.0, 1.0, 1.0], self.city.precision())
+    def parse(self, data: dict) -> GeometryTemplates:
+        """
+        data contains cityjson['geometry-templates']
+        must have the keys 'vertices-templates' and 'templates' in the dictionary
+        :param data: dict containing all the geometry templates
+        """
+        city = City()  # create a new city to avoid modifying the original city
+        v_parser = VerticesParser([0, 0, 0], [1.0, 1.0, 1.0], self.__city.precision())
         city.vertices = v_parser.parse(get_attribute(data, 'vertices-templates', default=[]))
 
         gm_parser = GeometryParser(city)
@@ -288,29 +302,43 @@ class GeometryTemplateParser:
 
 class CityObjectParser:
     def __init__(self, city: City):
-        self.city = city
-        self.geometry_parser = CityGeometryParser(self.city)
+        self.__city: City = city
+        self.__geometry_parser = CityGeometryParser(self.__city)
 
-    def _link_children(self, city_object, city_objects):
+    def _link_children(self, city_object: CityObject, city_objects: CityObjects):
+        """
+        All the cityobjects need to be parsed before linking the children
+        :param city_object: CityObject to link the children
+        :param city_objects: CityObjects containing all the CityObject
+        """
         children_uuids = city_object.children
         city_object.children = []
         for child_uuid in children_uuids:
             child = city_objects.get_by_uuid(child_uuid)
             city_object.add_child(child) if child is not None else None
 
-    def _link_parents(self, city_object, city_objects):
+    def _link_parents(self, city_object: CityObject, city_objects: CityObjects):
+        """
+        All the cityobjects need to be parsed before linking the parents
+        :param city_object: CityObject to link the parents
+        :param city_objects: CityObjects containing all the CityObject
+        """
         parents_uuids = city_object.parents
         city_object.parents = []
         for parent_uuid in parents_uuids:
             parent = city_objects.get_by_uuid(parent_uuid)
             city_object.add_parent(parent) if parent is not None else None
 
-    # data contains cityjson['CityObjects'][uuid]
-    def parse(self, uuid, data) -> CityObject:
-        geometry = [self.geometry_parser.parse(g) for g in get_attribute(data, 'geometry', default=[])]
+    def parse(self, uuid: str, data: dict) -> CityObject:
+        """
+        data contains cityjson['CityObjects'][uuid]
+        :param uuid: uuid of the CityObject
+        :param data: dict containing the CityObject attributes and geometries
+        """
+        geometry: list[CityGeometry] = [self.__geometry_parser.parse(g) for g in get_attribute(data, 'geometry', default=[])]
 
         city_object = CityObject(
-            cityobjects=self.city.cityobjects,
+            cityobjects=self.__city.cityobjects,
             type=get_attribute(data, 'type', default='GenericCityObject'),
             attributes=get_attribute(data, 'attributes', default={}),
             geometries=geometry,
@@ -326,18 +354,22 @@ class CityObjectParser:
 
 
 class CityObjectsParser:
-    def __init__(self, city):
-        self.city = city
+    def __init__(self, city: City):
+        self.__city: City = city
 
-    # data contains cityjson['CityObjects']
-    def parse(self, data) -> CityObjects:
+    def parse(self, data: dict) -> CityObjects:
+        """
+        data contains cityjson['CityObjects']
+        :param data: dict containing all the CityObjects. the keys are the uuid of the CityObject
+        """
         city_objects = CityObjects()
-        parser = CityObjectParser(self.city)
+        parser = CityObjectParser(self.__city)
 
         for uuid, data in data.items():
             cityobject = parser.parse(uuid, data)
             city_objects.add_cityobject(cityobject)
 
+        # to be called after all the cityobjects are parsed
         for city_object in city_objects:
             parser._link_parents(city_object, city_objects)
             parser._link_children(city_object, city_objects)
@@ -346,48 +378,47 @@ class CityObjectsParser:
 
 
 class VerticesParser:
-    def __init__(self, origin, scale, precision):
-        self.__translate = origin
-        self.__scale = scale
-        self.__precision = precision
+    def __init__(self, origin: list[float], scale: list[float], precision: int = None):
+        self.__translate: list[float] = origin
+        self.__scale: list[float] = scale
+        self.__precision: int | None = precision
 
-    # data contains cityjson['vertices']
-    def parse(self, data):
+    def parse(self, data: list[list[float]]) -> Vertices:
+        """
+        data contains cityjson['vertices']
+        :param data: list of vertices in x, y, z format
+        """
         if len(data) == 0:
             return Vertices(precision=self.__precision)
-
-        vertices = np.array(data)
-        vertices = (vertices * np.array(self.__scale)) + np.array(self.__translate)
-
-        if self.__precision is not None:
-            vertices = np.round(vertices, self.__precision)
-
-        vertices = vertices.tolist()
-
-        return Vertices(vertices, precision=self.__precision)
+        else:
+            vertices = (np.array(data) * np.array(self.__scale)) + np.array(self.__translate)
+            if self.__precision is not None:
+                vertices = np.round(vertices, self.__precision)
+            return Vertices(vertices.tolist(), precision=self.__precision)
 
 
 class CityParser:
-    def __init__(self, cityjson):
-        self.data = cityjson
-        self.city = City()
+    def __init__(self, cityjson: dict):
+        """
+        :param cityjson: dictionary containing the whole cityjson data
+        """
+        self.__data: dict = cityjson
+        self.__city: City = City()
 
-    # data contains cityjson
     def parse(self):
-        self.city.type = get_attribute(self.data, 'type', default='CityJSON')
-        self.city.version = get_attribute(self.data, 'version', default='2.0')
-        self.city.metadata = get_attribute(self.data, 'metadata', default={})
-        self.city.scale = get_nested_attribute(self.data, 'transform', 'scale', default=[0.001, 0.001, 0.001])
-        self.city.origin = get_nested_attribute(self.data, 'transform', 'translate', default=[0, 0, 0])
+        self.__city.type = get_attribute(self.__data, 'type', default='CityJSON')
+        self.__city.version = get_attribute(self.__data, 'version', default='2.0')
+        self.__city.metadata = get_attribute(self.__data, 'metadata', default={})
+        self.__city.scale = get_nested_attribute(self.__data, 'transform', 'scale', default=[0.001, 0.001, 0.001])
+        self.__city.origin = get_nested_attribute(self.__data, 'transform', 'translate', default=[0, 0, 0])
 
-        v_parser = VerticesParser(self.city.origin, self.city.scale, self.city.precision())
-        self.city.vertices = v_parser.parse(get_attribute(self.data, 'vertices', default=[]))
+        v_parser = VerticesParser(self.__city.origin, self.__city.scale, self.__city.precision())
+        self.__city.vertices = v_parser.parse(get_attribute(self.__data, 'vertices', default=[]))
 
-        gt_parser = GeometryTemplateParser(self.city)
-        self.city.geometry_templates = gt_parser.parse(get_attribute(self.data, 'geometry-templates', default={}))
+        gt_parser = GeometryTemplateParser(self.__city)
+        self.__city.geometry_templates = gt_parser.parse(get_attribute(self.__data, 'geometry-templates', default={}))
 
-        co_parser = CityObjectsParser(self.city)
-        self.city.cityobjects = co_parser.parse(get_attribute(self.data, 'CityObjects', default=[]))
+        co_parser = CityObjectsParser(self.__city)
+        self.__city.cityobjects = co_parser.parse(get_attribute(self.__data, 'CityObjects', default=[]))
 
-    def get_city(self) -> City:
-        return self.city
+        return self.__city

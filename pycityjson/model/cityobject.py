@@ -75,17 +75,20 @@ class CityObject:
         self.attributes = {} if attributes is None else attributes
         self.geometries: list[CityGeometry] = [] if geometries is None else geometries  # todo verify that it is a list of geometries
 
-        self.children = [] if children is None else children
-        self.parents = [] if parents is None else parents
+        self.children: list[CityObject] | list[str] = [] if children is None else children
+        self.parents: list[CityObject] | list[str] = [] if parents is None else parents
 
         self.__uuid = self.attributes['uuid'] if 'uuid' in self.attributes else guid()
         self.type = type  # todo verif with types
         self.geo_extent = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'CityObject({self.type}({self.__uuid}))'
 
-    def add_parent(self, parent):
+    def __str__(self) -> str:
+        return f'{self.__uuid}'
+
+    def add_parent(self, parent) -> None:
         if parent not in self.parents:
             self.parents.append(parent)
             parent.add_child(self)
@@ -239,7 +242,7 @@ class CityObjects:
         for cityobject in self.__cityobjects:
             cityobject.round_attribute(attribute, decimals)
 
-    def get_by_uuid(self, uuid) -> CityObject:
+    def get_by_uuid(self, uuid) -> CityObject | None:
         for city_object in self.__cityobjects:
             if city_object.uuid() == uuid:
                 return city_object

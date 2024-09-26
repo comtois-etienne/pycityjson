@@ -7,7 +7,7 @@ from .cityjson_output import CitySerializer
 from .wavefront_output import WavefrontSerializer
 
 
-def read_json(file_path):
+def read_json(file_path) -> dict:
     try:
         with open(file_path, 'r') as json_file:
             str_json = json.load(json_file)
@@ -31,8 +31,8 @@ def write_json(str_json, file_path, indent=0):
 def read(file_path) -> City:
     cityjson = read_json(file_path)
     city_parser = CityParser(cityjson)
-    city_parser.parse()
-    return city_parser.get_city()
+    city = city_parser.parse()
+    return city
 
 
 def write_as_cityjson(city: City, file_path, *, purge_vertices=True, pretty=False):
