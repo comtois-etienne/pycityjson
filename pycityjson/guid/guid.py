@@ -34,6 +34,7 @@ def expand(g: str) -> str:
     Decompress an IFC guid to a UUID
     :param g: the IFC guid to decompress
     """
+
     def b64(v):
         return reduce(lambda a, b: a * 64 + b, map(lambda c: chars.index(c), v))
 
