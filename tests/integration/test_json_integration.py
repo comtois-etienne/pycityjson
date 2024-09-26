@@ -325,7 +325,7 @@ class TestJsonIntegration:
         )
 
         # Act
-        city = io.read(file_path)
+        city = io.read_cityjson(file_path)
         city.cityobjects['id-2'].transform(transformation_matrix)  # Should transform all geometries
         io.write_as_cityjson(city, saved_file_path)
 
@@ -771,7 +771,7 @@ class TestJsonIntegration:
         )
 
         # Act
-        city = io.read(file_path)
+        city = io.read_cityjson(file_path)
         city.cityobjects['id-2'].transform(transformation_matrix)  # Should transform all geometries
         io.write_as_cityjson(city, saved_file_path)
 
