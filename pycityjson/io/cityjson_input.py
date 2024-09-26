@@ -18,6 +18,7 @@ from pycityjson.model import (
     Solid,
     TransformationMatrix,
     Vertices,
+    Vertex,
 )
 
 
@@ -378,12 +379,12 @@ class CityObjectsParser:
 
 
 class VerticesParser:
-    def __init__(self, origin: list[float], scale: list[float], precision: int = None):
-        self.__translate: list[float] = origin
-        self.__scale: list[float] = scale
+    def __init__(self, origin: Vertex, scale: Vertex, precision: int = None):
+        self.__translate: Vertex = origin
+        self.__scale: Vertex = scale
         self.__precision: int | None = precision
 
-    def parse(self, data: list[list[float]]) -> Vertices:
+    def parse(self, data: list[Vertex]) -> Vertices:
         """
         data contains cityjson['vertices']
         :param data: list of vertices in x, y, z format

@@ -1,6 +1,6 @@
 from .cityobject import CityObjects
 from .template import GeometryTemplates
-from .vertices import Vertices
+from .vertices import Vertices, Vertex
 
 
 class City:

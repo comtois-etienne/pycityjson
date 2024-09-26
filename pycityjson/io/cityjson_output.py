@@ -12,6 +12,7 @@ from pycityjson.model import (
     Primitive,
     TransformationMatrix,
     Vertices,
+    Vertex,
 )
 
 
@@ -156,7 +157,7 @@ class CityObjectsSerializer:
 
 
 class VerticesSerializer:
-    def __init__(self, vertices: Vertices, origin: list[float] = None, scale: list[float] = None):
+    def __init__(self, vertices: Vertices, origin: Vertex = None, scale: Vertex = None):
         self.vertices = vertices
         self.origin = [0, 0, 0] if origin is None else origin
         self.scale = [0.001, 0.001, 0.001] if scale is None else scale

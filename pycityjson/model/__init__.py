@@ -13,11 +13,12 @@ from .primitive import (
 )
 from .semantic import Semantic
 from .template import GeometryTemplates
-from .vertices import Vertices
+from .vertices import Vertices, Vertex
 
 __all__ = [
     'City',
     'Vertices',
+    'Vertex',
     'CityObjects',
     'CityObject',
     'CityObjectGroup',

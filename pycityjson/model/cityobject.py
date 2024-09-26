@@ -74,7 +74,7 @@ class CityObject:
 
         self.__uuid: str = self.attributes['uuid'] if 'uuid' in self.attributes else guid()
         self.type: str = type  # todo verify with types
-        self.geo_extent: list[float] = None  # [minx, miny, minz, maxx, maxy, maxz]
+        self.geo_extent: Vertex = None  # [minx, miny, minz, maxx, maxy, maxz]
 
     def __repr__(self) -> str:
         return f'CityObject({self.type}({self.__uuid}))'
@@ -193,7 +193,7 @@ class CityObject:
                 vertices.append(g.get_vertices(flatten))
         return vertices
 
-    def set_geographical_extent(self, overwrite=True) -> list[float] | None:
+    def set_geographical_extent(self, overwrite=True) -> Vertex | None:
         """
         Sets the minimum and maximum coordinates of the CityObject.
         If the CityObject has no geometries, the extent is set to None.
