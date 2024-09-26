@@ -349,7 +349,7 @@ class CityObjectParser:
         city_object.geo_extent = get_attribute(data, 'geographicalExtent', default=None)
         city_object.set_attribute('uuid', uuid)
         if city_object.type == 'CityObjectGroup':
-            city_object = city_object.to_citygroup(get_attribute(data, 'children_roles', default=[]))
+            city_object = city_object.to_cityobjectgroup(get_attribute(data, 'children_roles', default=[]))
         return city_object
 
 

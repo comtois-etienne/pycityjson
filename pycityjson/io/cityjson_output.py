@@ -3,7 +3,7 @@ import numpy as np
 from pycityjson.model import (
     City,
     CityGeometry,
-    CityGroup,
+    CityObjectGroup,
     CityObject,
     CityObjects,
     GeometryInstance,
@@ -131,21 +131,21 @@ class CityObjectsSerializer:
             cj['parent'] = [parent.uuid() for parent in cityobject.parents]
         return cj
 
-    def __serialize_citygroup(self, citygroup: CityGroup) -> dict:
+    def __serialize_cityobjectgroup(self, cityobjectgroup: CityObjectGroup) -> dict:
         """
-        :param citygroup: CityGroup to be serialized
+        :param cityobjectgroup: CityObjectGroup to be serialized
         """
-        cj = self.__serialize_cityobject(citygroup)
-        if citygroup.children_roles != [] and len(citygroup.children_roles) == len(citygroup.children):
-            cj['childrenRoles'] = citygroup.children_roles
+        cj = self.__serialize_cityobject(cityobjectgroup)
+        if cityobjectgroup.children_roles != [] and len(cityobjectgroup.children_roles) == len(cityobjectgroup.children):
+            cj['childrenRoles'] = cityobjectgroup.children_roles
         return cj
 
     def __serialize_one(self, cityobject: CityObject) -> dict:
         """
-        :param cityobject: CityObject or CityGroup to be serialized
+        :param cityobject: CityObject or CityObjectGroup to be serialized
         """
         if cityobject.type == 'CityObjectGroup':
-            return self.__serialize_citygroup(cityobject)
+            return self.__serialize_cityobjectgroup(cityobject)
         return self.__serialize_cityobject(cityobject)
 
     def serialize(self) -> dict:

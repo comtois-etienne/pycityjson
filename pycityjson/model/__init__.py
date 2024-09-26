@@ -1,5 +1,5 @@
 from .city import City
-from .cityobject import CityGroup, CityObject, CityObjects
+from .cityobject import CityObject, CityObjectGroup, CityObjects
 from .geometry import CityGeometry, GeometryInstance, GeometryPrimitive
 from .matrix import TransformationMatrix, Vector
 from .primitive import (
@@ -20,7 +20,7 @@ __all__ = [
     'Vertices',
     'CityObjects',
     'CityObject',
-    'CityGroup',
+    'CityObjectGroup',
     'GeometryTemplates',
     'TransformationMatrix',
     'Vector',
