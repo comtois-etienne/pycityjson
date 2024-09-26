@@ -2,6 +2,7 @@ import numpy as np
 
 from .matrix import TransformationMatrix
 from .primitive import Primitive
+from .vertices import Vertex
 
 
 class CityGeometry:
@@ -14,7 +15,6 @@ class CityGeometry:
     def get_vertices(self, flatten):
         pass
 
-    # todo test
     def get_min_max(self):
         vertices = self.get_vertices(flatten=True)
         vertices = np.array(vertices)
@@ -26,11 +26,14 @@ class CityGeometry:
     def duplicate(self) -> 'CityGeometry':
         pass
 
-    def get_origin(self):
+    def get_origin(self) -> Vertex:
         pass
 
     def is_geometry_primitive(self) -> bool:
         return isinstance(self, GeometryPrimitive)
+
+    def is_geometry_instance(self) -> bool:
+        return isinstance(self, GeometryInstance)
 
     def to_geometry_primitive(self) -> 'GeometryPrimitive':
         return self
