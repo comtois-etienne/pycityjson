@@ -3,16 +3,16 @@ import numpy as np
 from pycityjson.model import (
     City,
     CityGeometry,
-    CityObjectGroup,
     CityObject,
+    CityObjectGroup,
     CityObjects,
     GeometryInstance,
     GeometryPrimitive,
     GeometryTemplates,
     Primitive,
     TransformationMatrix,
-    Vertices,
     Vertex,
+    Vertices,
 )
 
 

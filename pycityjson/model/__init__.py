@@ -13,7 +13,7 @@ from .primitive import (
 )
 from .semantic import Semantic
 from .template import GeometryTemplates
-from .vertices import Vertices, Vertex
+from .vertices import Vertex, Vertices
 
 __all__ = [
     'City',

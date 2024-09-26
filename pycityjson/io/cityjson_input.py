@@ -17,8 +17,8 @@ from pycityjson.model import (
     Semantic,
     Solid,
     TransformationMatrix,
-    Vertices,
     Vertex,
+    Vertices,
 )
 
 
