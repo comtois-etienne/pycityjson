@@ -20,7 +20,8 @@ class Primitive:
         for child in self.children:
             child.transform(matrix, center)
 
-    def get_type(self):
+    def get_type(self) -> str:
+        # todo have proper types instead of strings
         return self.type
 
     def copy(self):
