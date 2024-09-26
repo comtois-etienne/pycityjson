@@ -9,13 +9,14 @@ from pycityjson.model import (
     GeometryInstance,
     GeometryPrimitive,
     GeometryTemplates,
+    Primitive,
     TransformationMatrix,
     Vertices,
 )
 
 
 class TransformationMatrixSerializer:
-    def serialize(self, matrix: TransformationMatrix) -> dict:
+    def serialize(self, matrix: TransformationMatrix) -> list[float | int]:
         matrix = matrix.tolist()
         for i in range(16):
             int_val = int(matrix[i])
@@ -26,28 +27,32 @@ class TransformationMatrixSerializer:
 
 class CityGeometrySerializer:
     def __init__(self, vertices: Vertices, geometry_templates: GeometryTemplates):
-        self.vertices = vertices
-        self.geometry_templates = geometry_templates
-        self.primitive_serializer = GeometryPrimitiveSerializer(vertices)
-        self.instance_serializer = GeometryInstanceSerializer(vertices, geometry_templates)
+        self.__primitive_serializer = GeometryPrimitiveSerializer(vertices)
+        self.__instance_serializer = GeometryInstanceSerializer(vertices, geometry_templates)
 
     def serialize(self, city_geometry: CityGeometry) -> dict:
+        """
+        :param city_geometry: CityGeometry to be serialized
+        """
         if city_geometry.is_geometry_primitive():
-            return self.primitive_serializer.serialize(city_geometry)
+            return self.__primitive_serializer.serialize(city_geometry)
         else:
-            return self.instance_serializer.serialize(city_geometry)
+            return self.__instance_serializer.serialize(city_geometry)
 
 
 class GeometryPrimitiveSerializer:
     def __init__(self, vertices: Vertices):
-        self.vertices = vertices
+        self.__vertices = vertices
 
     def serialize(self, geometry_primitive: GeometryPrimitive) -> dict:
-        primitive = geometry_primitive.primitive
+        """
+        :param geometry_primitive: GeometryPrimitive to be serialized
+        """
+        primitive: Primitive = geometry_primitive.primitive
         citygeometry = {
             'type': primitive.get_type(),
             'lod': geometry_primitive.lod,
-            'boundaries': primitive.index_vertices(self.vertices),
+            'boundaries': primitive.index_vertices(self.__vertices),
         }
         semantics = primitive.get_semantic_surfaces()
         if semantics is not None:
@@ -60,14 +65,17 @@ class GeometryPrimitiveSerializer:
 
 class GeometryInstanceSerializer:
     def __init__(self, vertices: Vertices, geometry_templates: GeometryTemplates):
-        self.vertices = vertices
-        self.geometry_templates = geometry_templates
-        self.matrix_serializer = TransformationMatrixSerializer()
+        self.__vertices = vertices
+        self.__geometry_templates = geometry_templates
+        self.__matrix_serializer = TransformationMatrixSerializer()
 
     def serialize(self, geometry_instance: GeometryInstance) -> dict:
-        boundary = self.vertices.add(geometry_instance.matrix.get_origin())
-        template_index = self.geometry_templates.add_template(geometry_instance.geometry)
-        matrix = self.matrix_serializer.serialize(geometry_instance.matrix.recenter())
+        """
+        :param geometry_instance: GeometryInstance to be serialized
+        """
+        boundary = self.__vertices.add(geometry_instance.matrix.get_origin())
+        template_index = self.__geometry_templates.add_template(geometry_instance.geometry)
+        matrix = self.__matrix_serializer.serialize(geometry_instance.matrix.recenter())
 
         cityinstance = {
             'type': 'GeometryInstance',
@@ -79,15 +87,19 @@ class GeometryInstanceSerializer:
 
 
 class GeometryTemplateSerializer:
-    def __init__(self, geometry_template: GeometryTemplates, precision):
-        self.geometry_template = geometry_template
-        self.serializer = GeometryPrimitiveSerializer(geometry_template.vertices)
-        self.precision = precision
+    def __init__(self, geometry_template: GeometryTemplates, precision: int):
+        """
+        :param geometry_template: GeometryTemplates to be serialized
+        :param precision: the number of decimal places to round the vertices. Must be a positive integer [0, infinity]
+        """
+        self.__geometry_template = geometry_template
+        self.__serializer = GeometryPrimitiveSerializer(geometry_template.vertices)
+        self.__precision = precision
 
     def serialize(self) -> dict:
-        templates = [self.serializer.serialize(geometry) for geometry in self.geometry_template.geometries]
-        vertices = np.array(self.geometry_template.vertices.tolist())
-        vertices = np.round(vertices, self.precision)
+        templates = [self.__serializer.serialize(geometry) for geometry in self.__geometry_template.geometries]
+        vertices = np.array(self.__geometry_template.vertices.tolist())
+        vertices = np.round(vertices, self.__precision)
 
         return {'templates': templates, 'vertices-templates': vertices.tolist()}
 
@@ -102,7 +114,10 @@ class CityObjectsSerializer:
         self.cityobjects = cityobjects
         self.serializer = CityGeometrySerializer(vertices, geometry_templates)
 
-    def _serialize_cityobject(self, cityobject: CityObject) -> dict:
+    def __serialize_cityobject(self, cityobject: CityObject) -> dict:
+        """
+        :param cityobject: CityObject to be serialized
+        """
         cj = {'type': cityobject.type}
         if cityobject.geo_extent is not None:
             cj['geographicalExtent'] = cityobject.geo_extent
@@ -116,31 +131,41 @@ class CityObjectsSerializer:
             cj['parent'] = [parent.uuid() for parent in cityobject.parents]
         return cj
 
-    def _serialize_citygroup(self, citygroup: CityGroup) -> dict:
-        cj = self._serialize_cityobject(citygroup)
+    def __serialize_citygroup(self, citygroup: CityGroup) -> dict:
+        """
+        :param citygroup: CityGroup to be serialized
+        """
+        cj = self.__serialize_cityobject(citygroup)
         if citygroup.children_roles != [] and len(citygroup.children_roles) == len(citygroup.children):
             cj['childrenRoles'] = citygroup.children_roles
         return cj
 
-    def _serialize_one(self, cityobject: CityObject) -> dict:
+    def __serialize_one(self, cityobject: CityObject) -> dict:
+        """
+        :param cityobject: CityObject or CityGroup to be serialized
+        """
         if cityobject.type == 'CityObjectGroup':
-            return self._serialize_citygroup(cityobject)
-        return self._serialize_cityobject(cityobject)
+            return self.__serialize_citygroup(cityobject)
+        return self.__serialize_cityobject(cityobject)
 
     def serialize(self) -> dict:
         city_objects = {}
         for cityobject in self.cityobjects:
-            city_objects[cityobject.uuid()] = self._serialize_one(cityobject)
+            city_objects[cityobject.uuid()] = self.__serialize_one(cityobject)
         return city_objects
 
 
 class VerticesSerializer:
-    def __init__(self, vertices: Vertices, origin=None, scale=None):
+    def __init__(self, vertices: Vertices, origin: list[float] = None, scale: list[float] = None):
         self.vertices = vertices
         self.origin = [0, 0, 0] if origin is None else origin
         self.scale = [0.001, 0.001, 0.001] if scale is None else scale
 
-    def serialize(self) -> list:
+    def serialize(self) -> list[list[int]]:
+        """
+        Returns the vertices as a list of lists of integers.
+        The vertices are scaled and translated according to the origin and scale.
+        """
         vertices = np.array(self.vertices.tolist())
         vertices = (vertices - np.array(self.origin)) / np.array(self.scale)
         vertices = np.round(vertices).astype(int)
@@ -149,32 +174,34 @@ class VerticesSerializer:
 
 class CitySerializer:
     def __init__(self, city: City):
-        self.city = city
+        self.__city: City = city
 
     def serialize(self, purge_vertices=True) -> dict:
+        """
+        Converts the City into a CityJSON dictionary.
+        :param purge_vertices: if True, the un-used vertices are removed from the CityJSON. They may be used by unsupported extensions.
+        """
         if purge_vertices:
-            self.city.vertices = Vertices(precision=self.city.precision())
-            self.city.geometry_templates.vertices = Vertices(precision=self.city.precision())
+            self.__city.vertices = Vertices(precision=self.__city.precision())
+            self.__city.geometry_templates.vertices = Vertices(precision=self.__city.precision())
 
-        cityobjects_serializer = CityObjectsSerializer(self.city.cityobjects, self.city.vertices, self.city.geometry_templates)
-
-        vertices_serializer = VerticesSerializer(self.city.vertices, self.city.origin, self.city.scale)
-
-        geometry_template_serializer = GeometryTemplateSerializer(self.city.geometry_templates, self.city.precision())
+        cityobjects_serializer = CityObjectsSerializer(self.__city.cityobjects, self.__city.vertices, self.__city.geometry_templates)
+        vertices_serializer = VerticesSerializer(self.__city.vertices, self.__city.origin, self.__city.scale)
+        geometry_template_serializer = GeometryTemplateSerializer(self.__city.geometry_templates, self.__city.precision())
 
         city_dict = {
-            'type': self.city.type,
-            'version': self.city.version,
-            'transform': {'scale': self.city.scale, 'translate': self.city.origin},
+            'type': self.__city.type,
+            'version': self.__city.version,
+            'transform': {'scale': self.__city.scale, 'translate': self.__city.origin},
         }
 
-        # WARNING: Order matters
+        # WARNING: Serialization order matters
         city_dict['CityObjects'] = cityobjects_serializer.serialize()
         city_dict['vertices'] = vertices_serializer.serialize()
 
-        if not self.city.geometry_templates.is_empty():
+        if not self.__city.geometry_templates.is_empty():
             city_dict['geometry-templates'] = geometry_template_serializer.serialize()
 
-        city_dict['metadata'] = self.city.metadata
+        city_dict['metadata'] = self.__city.metadata
 
         return city_dict
