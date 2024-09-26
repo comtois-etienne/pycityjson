@@ -75,7 +75,7 @@ class Vertices:
     def __get_axis(self, axis=0):
         return [coord[axis] for coord in self.__vertices]
 
-    def tolist(self):
+    def tolist(self) -> list[Vertex]:
         return copy(self.__vertices)
 
     @staticmethod
