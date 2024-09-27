@@ -22,7 +22,7 @@ class CityGeometry:
         """
         pass
 
-    def get_vertices(self, flatten:bool) -> list:
+    def get_vertices(self, flatten: bool) -> list:
         """
         Returns the vertices of the geometry as a list of Vertex or as the original structure of the geometry
         :param flatten: If True, the vertices are returned as a list of Vertex, else as the original structure of the geometry
@@ -80,8 +80,8 @@ class CityGeometry:
 # Contains MultiSolid, Solid, MultiSurface, MultiLineString...
 class GeometryPrimitive(CityGeometry):
     def __init__(self, primitive: Primitive, lod: str = '1'):
-        self.primitive : Primitive = primitive
-        self.lod : str = lod # level of detail (1, 2, 3, ...)
+        self.primitive: Primitive = primitive
+        self.lod: str = lod  # level of detail (1, 2, 3, ...)
 
     def __str__(self) -> str:
         return f'Geometry{self.primitive.get_type()}(lod={self.lod})'
