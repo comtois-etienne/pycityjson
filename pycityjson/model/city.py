@@ -1,6 +1,6 @@
 from .cityobject import CityObjects
 from .template import GeometryTemplates
-from .vertices import Vertices, Vertex
+from .vertices import Vertex, Vertices
 
 
 class City:
@@ -69,10 +69,7 @@ class City:
         :param vertex: The coordinates of the origin
         """
         if vertex is None:
-            x = self.vertices.get_min(0)
-            y = self.vertices.get_min(1)
-            z = self.vertices.get_min(2)
-            vertex = [x, y, z]
+            vertex = self.vertices.get_min()
         self.origin = vertex
 
     def epsg(self) -> int | None:
@@ -97,11 +94,13 @@ class City:
         Will only use the vertices of the city objects that were loaded from a file
         Save and reopen the file to update the geographical extent with new city objects
         """
+        min_x, min_y, min_z = self.vertices.get_min()
+        max_x, max_y, max_z = self.vertices.get_max()
         self.metadata['geographicalExtent'] = [
-            self.vertices.get_min(0),
-            self.vertices.get_min(1),
-            self.vertices.get_min(2),
-            self.vertices.get_max(0),
-            self.vertices.get_max(1),
-            self.vertices.get_max(2),
+            min_x,
+            min_y,
+            min_z,
+            max_x,
+            max_y,
+            max_z,
         ]
