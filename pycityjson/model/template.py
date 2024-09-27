@@ -24,13 +24,13 @@ class GeometryTemplates:
             return self.geometries[key]
         return None
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         """
         :return: True if the list of geometries is empty, False otherwise
         """
         return len(self.geometries) == 0
 
-    def add_template(self, city_geometry: GeometryPrimitive):
+    def add_template(self, city_geometry: GeometryPrimitive) -> int:
         """
         Adds a GeometryPrimitive to the list of geometries
         Will not add the same GeometryPrimitive multiple times (based on the __eq__ method)
