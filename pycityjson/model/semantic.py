@@ -1,5 +1,6 @@
 from pycityjson.guid import guid
 
+# todo : remove
 SEMANTIC = {
     # for "Building", "BuildingPart", "BuildingRoom", "BuildingStorey", "BuildingUnit", "BuildingInstallation"
     'roof': 'RoofSurface',
