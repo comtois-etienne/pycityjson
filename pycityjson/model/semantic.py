@@ -25,6 +25,132 @@ SEMANTIC = {
 }
 
 
+class Semantics:
+    @staticmethod
+    def __clean_dict(d):
+        return {k: v for k, v in vars(d).items() if not k.startswith('_')}
+
+    @staticmethod
+    def to_dict():
+        return {
+            'ObjectParent': Semantics.__clean_dict(Semantics.ObjectParent),
+            'ObjectChild': {
+                'Bridge': Semantics.__clean_dict(Semantics.ObjectChild.Bridge),
+                'Building': Semantics.__clean_dict(Semantics.ObjectChild.Building),
+                'Tunnel': Semantics.__clean_dict(Semantics.ObjectChild.Tunnel),
+            },
+            'Surfaces': {
+                'Building': Semantics.__clean_dict(Semantics.Surfaces.Building),
+                'BuildingPart': Semantics.__clean_dict(Semantics.Surfaces.Building),
+                'BuildingRoom': Semantics.__clean_dict(Semantics.Surfaces.Building),
+                'BuildingStorey': Semantics.__clean_dict(Semantics.Surfaces.Building),
+                'BuildingUnit': Semantics.__clean_dict(Semantics.Surfaces.Building),
+                'BuildingInstallation': Semantics.__clean_dict(Semantics.Surfaces.Building),
+                'WaterBody': Semantics.__clean_dict(Semantics.Surfaces.WaterBody),
+                'Road': Semantics.__clean_dict(Semantics.Surfaces.Road),
+                'Railway': Semantics.__clean_dict(Semantics.Surfaces.Road),
+                'TransportSquare': Semantics.__clean_dict(Semantics.Surfaces.Road),
+            },
+        }
+
+    class ObjectParent:
+        BRIDGE = 'Bridge'
+        BUILDING = 'Building'
+        CITY_FURNITURE = 'CityFurniture'
+        CITY_OBJECT_GROUP = 'CityObjectGroup'
+        GENERIC_CITY_OBJECT = 'GenericCityObject'
+        LAND_USE = 'LandUse'
+        OTHER_CONSTRUCTION = 'OtherConstruction'
+        PLANT_COVER = 'PlantCover'
+        SOLITARY_VEGETATION_OBJECT = 'SolitaryVegetationObject'
+        TIN_RELIEF = 'TINRelief'
+        TRANSPORT_SQUARE = 'TransportSquare'
+        RAILWAY = 'Railway'
+        ROAD = 'Road'
+        TUNNEL = 'Tunnel'
+        WATER_BODY = 'WaterBody'
+        WATER_WAY = 'WaterWay'
+        # +Extension # todo implement
+
+    class ObjectChild:
+        """
+        They need a parent to be valid.
+        """
+
+        class Bridge:
+            BRIDGE_PART = 'BridgePart'
+            BRIDGE_INSTALLATION = 'BridgeInstallation'
+            BRIGE_CONSTRUCTIVE_ELEMENT = 'BrigeConstructiveElement'
+            BRIDGE_ROOM = 'BridgeRoom'
+            BRIDGE_FURNITURE = 'BridgeFurniture'
+
+        class Building:
+            BUILDING_PART = 'BuildingPart'
+            BUILDING_INSTALLATION = 'BuildingInstallation'
+            BUILDING_CONSTRUCTIVE_ELEMENT = 'BuildingConstructiveElement'
+            BUILDING_FURNITURE = 'BuildingFurniture'
+            BUILDING_STOREY = 'BuildingStorey'
+            BUILDING_ROOM = 'BuildingRoom'
+            BUILDING_UNIT = 'BuildingUnit'
+
+        class Tunnel:
+            TUNNEL_PART = 'TunnelPart'
+            TUNNEL_INSTALLATION = 'TunnelInstallation'
+            TUNNEL_CONSTRUCTIVE_ELEMENT = 'TunnelConstructiveElement'
+            TUNNEL_HOLLOW_SPACE = 'TunnelHollowSpace'
+            TUNNEL_FURNITURE = 'TunnelFurniture'
+
+    class Surfaces:
+        """
+        Used for MultiLineString
+        """
+
+        class Building:
+            ROOF_SURFACE = 'RoofSurface'
+            GROUND_SURFACE = 'GroundSurface'
+            WALL_SURFACE = 'WallSurface'
+            CLOSURE_SURFACE = 'ClosureSurface'
+            OUTER_CEILING_SURFACE = 'OuterCeilingSurface'
+            OUTER_FLOOR_SURFACE = 'OuterFloorSurface'
+            WINDOW = 'Window'
+            DOOR = 'Door'
+            INTERIOR_WALL_SURFACE = 'InteriorWallSurface'
+            CEILING_SURFACE = 'CeilingSurface'
+            FLOOR_SURFACE = 'FloorSurface'
+
+        class BuildingPart(Building):
+            pass
+
+        class BuildingRoom(Building):
+            pass
+
+        class BuildingStorey(Building):
+            pass
+
+        class BuildingUnit(Building):
+            pass
+
+        class BuildingInstallation(Building):
+            pass
+
+        class WaterBody:
+            WATER_SURFACE = 'WaterSurface'
+            WATER_GROUND_SURFACE = 'WaterGroundSurface'
+            WATER_CLOSURE_SURFACE = 'WaterClosureSurface'
+
+        class Road:
+            TRAFFIC_AREA = 'TrafficArea'
+            AUXILIARY_TRAFFIC_AREA = 'AuxiliaryTrafficArea'
+            TRANSPORTATION_MARKING = 'TransportationMarking'
+            TRANSPORTATION_HOLE = 'TransportationHole'
+
+        class Railway(Road):
+            pass
+
+        class TransportSquare(Road):
+            pass
+
+
 class Semantic:
     """
     Contains the semantic of a MultiLineString (Surface)

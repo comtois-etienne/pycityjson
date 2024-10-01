@@ -6,53 +6,6 @@ from .geometry import CityGeometry
 from .matrix import TransformationMatrix
 from .vertices import Vertex
 
-FIRST_LEVEL_TYPES = [
-    'Bridge',
-    'Building',
-    'CityFurniture',
-    'CityObjectGroup',
-    'GenericCityObject',
-    'LandUse',
-    'OtherConstruction',
-    'PlantCover',
-    'SolitaryVegetationObject',
-    'TINRelief',
-    'TransportSquare',
-    'Railway',
-    'Road',
-    'Tunnel',
-    'WaterBody',
-    'WaterWay',
-    # +Extension # todo implement
-]
-
-# They need a first level parent to exist
-SECOND_LEVEL_TYPES = {
-    'Bridge': [
-        'BridgePart',
-        'BridgeInstallation',
-        'BrigeConstructiveElement',
-        'BridgeRoom',
-        'BridgeFurniture',
-    ],
-    'Building': [
-        'BuildingPart',
-        'BuildingInstallation',
-        'BuildingConstructiveElement',
-        'BuildingFurniture',
-        'BuildingStorey',
-        'BuildingRoom',
-        'BuildingUnit',
-    ],
-    'Tunnel': [
-        'TunnelPart',
-        'TunnelInstallation',
-        'TunnelConstructiveElement',
-        'TunnelHollowSpace',
-        'TunnelFurniture',
-    ],
-}
-
 
 class CityObject:
     def __init__(
