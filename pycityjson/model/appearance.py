@@ -82,16 +82,18 @@ class Color:
         :param f: float
         :return: int
         """
-        return int(f * 255)
+        return int(round(f * 255, 0))
 
     @staticmethod
-    def i_to_f(i: int) -> float:
+    def i_to_f(i: int, round_decimals: int = None) -> float:
         """
         int to float
         :param i: int
         :return: float
         """
-        return i / 255
+        v = i / 255
+        v = round(v, round_decimals) if round_decimals is not None else v
+        return v
 
     def copy(self) -> 'Color':
         return Color(self.r, self.g, self.b, self.a)
@@ -115,14 +117,15 @@ class Color:
             return Color(*l)
         return self.copy()
 
-    def to_float(self) -> 'Color':
+    def to_float(self, round_decimals=3) -> 'Color':
         """
         Convert the color to float format if it is in int format.
+        3 decimals are kept by default for 8bit colors.
         :return: new Color
         """
         if self.get_type() == 'int':
             l = self.to_list()
-            l = [Color.i_to_f(x) for x in l]
+            l = [Color.i_to_f(x, round_decimals) for x in l]
             return Color(*l)
         return self.copy()
 
