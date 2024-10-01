@@ -3,6 +3,7 @@
 
 import numpy as np
 
+from .appearance import Material
 from .matrix import TransformationMatrix
 from .semantic import Semantic
 from .vertices import Vertex, Vertices
@@ -245,17 +246,24 @@ class MultiLineString(Primitive):
     Should be stored in a MultiSurface for visualisation
     Can still be stored directly in the CityJSON file if visualisation is not needed
 
+    ------ Semantic ------
     Semantic is used to describe the surface - not mandatory.
     It can describe the surface more precisely than with the semantic (type) given by the CityObject
     (ex.: for a CityObject that is a Building - one MultiLineString can be a wall face with the WallSurface semantic).
+
+    ------ Materials ------
+    Material is used to display the surface - not mandatory.
+    It can have multiple themes (ex.: visual, thermal...) with a Material for each theme.
     """
 
     __ptype = 'MultiLineString'
 
-    def __init__(self, faces: list[MultiPoint] = None, semantic: Semantic = None):
+    def __init__(self, faces: list[MultiPoint] = None, semantic: Semantic = None, materials: dict = None):
         self.type = self.__ptype
-        self.semantic = semantic
         self.children = [] if faces is None else faces
+
+        self.semantic = semantic
+        self.__materials = {} if materials is None else materials
 
     def __repr__(self):
         if self.semantic is None:
@@ -274,6 +282,14 @@ class MultiLineString(Primitive):
             self.children.append(exterior)
         else:
             self.children[0] = exterior
+
+    def set_material(self, material: Material, theme: str = 'visual'):
+        self.__materials[theme] = material
+
+    def get_material(self, theme: str = 'visual') -> Material | None:
+        if theme in self.__materials:
+            return self.__materials[theme]
+        return None
 
     def get_semantic_cj(self) -> dict | None:
         """
