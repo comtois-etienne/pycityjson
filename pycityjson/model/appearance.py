@@ -35,7 +35,12 @@
             "borderColor": [0.0, 0.1, 0.2, 1.0]
         }
     ]
-    "vertices-texture": [],
+    "vertices-texture": [
+        [0.0, 0.5],
+        [1.0, 0.0],
+        [1.0, 1.0],
+        [0.0, 1.0]
+    ],
     "default-theme-texture": "myDefaultTheme1",
     "default-theme-material": "myDefaultTheme2"
 }
@@ -173,3 +178,28 @@ class Material:
     def __post_init__(self):
         if self.name is None:
             self.name = guid()
+
+
+@dataclass()
+class Texture:
+    class Type:
+        PNG = 'PNG'
+        JPG = 'JPG'
+
+    class WrapMode:
+        NONE = 'none'
+        WRAP = 'wrap'
+        MIRROR = 'mirror'
+        CLAMP = 'clamp'
+        BORDER = 'border'
+
+    class TextureType:
+        UNKNOWN = 'unknown'
+        SPECIFIC = 'specific'
+        TYPICAL = 'typical'
+
+    type: str
+    image_url: str
+    wrap_mode: str = None
+    texture_type: str = None
+    border_color: Color = None  # RGBA
