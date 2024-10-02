@@ -63,6 +63,7 @@
 }
 """
 
+from copy import copy
 from dataclasses import dataclass
 
 from pycityjson.guid import guid
@@ -178,6 +179,94 @@ class Material:
     def __post_init__(self):
         if self.name is None:
             self.name = guid()
+
+    def __eq__(self, other: 'Material') -> bool:
+        return self.name == other.name
+
+
+class Materials:
+    """
+    Container for materials.
+    """
+
+    def __init__(self):
+        self.__materials: list[Material] = []
+        self.__materials_dict: dict[str, int] = {}
+
+    def __len__(self) -> int:
+        """
+        Returns the number of materials in the collection.
+        """
+        return len(self.__materials)
+
+    def __getitem__(self, item: str | int) -> Material:
+        """
+        Returns the material at the given index or the material with the given name.
+        :param item: str or int (name or index)
+        :return: Material if item is an index or name, None if the item is not in the collection
+        """
+        if isinstance(item, int):
+            return self.get_by_index(item)
+        elif isinstance(item, str):
+            return self.get_by_name(item)
+        return None
+
+    def __iter__(self):
+        """
+        Iterator for the materials.
+        """
+        return iter(self.__materials)
+
+    def __contains__(self, item: Material) -> bool:
+        """
+        :param item: Material to check if it is in the collection
+        :return: True if the material is in the collection, False otherwise
+        """
+        return item.name in self.__materials_dict
+
+    def get_index(self, material: Material) -> int:
+        """
+        :param material: Material to get the index of
+        :return: Index of the material in the collection. None if the material is not in the collection
+        """
+        if material not in self:
+            return None
+        return self.__materials_dict[material.name]
+
+    def add(self, material: Material) -> int:
+        """
+        :param material: Material to add to the collection
+        :return: Index of the added material in the collection
+        """
+        if material not in self:
+            self.__materials_dict[material.name] = len(self.__materials)
+            self.__materials.append(material)
+        return self.get_index(material)
+
+    def get_by_index(self, index: int) -> Material:
+        """
+        :param index: Index of the material to get
+        :return: Material at the given index. None if the index is out of bounds
+        """
+        if index < 0 or index >= len(self.__materials):
+            return None
+        return self.__materials[index]
+
+    def get_by_name(self, name: str) -> Material:
+        """
+        :param name: Name of the material to get
+        :return: Material with the given name. None if the material is not in the collection
+        """
+        index = self.__materials_dict.get(name)
+        if index is None:
+            return None
+        return self.__materials[index]
+
+    def to_list(self) -> list:
+        """
+        :return: A copy of the list of materials in the collection
+        """
+        return copy(self.__materials)
 
 
 @dataclass()
