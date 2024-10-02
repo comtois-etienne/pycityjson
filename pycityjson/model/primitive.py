@@ -291,7 +291,7 @@ class MultiLineString(Primitive):
             return self.__materials[theme]
         return None
 
-    def get_semantic_cj(self) -> dict | None:
+    def get_semantic_dict(self) -> dict | None:
         """
         Converts the semantic to a dictionary if it exists
         """
@@ -331,7 +331,7 @@ class MultiSurface(Primitive):
         """
         semantics = {}
         for surface in self.children:
-            semantic = surface.get_semantic_cj()
+            semantic = surface.get_semantic_dict()
             if semantic is None:
                 return None
             semantics[surface.semantic['uuid']] = semantic
@@ -359,7 +359,7 @@ class Solid(Primitive):
         semantics = {}
         for multi_surface in self.children:
             for surface in multi_surface.children:
-                semantic = surface.get_semantic_cj()
+                semantic = surface.get_semantic_dict()
                 if semantic is None:
                     return None
                 semantics[surface.semantic['uuid']] = semantic
@@ -390,7 +390,7 @@ class MultiSolid(Primitive):
         for solid in self.children:
             for multi_surface in solid.children:
                 for surface in multi_surface.children:
-                    semantic = surface.get_semantic_cj()
+                    semantic = surface.get_semantic_dict()
                     if semantic is None:
                         return None
                     semantics[surface.semantic['uuid']] = semantic
