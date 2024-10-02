@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from .appearance import Material
+from .appearance import Material, Materials
 from .matrix import TransformationMatrix
 from .semantic import Semantic
 from .vertices import Vertex, Vertices
@@ -137,6 +137,29 @@ class Primitive:
         """
         return [child.get_semantic_values(semantics) for child in self.children]
 
+    def get_material_themes(self) -> list[str]:
+        """
+        Returns the themes of the materials of the primitive
+        Recursively runs on the children until it reaches the MultiLineString
+        :return: list of themes of the materials of the primitive
+        """
+        themes_dict = {}
+        for child in self.get_children():
+            themes = child.get_material_themes()
+            for theme in themes:
+                themes_dict[theme] = True
+        return list(themes_dict.keys())
+
+    def get_theme_values(self, theme: str, materials: Materials) -> list:
+        """
+        Returns the index of the material in the list of materials
+        Recursively runs on the children until it reaches the MultiLineString
+        :param theme: theme of the material to get the index of
+        :param materials: list of all the materials
+        :return: list of indexes of the materials in the list of materials
+        """
+        return [child.get_theme_values(theme, materials) for child in self.get_children()]
+
 
 class Point:
     """
@@ -262,8 +285,8 @@ class MultiLineString(Primitive):
         self.type = self.__ptype
         self.children = [] if faces is None else faces
 
-        self.semantic = semantic
-        self.__materials = {} if materials is None else materials
+        self.semantic: Semantic = semantic
+        self.__materials: dict[str, Material] = {} if materials is None else materials
 
     def __repr__(self):
         if self.semantic is None:
@@ -305,6 +328,22 @@ class MultiLineString(Primitive):
         for i in range(len(semantics)):
             if semantics[i] == self.semantic:
                 return i
+        return None
+
+    def get_material_themes(self) -> list[str]:
+        """
+        :return: list of themes of the materials of the surface
+        """
+        return list(self.__materials.keys())
+
+    def get_theme_values(self, theme: str, materials: Materials) -> int | None:
+        """
+        :param theme: theme of the material to get the index of
+        :param materials: list of all the materials
+        :return: index of the material in the list of materials or None if the material doesn't have this theme
+        """
+        if theme in self.__materials:
+            return materials.add(self.__materials[theme])
         return None
 
 
