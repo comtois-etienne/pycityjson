@@ -8,6 +8,8 @@ from pycityjson.model import (
     GeometryInstance,
     GeometryPrimitive,
     GeometryTemplates,
+    Material,
+    Materials,
     MultiLineString,
     MultiPoint,
     MultiSolid,
@@ -398,6 +400,28 @@ class VerticesParser:
             return Vertices(vertices.tolist(), precision=self.__precision)
 
 
+class MaterialsParser:
+    def __parse_material(self, data: dict) -> Material:
+        material = Material()
+        material.name = get_attribute(data, 'name', default=guid())
+        material.ambientIntensity = get_attribute(data, 'ambientIntensity', default=None)
+        material.diffuseColor = get_attribute(data, 'diffuseColor', default=None)
+        material.emissiveColor = get_attribute(data, 'emissiveColor', default=None)
+        material.specularColor = get_attribute(data, 'specularColor', default=None)
+        material.shininess = get_attribute(data, 'shininess', default=None)
+        material.transparency = get_attribute(data, 'transparency', default=None)
+        material.isSmooth = get_attribute(data, 'isSmooth', default=None)
+
+    def parse(self, data: list) -> Materials:
+        """
+        data contains cityjson['appearance']['materials']
+        :param data: list containing all the materials
+        """
+        materials = Materials()
+        for material in data:
+            materials.add(self.__parse_material(material))
+
+
 class CityParser:
     def __init__(self, cityjson: dict):
         """
@@ -413,8 +437,13 @@ class CityParser:
         self.__city.scale = get_nested_attribute(self.__data, 'transform', 'scale', default=[0.001, 0.001, 0.001])
         self.__city.origin = get_nested_attribute(self.__data, 'transform', 'translate', default=[0, 0, 0])
 
+        # Done First to avoid issues with the geometry
         v_parser = VerticesParser(self.__city.origin, self.__city.scale, self.__city.precision())
         self.__city.vertices = v_parser.parse(get_attribute(self.__data, 'vertices', default=[]))
+
+        # Done Second to avoid issues with the geometry
+        m_parser = MaterialsParser()
+        self.__city.materials = m_parser.parse(get_nested_attribute(self.__data, 'appearance', 'materials', default=[]))
 
         gt_parser = GeometryTemplateParser(self.__city)
         self.__city.geometry_templates = gt_parser.parse(get_attribute(self.__data, 'geometry-templates', default={}))
