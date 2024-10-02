@@ -167,7 +167,7 @@ class Color:
 
 @dataclass()
 class Material:
-    name: str = None
+    name: str = None  # mandatory
     ambientIntensity: float = None
     diffuseColor: Color = None
     emissiveColor: Color = None
