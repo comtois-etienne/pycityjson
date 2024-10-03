@@ -45,22 +45,26 @@
     "default-theme-material": "myDefaultTheme2"
 }
 
-
-{
-    "type": "Solid",
-    "lod": "2.1",
-    "boundaries": [
-        [ [[0, 3, 2, 1]], [[4, 5, 6, 7]], [[0, 1, 5, 4]], [[1, 2, 6, 5]] ]
-    ],
-    "material": {
-        "irradiation": {                # theme 1
-            "values": [[0, 0, 1, null]]
-        },
-        "irradiation-2": {              # theme 2
-            "values": [[2, 2, 1, null]]
+"geometry": [
+    {
+        "type": "Solid",
+        "lod": "2.1",
+        "boundaries": [
+            [ [[0, 3, 2, 1]], [[4, 5, 6, 7]], [[0, 1, 5, 4]], [[1, 2, 6, 5]] ]
+        ],
+        "material": {
+            "irradiation": {                # theme 1
+                "values": [[0, 0, 1, null]]
+            },
+            "irradiation-2": {              # theme 2
+                "values": [[2, 2, 1, null]]
+            },
+            "irradiation-3": {              # theme 3
+                "value": 2
+            }
         }
     }
-}
+]
 """
 
 from copy import copy
