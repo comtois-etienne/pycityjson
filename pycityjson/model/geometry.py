@@ -1,7 +1,7 @@
 import numpy as np
 
 from .matrix import TransformationMatrix
-from .primitive import Primitive
+from .primitive import MultiLineString, Primitive
 from .vertices import Vertex
 
 
@@ -76,9 +76,25 @@ class CityGeometry:
     #     # todo
     #     pass
 
+    def surface_count(self) -> int:
+        """
+        Returns the number of surfaces in the geometry
+        """
+        pass
 
-# Contains MultiSolid, Solid, MultiSurface, MultiLineString...
+    def get_surfaces(self, flatten=True) -> list[MultiLineString]:
+        """
+        Returns the surfaces of the geometry
+        :param flatten: If True, the surfaces are returned as a list, else as a nested list
+        """
+        pass
+
+
 class GeometryPrimitive(CityGeometry):
+    """
+    Contains MultiSolid, Solid, MultiSurface, MultiLineString...
+    """
+
     def __init__(self, primitive: Primitive, lod: str = '1'):
         self.primitive: Primitive = primitive
         self.lod: str = lod  # level of detail (1, 2, 3, ...)
@@ -132,12 +148,27 @@ class GeometryPrimitive(CityGeometry):
         g_min, g_max = self.get_min_max()
         return [(g_min[0] + g_max[0]) / 2, (g_min[1] + g_max[1]) / 2, g_min[2]]
 
+    def surface_count(self) -> int:
+        """
+        :return: The number of surfaces in the geometry
+        """
+        return self.primitive.surface_count()
 
-# Contains 'GeometryInstance' (Template)
+    def get_surfaces(self, flatten=True) -> list[MultiLineString]:
+        """
+        :return: The surfaces of the geometry
+        """
+        return self.primitive.get_surfaces(flatten)
+
+
 class GeometryInstance(CityGeometry):
+    """
+    Contains 'GeometryInstance' (Template)
+    """
+
     def __init__(self, geometry: GeometryPrimitive, matrix: TransformationMatrix):
-        self.geometry = geometry
-        self.matrix = matrix
+        self.geometry: GeometryPrimitive = geometry
+        self.matrix: TransformationMatrix = matrix
 
     def transform(self, matrix: TransformationMatrix, center=None) -> None:
         """
@@ -184,3 +215,15 @@ class GeometryInstance(CityGeometry):
         primitive = self.geometry.primitive.copy()
         primitive.transform(self.matrix)
         return GeometryPrimitive(primitive, self.geometry.lod)
+
+    def surface_count(self) -> int:
+        """
+        :return: The number of surfaces in the geometry
+        """
+        return self.geometry.surface_count()
+
+    def get_surfaces(self, flatten=True) -> list[MultiLineString]:
+        """
+        :return: The surfaces of the geometry template
+        """
+        return self.geometry.get_surfaces(flatten)
