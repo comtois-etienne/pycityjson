@@ -1,5 +1,6 @@
 import numpy as np
 
+from pycityjson.guid import guid
 from pycityjson.model import (
     City,
     CityGeometry,
@@ -285,6 +286,8 @@ class InstanceParser:
 class GeometryTemplateParser:
     def __init__(self, city):
         self.__city: City = city
+        self.__gm_parser = GeometryParser(self.__city)
+        self.__material_parser = GeometryMaterialParser(self.__city)
 
     def parse(self, data: dict) -> GeometryTemplates:
         """
@@ -296,17 +299,64 @@ class GeometryTemplateParser:
         v_parser = VerticesParser([0, 0, 0], [1.0, 1.0, 1.0], self.__city.precision())
         city.vertices = v_parser.parse(get_attribute(data, 'vertices-templates', default=[]))
 
-        gm_parser = GeometryParser(city)
         templates_data = get_attribute(data, 'templates', default=[])
-        templates = [gm_parser.parse(template) for template in templates_data]
+        templates = [self.__gm_parser.parse(t) for t in templates_data]
+        self.__material_parser.parse(templates_data, templates)
 
         return GeometryTemplates(templates, city.vertices)
+
+
+class GeometryMaterialParser:
+    def __init__(self, city: City) -> None:
+        self.__city: City = city
+
+    def __get_values(self, data: dict, geometry: CityGeometry) -> list[int | None]:
+        """
+        data contains cityjson['CityObjects'][uuid]['geometry'][i]['material'][theme]
+        """
+        if 'values' in data:
+            values = data['values']
+        elif 'value' in data:
+            values = [data['value']] * geometry.surface_count()
+        else:
+            values = [None] * geometry.surface_count()
+        return values
+
+    def __parse_themes(self, data: dict, theme: str, geometry: CityGeometry):
+        """
+        data contains cityjson['CityObjects'][uuid]['geometry'][i]['material'][theme]
+        """
+        values = self.__get_values(data, geometry)
+        surfaces = geometry.get_surfaces(flatten=True)
+
+        for surface, value in zip(surfaces, values):
+            material = self.__city.materials[value]
+            surface.set_material(material, theme)
+
+    def __parse_geometry(self, data: dict, geometry: CityGeometry):
+        """
+        data contains cityjson['CityObjects'][uuid]['geometry'][i]
+        Adds the material to the geometry
+        """
+        material = get_attribute(data, 'material', default={})
+        themes = list(material.keys())
+        for theme in themes:
+            self.__parse_themes(material[theme], theme, geometry)
+
+    def parse(self, geometry_data: dict, geometries: list[CityGeometry]):
+        """
+        :param geometry_data: list of the geometry data containing the materials
+        :param geometries: list of the geometries to add the materials
+        """
+        for g_data, geometry in zip(geometry_data, geometries):
+            self.__parse_geometry(g_data, geometry)
 
 
 class CityObjectParser:
     def __init__(self, city: City):
         self.__city: City = city
         self.__geometry_parser = CityGeometryParser(self.__city)
+        self.__material_parser = GeometryMaterialParser(self.__city)
 
     def _link_children(self, city_object: CityObject, city_objects: CityObjects):
         """
@@ -338,13 +388,16 @@ class CityObjectParser:
         :param uuid: uuid of the CityObject
         :param data: dict containing the CityObject attributes and geometries
         """
-        geometry: list[CityGeometry] = [self.__geometry_parser.parse(g) for g in get_attribute(data, 'geometry', default=[])]
+        # the attribute is called 'geometry' but it is a list of geometries
+        geometry_data = get_attribute(data, 'geometry', default=[])
+        geometries: list[CityGeometry] = [self.__geometry_parser.parse(g) for g in geometry_data]
+        self.__material_parser.parse(geometry_data, geometries)
 
         city_object = CityObject(
             cityobjects=self.__city.cityobjects,
             type=get_attribute(data, 'type', default='GenericCityObject'),
             attributes=get_attribute(data, 'attributes', default={}),
-            geometries=geometry,
+            geometries=geometries,
             children=get_attribute(data, 'children', default=[]),
             parents=get_attribute(data, 'parents', default=None),
         )
@@ -411,6 +464,7 @@ class MaterialsParser:
         material.shininess = get_attribute(data, 'shininess', default=None)
         material.transparency = get_attribute(data, 'transparency', default=None)
         material.isSmooth = get_attribute(data, 'isSmooth', default=None)
+        return material
 
     def parse(self, data: list) -> Materials:
         """
@@ -420,6 +474,7 @@ class MaterialsParser:
         materials = Materials()
         for material in data:
             materials.add(self.__parse_material(material))
+        return materials
 
 
 class CityParser:
