@@ -1,6 +1,8 @@
 # https://www.cityjson.org/dev/geom-arrays/
 
 
+from copy import copy
+
 import numpy as np
 
 from .appearance import Material, Materials
@@ -21,6 +23,12 @@ class Primitive:
         :return: list of children of the primitive
         """
         return self.children
+
+    def __len__(self) -> int:
+        """
+        :return: the number of children of the primitive
+        """
+        return len(self.children)
 
     def __str__(self):
         return f'{self.get_type()}(len={len(self.children)})'
@@ -160,6 +168,33 @@ class Primitive:
         """
         return [child.get_theme_values(theme, materials) for child in self.get_children()]
 
+    def get_surfaces(self, flatten=True) -> list['MultiLineString']:
+        """
+        :return: list of surfaces (MultiLineString) of the primitive
+        """
+        return None
+
+    def get_surface(self, index: int) -> 'MultiLineString':
+        """
+        :param index: index of the surface to get in all the surfaces of the primitive
+        :return: surface (MultiLineString) at the given index
+        """
+        surfaces = self.get_surfaces(flatten=True)
+        if surfaces is None:
+            return None
+        if index < 0 or index >= len(surfaces):
+            return None
+        return surfaces[index]
+
+    def surface_count(self) -> int:
+        """
+        :return: number of surfaces in the primitive
+        """
+        surfaces = self.get_surfaces(flatten=True)
+        if surfaces is None:
+            return None
+        return len(surfaces)
+
 
 class Point:
     """
@@ -217,11 +252,10 @@ class Point:
         return index
 
 
-# collection of points -> used to create shape
 class MultiPoint(Primitive):
     """
     A MultiPoint represents a ring (triangle, square, etc.)
-    A MultiPoint is a collection of points.
+    A MultiPoint is a collection of points - can be used to create a shape.
     When converted to boundaries, the depth of the array is 1. (array of indexes)
 
     The first point does not repeat at the end of the array.
@@ -306,13 +340,30 @@ class MultiLineString(Primitive):
         else:
             self.children[0] = exterior
 
-    def set_material(self, material: Material, theme: str = 'visual'):
+    def set_material(self, material: Material | None, theme: str = 'visual'):
+        """
+        Adds a material to the surface, None to remove the material
+        :param material: Material to add
+        :param theme: theme of the material to add
+        """
+        if material is None and theme not in self.__materials:
+            pass
         self.__materials[theme] = material
 
     def get_material(self, theme: str = 'visual') -> Material | None:
+        """
+        :param theme: theme of the material to get
+        :return: Material of the theme if it exists else None
+        """
         if theme in self.__materials:
             return self.__materials[theme]
         return None
+
+    def get_materials(self) -> dict[str, Material]:
+        """
+        :return: dictionary of materials of the surface
+        """
+        return copy(self.__materials)
 
     def get_semantic_dict(self) -> dict | None:
         """
@@ -346,6 +397,13 @@ class MultiLineString(Primitive):
             return materials.add(self.__materials[theme])
         return None
 
+    def get_surfaces(self, flatten=True) -> list['MultiLineString']:
+        """
+        :param flatten: not used
+        :return: list of surfaces (MultiLineString) of the primitive (only self)
+        """
+        return [self]
+
 
 # Used to create a landscape of a building wall
 class MultiSurface(Primitive):
@@ -376,6 +434,13 @@ class MultiSurface(Primitive):
             semantics[surface.semantic['uuid']] = semantic
         return list(semantics.values())
 
+    def get_surfaces(self, flatten=True) -> list['MultiLineString']:
+        """
+        :param flatten: not used
+        :return: list of surfaces (MultiLineString) of the primitive
+        """
+        return [surface for surface in self.children]
+
 
 # Used to create a building
 class Solid(Primitive):
@@ -403,6 +468,19 @@ class Solid(Primitive):
                     return None
                 semantics[surface.semantic['uuid']] = semantic
         return list(semantics.values())
+
+    def get_surfaces(self, flatten=True) -> list['MultiLineString']:
+        """
+        :param flatten: to get all the surfaces in one list instead of a nested list
+        :return: list of surfaces (MultiLineString) of the primitive
+        """
+        surfaces = []
+        for multi_surface in self.children:
+            if flatten:
+                surfaces += multi_surface.get_surfaces()
+            else:
+                surfaces.append(multi_surface.get_surfaces())
+        return surfaces
 
 
 class MultiSolid(Primitive):
@@ -434,3 +512,16 @@ class MultiSolid(Primitive):
                         return None
                     semantics[surface.semantic['uuid']] = semantic
         return list(semantics.values())
+
+    def get_surfaces(self, flatten=True) -> list['MultiLineString']:
+        """
+        :param flatten: to get all the surfaces in one list instead of a nested list
+        :return: list of surfaces (MultiLineString) of the primitive
+        """
+        surfaces = []
+        for solid in self.children:
+            if flatten:
+                surfaces += solid.get_surfaces(flatten)
+            else:
+                surfaces.append(solid.get_surfaces(flatten))
+        return surfaces
