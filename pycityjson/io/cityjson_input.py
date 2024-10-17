@@ -286,7 +286,6 @@ class InstanceParser:
 class GeometryTemplateParser:
     def __init__(self, city):
         self.__city: City = city
-        self.__gm_parser = GeometryParser(self.__city)
         self.__material_parser = GeometryMaterialParser(self.__city)
 
     def parse(self, data: dict) -> GeometryTemplates:
@@ -299,8 +298,9 @@ class GeometryTemplateParser:
         v_parser = VerticesParser([0, 0, 0], [1.0, 1.0, 1.0], self.__city.precision())
         city.vertices = v_parser.parse(get_attribute(data, 'vertices-templates', default=[]))
 
+        gm_parser = GeometryParser(city)
         templates_data = get_attribute(data, 'templates', default=[])
-        templates = [self.__gm_parser.parse(t) for t in templates_data]
+        templates = [gm_parser.parse(template) for template in templates_data]
         self.__material_parser.parse(templates_data, templates)
 
         return GeometryTemplates(templates, city.vertices)
