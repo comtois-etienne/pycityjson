@@ -41,3 +41,8 @@ https://www.cityjson.org/datasets/
 # Ruff
 - lint `ruff check --fix .`
 - format `ruff format .`
+
+# TODO / WIP  
+- Materials export  
+- Textures (input & output)
+- Extensions  
