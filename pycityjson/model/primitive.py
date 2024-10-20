@@ -194,6 +194,13 @@ class Primitive:
         if surfaces is None:
             return None
         return len(surfaces)
+    
+    def remove_interior_holes(self):
+        """
+        Removes all the holes in the surfaces of the primitive
+        """
+        for child in self.children:
+            child.remove_interior_holes()
 
 
 class Point:
@@ -290,6 +297,12 @@ class MultiPoint(Primitive):
         """
         return self.children.append(child)
 
+    def remove_interior_holes(self):
+        """
+        MultiPoint doesn't have holes
+        """
+        pass
+
 
 class MultiLineString(Primitive):
     """
@@ -339,6 +352,13 @@ class MultiLineString(Primitive):
             self.children.append(exterior)
         else:
             self.children[0] = exterior
+
+    def remove_interior_holes(self):
+        """
+        Removes all the holes in the surface
+        """
+        if len(self.children) > 1:
+            self.children = self.children[:1]
 
     def set_material(self, material: Material | None, theme: str = 'visual'):
         """
