@@ -81,12 +81,12 @@ class Vertices:
         vertex = self.__vertices[index]
         return [vertex[0], vertex[1], vertex[2]]
 
-    def get_min(self) -> float:
+    def get_min(self) -> list[float]:
         """
         :return: Minimum value of the given axis (x, y, z)
         """
         vertices = np.array(self.__vertices)
-        return np.min(vertices, axis=0)
+        return np.min(vertices, axis=0).tolist()
 
     def get_max(self) -> float:
         """
