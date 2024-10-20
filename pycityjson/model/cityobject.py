@@ -344,6 +344,15 @@ class CityObjects:
         if city_object is None:
             self.__cityobjects.append(cityobject)
 
+    def remove_cityobject(self, uuid: str) -> None:
+        """
+        Removes a CityObject from the collection if it exists.
+        :param cityobject: the CityObject to remove
+        """
+        city_object = self.get_by_uuid(uuid)
+        if city_object is not None:
+            self.__cityobjects.remove(city_object)
+
     def get_by_attribute(self, attribute: str, value) -> list[CityObject]:
         """
         :param attribute: the key of the attribute
