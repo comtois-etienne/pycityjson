@@ -6,7 +6,7 @@ Loading a file :
 import pycityjson.io as cjio
 import pycityjson.model as cj
 
-city = cjio.read('railway.city.json')
+city = cjio.read_cityjson('railway.city.json')
 ```
 
 Selecting an object :  
