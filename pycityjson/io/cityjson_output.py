@@ -177,6 +177,8 @@ class VerticesSerializer:
         Returns the vertices as a list of lists of integers.
         The vertices are scaled and translated according to the origin and scale.
         """
+        if len(self.vertices) == 0:
+            return []
         vertices = np.array(self.vertices.tolist())
         vertices = (vertices - np.array(self.origin)) / np.array(self.scale)
         vertices = np.round(vertices).astype(int)
@@ -218,6 +220,7 @@ class CitySerializer:
         # WARNING: Serialization order matters
         city_dict['CityObjects'] = cityobjects_serializer.serialize()
         city_dict['vertices'] = vertices_serializer.serialize()
+        city_dict['extensions'] = self.__city.extensions
 
         if len(self.__city.materials) > 0:
             city_dict['appearance'] = {

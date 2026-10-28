@@ -9,6 +9,7 @@ class City:
         self.type: str = type
         self.version: str = version
         self.metadata: dict = {}
+        self.extensions: dict = {}
         self.scale: Vertex = [0.001, 0.001, 0.001]
         self.origin: Vertex = [0, 0, 0]
 

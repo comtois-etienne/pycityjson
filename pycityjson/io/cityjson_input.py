@@ -501,6 +501,7 @@ class CityParser:
         self.__city.type = get_attribute(self.__data, 'type', default='CityJSON')
         self.__city.version = get_attribute(self.__data, 'version', default='2.0')
         self.__city.metadata = get_attribute(self.__data, 'metadata', default={})
+        self.__city.extensions = get_attribute(self.__data, 'extensions', default={})
         self.__city.scale = get_nested_attribute(self.__data, 'transform', 'scale', default=[0.001, 0.001, 0.001])
         self.__city.origin = get_nested_attribute(self.__data, 'transform', 'translate', default=[0, 0, 0])
 
@@ -516,6 +517,6 @@ class CityParser:
         self.__city.geometry_templates = gt_parser.parse(get_attribute(self.__data, 'geometry-templates', default={}))
 
         co_parser = CityObjectsParser(self.__city, add_uuid)
-        self.__city.cityobjects = co_parser.parse(get_attribute(self.__data, 'CityObjects', default=[]))
+        self.__city.cityobjects = co_parser.parse(get_attribute(self.__data, 'CityObjects', default={}))
 
         return self.__city
