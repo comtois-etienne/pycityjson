@@ -212,10 +212,11 @@ class Point:
     It must be stored in a MultiPoint
     """
 
-    def __init__(self, x, y, z):
+    def __init__(self, x, y, z, semantic: Semantic = None):
         self.x = x
         self.y = y
         self.z = z
+        self.semantic = semantic
 
     def __str__(self):
         return f'({self.x}, {self.y}, {self.z})'
@@ -228,7 +229,7 @@ class Point:
         Deep copy of the point
         :return: a new instance of the point with the same coordinates
         """
-        return self.__class__(self.x, self.y, self.z)
+        return self.__class__(self.x, self.y, self.z, self.semantic)
 
     def transform(self, matrix: TransformationMatrix, center=[0, 0, 0]):
         """
@@ -248,6 +249,15 @@ class Point:
         :return: List of the coordinates of the point (x, y, z)
         """
         return [self.x, self.y, self.z]
+
+    def get_semantic_dict(self) -> dict | None:
+        return self.semantic.to_dict() if self.semantic is not None else None
+
+    def get_material_themes(self) -> list[str]:
+        return []
+
+    def get_theme_values(self, theme: str, materials: Materials) -> None:
+        return None
 
     def index_vertices(self, vertices: Vertices) -> int:
         """
@@ -273,9 +283,10 @@ class MultiPoint(Primitive):
 
     __ptype = 'MultiPoint'
 
-    def __init__(self, points: list[Point] = None):
+    def __init__(self, points: list[Point] = None, semantic: Semantic = None):
         self.type = self.__ptype
         self.children = [] if points is None else points
+        self.semantic = semantic
 
     def get_vertices(self, flatten=False) -> list[Vertex]:
         """
@@ -288,7 +299,20 @@ class MultiPoint(Primitive):
         """
         MultiPoint doesn't have a semantic
         """
-        return None
+        return [
+            semantics.index(point.get_semantic_dict())
+            if point.get_semantic_dict() is not None
+            else None
+            for point in self.children
+        ]
+
+    def get_semantic_surfaces(self) -> list[dict] | None:
+        semantics = {
+            repr(point.get_semantic_dict()): point.get_semantic_dict()
+            for point in self.children
+            if point.get_semantic_dict() is not None
+        }
+        return list(semantics.values()) or None
 
     def add_child(self, child: Point) -> None:
         """
@@ -403,13 +427,23 @@ class MultiLineString(Primitive):
 
     def get_semantic_surfaces(self) -> list[dict] | None:
         if self.semantic is None:
-            return None
+            semantics = {
+                repr(face.semantic.to_dict()): face.semantic.to_dict()
+                for face in self.children
+                if face.semantic is not None
+            }
+            return list(semantics.values()) or None
         return [self.semantic.to_dict()]
 
     def get_semantic_values(self, semantics: list[dict]) -> int | None:
-        if self.semantic is None:
+        if self.semantic is not None:
+            return semantics.index(self.semantic.to_dict())
+        if not any(face.semantic is not None for face in self.children):
             return None
-        return semantics.index(self.semantic.to_dict())
+        return [
+            semantics.index(face.semantic.to_dict()) if face.semantic is not None else None
+            for face in self.children
+        ]
 
     def get_material_themes(self) -> list[str]:
         """

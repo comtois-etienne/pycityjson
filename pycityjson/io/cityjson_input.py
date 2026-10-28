@@ -116,7 +116,8 @@ class PointParser(PrimitiveParser):
         :param values: not used
         """
         point = self.city[boundary]
-        return self.__primitive(point[0], point[1], point[2])
+        semantic = semantics[values] if semantics is not None and isinstance(values, int) else None
+        return self.__primitive(point[0], point[1], point[2], semantic)
 
     def parse(self, data: int) -> Point:
         """
@@ -146,8 +147,7 @@ class MultiPointParser(PrimitiveParser):
         It cannot have semantics
         :param data: dict containing the geometry data (see PrimitiveParser.parse)
         """
-        boundaries = data['boundaries']
-        return self._parse(boundaries)
+        return super().parse(data)
 
 
 # contains the semantic IF a child
@@ -170,8 +170,7 @@ class MultiLineStringParser(PrimitiveParser):
         It cannot have semantics when at the top level of the geometry
         :param data: dict containing the geometry data (see PrimitiveParser.parse)
         """
-        boundaries = data['boundaries']
-        return self._parse(boundaries)
+        return super().parse(data)
 
 
 class MultiSurfaceParser(PrimitiveParser):
@@ -456,9 +455,7 @@ class VerticesParser:
             return Vertices(precision=self.__precision)
         else:
             vertices = (np.array(data) * np.array(self.__scale)) + np.array(self.__translate)
-            if self.__precision is not None:
-                vertices = np.round(vertices, self.__precision)
-            return Vertices(vertices.tolist(), precision=self.__precision)
+            return Vertices(vertices.tolist(), precision=None)
 
 
 class MaterialsParser:
