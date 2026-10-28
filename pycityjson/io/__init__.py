@@ -8,6 +8,7 @@ from pycityjson.model import City
 
 from .cityjson_input import CityParser
 from .cityjson_output import CitySerializer
+from .wavefront_input import read_obj, read_wavefront
 from .wavefront_output import WavefrontSerializer
 
 
@@ -158,4 +159,6 @@ __all__ = [
     'read_cityjson_features',
     'write_as_cityjson',
     'write_as_wavefront',
+    'read_wavefront',
+    'read_obj',
 ]
