@@ -520,10 +520,26 @@ class CityParser:
         self.__city: City = City()
 
     def parse(self, add_uuid: bool = False):
+        standard_members = {
+            'type',
+            'version',
+            'transform',
+            'metadata',
+            'extensions',
+            'CityObjects',
+            'vertices',
+            'appearance',
+            'geometry-templates',
+        }
         self.__city.type = get_attribute(self.__data, 'type', default='CityJSON')
         self.__city.version = get_attribute(self.__data, 'version', default='2.0')
         self.__city.metadata = get_attribute(self.__data, 'metadata', default={})
         self.__city.extensions = get_attribute(self.__data, 'extensions', default={})
+        self.__city.extra_root_properties = {
+            key: value
+            for key, value in self.__data.items()
+            if key not in standard_members
+        }
         self.__city.scale = get_nested_attribute(self.__data, 'transform', 'scale', default=[0.001, 0.001, 0.001])
         self.__city.origin = get_nested_attribute(self.__data, 'transform', 'translate', default=[0, 0, 0])
 

@@ -226,6 +226,7 @@ class CitySerializer:
         city_dict['CityObjects'] = cityobjects_serializer.serialize()
         city_dict['vertices'] = vertices_serializer.serialize()
         city_dict['extensions'] = self.__city.extensions
+        city_dict.update(self.__city.extra_root_properties)
 
         appearance = {}
         if len(self.__city.materials) > 0:

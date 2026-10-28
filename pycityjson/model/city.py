@@ -12,6 +12,7 @@ class City:
         self.version: str = version
         self.metadata: dict = {}
         self.extensions: dict = {}
+        self.extra_root_properties: dict = {}
         self.scale: Vertex = [0.001, 0.001, 0.001]
         self.origin: Vertex = [0, 0, 0]
 
