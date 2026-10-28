@@ -88,3 +88,28 @@ def test_transform_decodes_each_axis_without_rounding_coordinates(tmp_path):
     saved = json.loads(saved_path.read_text())
     assert saved['transform'] == source['transform']
     assert saved['vertices'] == source['vertices']
+
+
+def test_schema_minimal_cityjson_preserves_minor_version_string(tmp_path):
+    source = {
+        'type': 'CityJSON',
+        'version': '2.0',
+        'transform': {
+            'scale': [1.0, 1.0, 1.0],
+            'translate': [0.0, 0.0, 0.0],
+        },
+        'CityObjects': {},
+        'vertices': [],
+    }
+    source_path = tmp_path / 'schema-minimal.city.json'
+    saved_path = tmp_path / 'schema-minimal-saved.city.json'
+    source_path.write_text(json.dumps(source))
+
+    city = io.read_cityjson(source_path)
+    io.write_as_cityjson(city, saved_path)
+
+    saved = json.loads(saved_path.read_text())
+    assert saved['type'] == 'CityJSON'
+    assert saved['version'] == '2.0'
+    assert saved['CityObjects'] == {}
+    assert saved['vertices'] == []
