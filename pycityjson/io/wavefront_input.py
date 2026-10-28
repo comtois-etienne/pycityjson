@@ -1,13 +1,14 @@
 from pathlib import Path
 
 from pycityjson.guid import guid
-from pycityjson.model import City, CityObject, Color, GeometryPrimitive, Material, MultiLineString, MultiPoint, MultiSurface, Point
+from pycityjson.model import City, CityObject, Color, GeometryPrimitive, Material, MultiLineString, MultiPoint, MultiSurface, Point, Texture
 
 
-def _parse_mtl(path: Path) -> dict[str, Material]:
+def _parse_mtl(path: Path) -> tuple[dict[str, Material], dict[str, str]]:
     materials: dict[str, Material] = {}
+    images: dict[str, str] = {}
     if not path.is_file():
-        return materials
+        return materials, images
 
     current: Material | None = None
     for raw_line in path.read_text().splitlines():
@@ -25,7 +26,9 @@ def _parse_mtl(path: Path) -> dict[str, Material]:
                 current.diffuseColor = color
             else:
                 current.specularColor = color
-    return materials
+        elif current is not None and parts[0] == 'map_Kd' and len(parts) >= 2:
+            images[current.name or ''] = ' '.join(parts[1:])
+    return materials, images
 
 
 def _vertex_index(value: str, count: int) -> int:
@@ -36,7 +39,7 @@ def _vertex_index(value: str, count: int) -> int:
 def read_wavefront(
     file_path: str | Path,
     material_path: str | Path | None = None,
-    lod: str | int = 1,
+    lod: str | int = 0,
     type: str = 'GenericCityObject',
     add_uuid: bool = True,
 ) -> City:
@@ -44,17 +47,24 @@ def read_wavefront(
     path = Path(file_path)
     city = City()
     materials: dict[str, Material] = {}
+    material_images: dict[str, str] = {}
     if material_path is not None:
-        materials.update(_parse_mtl(Path(material_path)))
+        parsed_materials, parsed_images = _parse_mtl(Path(material_path))
+        materials.update(parsed_materials)
+        material_images.update(parsed_images)
     for material in materials.values():
         city.materials.add(material)
 
     vertices: list[list[float]] = []
+    texture_vertices: list[list[float]] = []
     objects: dict[str, CityObject] = {}
     current_object: CityObject | None = None
     current_group: str | None = None
     current_material: Material | None = None
-    group_faces: dict[tuple[str, str], list[tuple[list[int], Material | None]]] = {}
+    group_faces: dict[
+        tuple[str, str],
+        list[tuple[list[int], list[int], Material | None]],
+    ] = {}
 
     def ensure_object() -> CityObject:
         nonlocal current_object
@@ -72,11 +82,15 @@ def read_wavefront(
         command = parts[0]
         if command == 'mtllib' and len(parts) >= 2:
             material_file = path.parent / ' '.join(parts[1:])
-            materials.update(_parse_mtl(material_file))
+            parsed_materials, parsed_images = _parse_mtl(material_file)
+            materials.update(parsed_materials)
+            material_images.update(parsed_images)
             for material in materials.values():
                 city.materials.add(material)
         elif command == 'v' and len(parts) >= 4:
             vertices.append([float(value) for value in parts[1:4]])
+        elif command == 'vt' and len(parts) >= 3:
+            texture_vertices.append([float(parts[1]), float(parts[2])])
         elif command == 'o':
             name = ' '.join(parts[1:]).strip()
             tokens = name.split(maxsplit=1)
@@ -97,31 +111,57 @@ def read_wavefront(
             object_id = ensure_object().uuid()
             group = current_group or '__default__'
             key = (object_id, group)
+            vertex_indices = []
+            texture_indices = []
+            for value in parts[1:]:
+                indices = value.split('/')
+                vertex_indices.append(_vertex_index(value, len(vertices)))
+                texture_index = indices[1] if len(indices) > 1 else ''
+                texture_indices.append(
+                    _vertex_index(texture_index, len(texture_vertices))
+                    if texture_index
+                    else -1,
+                )
             group_faces.setdefault(key, []).append((
-                [_vertex_index(value, len(vertices)) for value in parts[1:]],
+                vertex_indices,
+                texture_indices,
                 current_material,
             ))
 
     city.vertices = city.vertices.__class__(vertices, precision=None)
+    city.texture_vertices = texture_vertices
+    for image in dict.fromkeys(material_images.values()):
+        image_path = path.parent / image
+        suffix = image_path.suffix.lower()
+        texture_type = Texture.Type.PNG if suffix == '.png' else Texture.Type.JPG
+        city.textures.append(Texture(texture_type, image))
     for (object_id, group), faces in group_faces.items():
         city_object = objects[object_id]
         surfaces = []
-        for face, material in faces:
+        texture_values: list[list[list[int]]] = []
+        texture_theme: str | None = None
+        for face, texture_indices, material in faces:
             points = [Point(*vertices[index]) for index in face]
             surface = MultiLineString([MultiPoint(points)])
             if material is not None:
                 surface.set_material(material)
+                if material.name in material_images:
+                    texture_theme = material.name
+                    texture_values.append([texture_indices])
             surfaces.append(surface)
         group_lod = group.removeprefix('lod_').removeprefix('lod').lstrip('_')
         group_lod = group_lod if group_lod.isdigit() else str(lod)
-        city_object.add_geometry(GeometryPrimitive(MultiSurface(surfaces), group_lod))
+        geometry = GeometryPrimitive(MultiSurface(surfaces), group_lod)
+        if texture_theme is not None:
+            geometry.texture = {texture_theme: {'values': texture_values}}
+        city_object.add_geometry(geometry)
     return city
 
 
 def read_wavefront_geometries(
     file_path: str | Path,
     material_path: str | Path | None = None,
-    lod: str | int = 2,
+    lod: str | int = 0,
 ) -> list[GeometryPrimitive]:
     """Read OBJ objects and groups as an ordered list of geometries."""
     city = read_wavefront(

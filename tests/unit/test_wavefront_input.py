@@ -22,7 +22,7 @@ def test_read_wavefront_imports_objects_geometry_lods_and_materials():
         'GenericCityObject',
         'Building',
     ]
-    assert [object_.geometries[0].lod for object_ in objects[:3]] == ['2', '3', '2']
+    assert [object_.geometries[0].lod for object_ in objects[:3]] == ['0', '3', '0']
     assert [geometry.lod for geometry in objects[3].geometries] == ['3', '2']
     geometries = [object_.geometries[0] for object_ in objects[:3]] + objects[3].geometries
     assert [len(geometry.primitive.get_surfaces()) for geometry in geometries] == [
@@ -98,7 +98,7 @@ def test_read_wavefront_geometries_reads_each_object_or_group_as_geometry():
     geometries = io.read_wavefront_geometries(SOLIDS / 'solids.obj')
 
     assert len(geometries) == 5
-    assert [geometry.lod for geometry in geometries] == ['2', '3', '2', '3', '2']
+    assert [geometry.lod for geometry in geometries] == ['0', '3', '0', '3', '2']
     assert [geometry.surface_count() for geometry in geometries] == [4, 6, 8, 12, 20]
 
 
@@ -107,3 +107,16 @@ def test_read_wavefront_geometries_reads_simple_mesh():
 
     assert len(geometries) == 1
     assert geometries[0].surface_count() == 28409
+
+
+def test_read_wavefront_reads_capsule_image_map_and_uvs():
+    city = io.read_wavefront(Path('tests/test_files/capsule/capsule.obj'))
+
+    assert len(city.textures) == 1
+    assert city.textures[0].image_url == 'capsule0.jpg'
+    assert city.textures[0].type == 'JPG'
+    assert city.texture_vertices
+    geometry = city.cityobjects[0].geometries[0]
+    texture_values = geometry.texture['material0']['values']
+    assert len(texture_values) == geometry.surface_count()
+    assert texture_values[0] == [[0, 1, 102]]
