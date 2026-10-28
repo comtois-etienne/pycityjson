@@ -36,7 +36,7 @@ def _vertex_index(value: str, count: int) -> int:
 def read_wavefront(
     file_path: str | Path,
     material_path: str | Path | None = None,
-    lod: str | int = 2,
+    lod: str | int = 1,
     type: str = 'GenericCityObject',
     add_uuid: bool = True,
 ) -> City:
