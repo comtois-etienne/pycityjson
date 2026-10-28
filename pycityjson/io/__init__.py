@@ -53,7 +53,7 @@ def _write_json(str_json: dict, file_path: str, indent=0):
             if indent > 0:
                 json.dump(str_json, json_file, indent=indent)
             else:
-                json.dump(str_json, json_file)
+                json.dump(str_json, json_file, separators=(',', ':'))
     except Exception as e:
         print(f'Error writing JSON file: {e}')
 
