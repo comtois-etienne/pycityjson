@@ -2,6 +2,7 @@ import json
 import os
 import tarfile
 import zipfile
+from collections.abc import Iterator
 
 from pycityjson.model import City
 
@@ -69,6 +70,58 @@ def read_cityjson(file_path: str | os.PathLike[str], add_uuid: bool = False) -> 
     return city_parser.parse(add_uuid=add_uuid)
 
 
+def read_cityjson_features(file_path: str | os.PathLike[str]) -> Iterator[dict]:
+    """
+    Lazily reads a CityJSON JSON Lines stream.
+
+    The first non-empty line must be a CityJSON object containing the required
+    header members. Subsequent lines must be CityJSONFeature objects.
+    """
+    path = os.fspath(file_path)
+
+    def objects() -> Iterator[dict]:
+        with open(path, 'r') as json_file:
+            for line_number, line in enumerate(json_file, start=1):
+                if not line.strip():
+                    continue
+                try:
+                    value = json.loads(line)
+                except json.JSONDecodeError as error:
+                    raise ValueError(f'Invalid JSON on line {line_number}') from error
+                if not isinstance(value, dict):
+                    raise ValueError(f'JSON Lines entry on line {line_number} must be an object')
+                yield value
+
+    stream = objects()
+    try:
+        header = next(stream)
+    except StopIteration as error:
+        raise ValueError('CityJSONFeature stream is empty') from error
+
+    if header.get('type') != 'CityJSON':
+        raise ValueError('The first JSON Lines entry must be a CityJSON object')
+    required = {'version', 'transform', 'CityObjects', 'vertices'}
+    missing = required.difference(header)
+    if missing:
+        raise ValueError(f'CityJSON header is missing required members: {sorted(missing)}')
+    yield header
+
+    for feature in stream:
+        if feature.get('type') != 'CityJSONFeature':
+            raise ValueError('Subsequent JSON Lines entries must be CityJSONFeature objects')
+        required = {'id', 'CityObjects', 'vertices'}
+        missing = required.difference(feature)
+        if missing:
+            raise ValueError(f'CityJSONFeature is missing required members: {sorted(missing)}')
+        forbidden = {'transform', 'version', 'metadata', 'geometry-templates', 'extensions'}
+        present_forbidden = forbidden.intersection(feature)
+        if present_forbidden:
+            raise ValueError(
+                f'CityJSONFeature contains forbidden members: {sorted(present_forbidden)}',
+            )
+        yield feature
+
+
 def write_as_cityjson(city: City, file_path, *, purge_vertices=True, pretty=False):
     """
     Writes a City object as a CityJSON file
@@ -102,6 +155,7 @@ __all__ = [
     'CityParser',
     'CitySerializer',
     'read_cityjson',
+    'read_cityjson_features',
     'write_as_cityjson',
     'write_as_wavefront',
 ]
