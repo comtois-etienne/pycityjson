@@ -158,7 +158,7 @@ class Semantic:
     Can also be used to strore more metadata about the surface.
     """
 
-    def __init__(self, dtype: str, add_uuid: bool = True):
+    def __init__(self, dtype: str, add_uuid: bool = False):
         """
         :param dtype: name of the CityJSON semantic - will be converted to the standard semantic if possible.
         :param add_uuid: bool, if True, an IFC UUID is added to the semantic to the 'uuid' key.

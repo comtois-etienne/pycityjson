@@ -842,7 +842,7 @@ class TestJsonIntegration:
         city = io.read_cityjson(source_path)
         io.write_as_cityjson(city, saved_path)
 
-        source = io.read_json(source_path)
+        source = io._read_json(source_path)
         saved = json.load(open(saved_path))
         assert saved['appearance']['materials'] == source['appearance']['materials']
 

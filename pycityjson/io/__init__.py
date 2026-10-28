@@ -10,7 +10,7 @@ from .cityjson_output import CitySerializer
 from .wavefront_output import WavefrontSerializer
 
 
-def read_json(file_path: str | os.PathLike[str]) -> dict | None:
+def _read_json(file_path: str | os.PathLike[str]) -> dict | None:
     """
     Reads a JSON file and returns it as a dictionary
     :param file_path: path to the JSON file
@@ -41,7 +41,7 @@ def read_json(file_path: str | os.PathLike[str]) -> dict | None:
     return str_json
 
 
-def write_json(str_json: dict, file_path: str, indent=0):
+def _write_json(str_json: dict, file_path: str, indent=0):
     """
     Writes a dictionary as a JSON file
     :param str_json: dictionary to be written
@@ -58,14 +58,15 @@ def write_json(str_json: dict, file_path: str, indent=0):
         print(f'Error writing JSON file: {e}')
 
 
-def read_cityjson(file_path: str | os.PathLike[str]) -> City:
+def read_cityjson(file_path: str | os.PathLike[str], add_uuid: bool = False) -> City:
     """
     Reads a CityJSON and parses it into a City object
     :param file_path: path to a CityJSON, `.city.json`, `.city.json.zip`, or `.city.json.tar` file
+    :param add_uuid: add UUIDs to semantic objects that do not have one
     """
-    cityjson = read_json(file_path)
+    cityjson = _read_json(file_path)
     city_parser = CityParser(cityjson)
-    return city_parser.parse()
+    return city_parser.parse(add_uuid=add_uuid)
 
 
 def write_as_cityjson(city: City, file_path, *, purge_vertices=True, pretty=False):
@@ -79,7 +80,7 @@ def write_as_cityjson(city: City, file_path, *, purge_vertices=True, pretty=Fals
     city_serializer = CitySerializer(city)
     city_dict = city_serializer.serialize(purge_vertices)
     indent = 1 if pretty else 0
-    write_json(city_dict, file_path, indent)
+    _write_json(city_dict, file_path, indent)
 
 
 def write_as_wavefront(city: City, file_path, *, as_one_geometry=False, swap_yz=False):

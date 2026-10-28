@@ -49,8 +49,9 @@ def get_nested_attribute(data: dict, key_a: str, key_b: str, *, default=None):
 
 
 class SemanticParser:
-    def __init__(self, city: City):
+    def __init__(self, city: City, add_uuid: bool = False):
         self.city: City = city
+        self.add_uuid = add_uuid
 
     def parse(self, data: list[dict]) -> list[Semantic]:
         """
@@ -58,7 +59,7 @@ class SemanticParser:
         """
         semantics = []
         for s in data:
-            semantic = Semantic(s['type'])
+            semantic = Semantic(s['type'], add_uuid=self.add_uuid)
             for key, value in s.items():
                 semantic[key] = value
             semantics.append(semantic)
@@ -66,8 +67,9 @@ class SemanticParser:
 
 
 class PrimitiveParser:
-    def __init__(self, city: City):
+    def __init__(self, city: City, add_uuid: bool = False):
         self.city: City = city
+        self.add_uuid = add_uuid
 
     def _parse(self, primitive_class: 'PrimitiveParser', child_parser_class: 'PrimitiveParser', boundary: list, semantics: list = None, values: list = None) -> Primitive:
         """
@@ -98,7 +100,7 @@ class PrimitiveParser:
         """
         semantics_surface = get_nested_attribute(data, 'semantics', 'surfaces', default=None)
         semantics_values = get_nested_attribute(data, 'semantics', 'values', default=None)
-        semantics = SemanticParser(self.city).parse(semantics_surface) if semantics_surface is not None else None
+        semantics = SemanticParser(self.city, self.add_uuid).parse(semantics_surface) if semantics_surface is not None else None
         boundaries = data['boundaries']
         return self._parse(boundaries, semantics, semantics_values)
 
@@ -227,8 +229,9 @@ GEOMETRY_PARSERS = {
 
 
 class CityGeometryParser:
-    def __init__(self, city: City):
+    def __init__(self, city: City, add_uuid: bool = False):
         self.__city: City = city
+        self.__add_uuid = add_uuid
 
     def parse(self, data: dict) -> CityGeometry:
         """
@@ -238,7 +241,7 @@ class CityGeometryParser:
         """
         dtype = data['type']
         if dtype in GEOMETRY_PARSERS:
-            parser = GeometryParser(self.__city)
+            parser = GeometryParser(self.__city, self.__add_uuid)
             return parser.parse(data)
         elif dtype == 'GeometryInstance':
             parser = InstanceParser(self.__city)
@@ -248,8 +251,9 @@ class CityGeometryParser:
 
 
 class GeometryParser:
-    def __init__(self, city: City):
+    def __init__(self, city: City, add_uuid: bool = False):
         self.__city: City = city
+        self.__add_uuid = add_uuid
 
     def parse(self, data: dict) -> GeometryPrimitive:
         """
@@ -260,7 +264,7 @@ class GeometryParser:
         dtype = data['type']
         if dtype not in GEOMETRY_PARSERS:
             raise ValueError(f'Unknown geometry type: {dtype}')
-        parser = GEOMETRY_PARSERS[dtype](self.__city)
+        parser = GEOMETRY_PARSERS[dtype](self.__city, self.__add_uuid)
         primitive = parser.parse(data)
         if dtype in ALT_PRIMITIVE:
             primitive.type = dtype
@@ -285,8 +289,9 @@ class InstanceParser:
 
 
 class GeometryTemplateParser:
-    def __init__(self, city):
+    def __init__(self, city, add_uuid: bool = False):
         self.__city: City = city
+        self.__add_uuid = add_uuid
         self.__material_parser = GeometryMaterialParser(self.__city)
 
     def parse(self, data: dict) -> GeometryTemplates:
@@ -299,7 +304,7 @@ class GeometryTemplateParser:
         v_parser = VerticesParser([0, 0, 0], [1.0, 1.0, 1.0], self.__city.precision())
         city.vertices = v_parser.parse(get_attribute(data, 'vertices-templates', default=[]))
 
-        gm_parser = GeometryParser(city)
+        gm_parser = GeometryParser(city, self.__add_uuid)
         templates_data = get_attribute(data, 'templates', default=[])
         templates = [gm_parser.parse(template) for template in templates_data]
         self.__material_parser.parse(templates_data, templates)
@@ -354,9 +359,9 @@ class GeometryMaterialParser:
 
 
 class CityObjectParser:
-    def __init__(self, city: City):
+    def __init__(self, city: City, add_uuid: bool = False):
         self.__city: City = city
-        self.__geometry_parser = CityGeometryParser(self.__city)
+        self.__geometry_parser = CityGeometryParser(self.__city, add_uuid)
         self.__material_parser = GeometryMaterialParser(self.__city)
 
     def _link_children(self, city_object: CityObject, city_objects: CityObjects):
@@ -411,8 +416,9 @@ class CityObjectParser:
 
 
 class CityObjectsParser:
-    def __init__(self, city: City):
+    def __init__(self, city: City, add_uuid: bool = False):
         self.__city: City = city
+        self.__add_uuid = add_uuid
 
     def parse(self, data: dict) -> CityObjects:
         """
@@ -420,7 +426,7 @@ class CityObjectsParser:
         :param data: dict containing all the CityObjects. the keys are the uuid of the CityObject
         """
         city_objects = CityObjects()
-        parser = CityObjectParser(self.__city)
+        parser = CityObjectParser(self.__city, self.__add_uuid)
 
         for uuid, data in data.items():
             cityobject = parser.parse(uuid, data)
@@ -491,7 +497,7 @@ class CityParser:
         self.__data: dict = cityjson
         self.__city: City = City()
 
-    def parse(self):
+    def parse(self, add_uuid: bool = False):
         self.__city.type = get_attribute(self.__data, 'type', default='CityJSON')
         self.__city.version = get_attribute(self.__data, 'version', default='2.0')
         self.__city.metadata = get_attribute(self.__data, 'metadata', default={})
@@ -506,10 +512,10 @@ class CityParser:
         m_parser = MaterialsParser()
         self.__city.materials = m_parser.parse(get_nested_attribute(self.__data, 'appearance', 'materials', default=[]))
 
-        gt_parser = GeometryTemplateParser(self.__city)
+        gt_parser = GeometryTemplateParser(self.__city, add_uuid)
         self.__city.geometry_templates = gt_parser.parse(get_attribute(self.__data, 'geometry-templates', default={}))
 
-        co_parser = CityObjectsParser(self.__city)
+        co_parser = CityObjectsParser(self.__city, add_uuid)
         self.__city.cityobjects = co_parser.parse(get_attribute(self.__data, 'CityObjects', default=[]))
 
         return self.__city

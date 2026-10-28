@@ -401,6 +401,16 @@ class MultiLineString(Primitive):
                 return i
         return None
 
+    def get_semantic_surfaces(self) -> list[dict] | None:
+        if self.semantic is None:
+            return None
+        return [self.semantic.to_dict()]
+
+    def get_semantic_values(self, semantics: list[dict]) -> int | None:
+        if self.semantic is None:
+            return None
+        return semantics.index(self.semantic.to_dict())
+
     def get_material_themes(self) -> list[str]:
         """
         :return: list of themes of the materials of the surface
@@ -451,10 +461,9 @@ class MultiSurface(Primitive):
         semantics = {}
         for surface in self.children:
             semantic = surface.get_semantic_dict()
-            if semantic is None:
-                return None
-            semantics[surface.semantic['uuid']] = semantic
-        return list(semantics.values())
+            if semantic is not None:
+                semantics[repr(semantic)] = semantic
+        return list(semantics.values()) or None
 
     def get_surfaces(self, flatten=True) -> list['MultiLineString']:
         """
@@ -486,10 +495,9 @@ class Solid(Primitive):
         for multi_surface in self.children:
             for surface in multi_surface.children:
                 semantic = surface.get_semantic_dict()
-                if semantic is None:
-                    return None
-                semantics[surface.semantic['uuid']] = semantic
-        return list(semantics.values())
+                if semantic is not None:
+                    semantics[repr(semantic)] = semantic
+        return list(semantics.values()) or None
 
     def get_surfaces(self, flatten=True) -> list['MultiLineString']:
         """
@@ -530,10 +538,9 @@ class MultiSolid(Primitive):
             for multi_surface in solid.children:
                 for surface in multi_surface.children:
                     semantic = surface.get_semantic_dict()
-                    if semantic is None:
-                        return None
-                    semantics[surface.semantic['uuid']] = semantic
-        return list(semantics.values())
+                    if semantic is not None:
+                        semantics[repr(semantic)] = semantic
+        return list(semantics.values()) or None
 
     def get_surfaces(self, flatten=True) -> list['MultiLineString']:
         """
