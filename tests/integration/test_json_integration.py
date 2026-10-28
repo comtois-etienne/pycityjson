@@ -777,7 +777,7 @@ class TestJsonIntegration:
 
         # Assert
         loaded_result = json.load(open(saved_file_path))
-        assert len(loaded_result['vertices']) == 14
+        assert len(loaded_result['vertices']) == 16
 
         def _get_index(x: float, y: float, z: float) -> int:
             for i, v in enumerate(loaded_result['vertices']):
@@ -795,13 +795,15 @@ class TestJsonIntegration:
         i_10_10_0 = _get_index(10_000, 10_000, 0)
         i_10_0_10 = _get_index(10_000, 0, 10_000)
         i_10_10_10 = _get_index(10_000, 10_000, 10_000)
-        i_10_0_20 = _get_index(10_000, 0, 20_000)
-        i_10_10_20 = _get_index(10_000, 10_000, 20_000)
+        i_10_0_12 = _get_index(10_000, 0, 12_000)
+        i_10_10_12 = _get_index(10_000, 10_000, 12_000)
+        i_10_0_22 = _get_index(10_000, 0, 22_000)
+        i_10_10_22 = _get_index(10_000, 10_000, 22_000)
 
-        i_20_0_10 = _get_index(20_000, 0, 10_000)
-        i_20_10_10 = _get_index(20_000, 10_000, 10_000)
-        i_20_0_20 = _get_index(20_000, 0, 20_000)
-        i_20_10_20 = _get_index(20_000, 10_000, 20_000)
+        i_20_0_12 = _get_index(20_000, 0, 12_000)
+        i_20_10_12 = _get_index(20_000, 10_000, 12_000)
+        i_20_0_22 = _get_index(20_000, 0, 22_000)
+        i_20_10_22 = _get_index(20_000, 10_000, 22_000)
 
         cube_1_faces = [
             unordered(
@@ -816,12 +818,12 @@ class TestJsonIntegration:
 
         cube_2_faces = [
             unordered(
-                [unordered([i_10_0_10, i_20_0_10, i_20_0_20, i_10_0_20])],  # 1
-                [unordered([i_20_0_10, i_20_10_10, i_20_10_20, i_20_0_20])],  # 2
-                [unordered([i_10_0_20, i_20_0_20, i_20_10_20, i_10_10_20])],  # 3
-                [unordered([i_10_0_10, i_20_0_10, i_20_10_10, i_10_10_10])],  # 4
-                [unordered([i_10_0_10, i_10_0_20, i_10_10_20, i_10_10_10])],  # 5
-                [unordered([i_10_10_10, i_20_10_10, i_20_10_20, i_10_10_20])],  # 6
+                [unordered([i_10_0_22, i_20_0_22, i_20_0_12, i_10_0_12])],  # 1
+                [unordered([i_20_0_22, i_20_10_22, i_20_10_12, i_20_0_12])],  # 2
+                [unordered([i_10_0_12, i_20_0_12, i_20_10_12, i_10_10_12])],  # 3
+                [unordered([i_10_0_22, i_20_0_22, i_20_10_22, i_10_10_22])],  # 4
+                [unordered([i_10_0_22, i_10_0_12, i_10_10_12, i_10_10_22])],  # 5
+                [unordered([i_10_10_22, i_20_10_22, i_20_10_12, i_10_10_12])],  # 6
             ),
         ]
         primitive_geometry = next(filter(lambda g: g['type'] != 'GeometryInstance', loaded_result['CityObjects']['id-2']['geometry']))
@@ -830,4 +832,4 @@ class TestJsonIntegration:
         assert loaded_result['CityObjects']['id-1']['geometry'][0]['boundaries'] == cube_1_faces
 
         assert primitive_geometry['boundaries'] == cube_2_faces
-        assert instance_geometry['boundaries'] == [i_10_0_10]
+        assert instance_geometry['boundaries'] == [i_10_0_12]
