@@ -414,6 +414,8 @@ class MultiLineString(Primitive):
         :return: index of the material in the list of materials or None if the material doesn't have this theme
         """
         if theme in self.__materials:
+            if self.__materials[theme] is None:
+                return None
             return materials.add(self.__materials[theme])
         return None
 

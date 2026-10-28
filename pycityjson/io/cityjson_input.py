@@ -6,6 +6,7 @@ from pycityjson.model import (
     CityGeometry,
     CityObject,
     CityObjects,
+    Color,
     GeometryInstance,
     GeometryPrimitive,
     GeometryTemplates,
@@ -458,13 +459,18 @@ class MaterialsParser:
         material = Material()
         material.name = get_attribute(data, 'name', default=guid())
         material.ambientIntensity = get_attribute(data, 'ambientIntensity', default=None)
-        material.diffuseColor = get_attribute(data, 'diffuseColor', default=None)
-        material.emissiveColor = get_attribute(data, 'emissiveColor', default=None)
-        material.specularColor = get_attribute(data, 'specularColor', default=None)
+        material.diffuseColor = self.__parse_color(data, 'diffuseColor')
+        material.emissiveColor = self.__parse_color(data, 'emissiveColor')
+        material.specularColor = self.__parse_color(data, 'specularColor')
         material.shininess = get_attribute(data, 'shininess', default=None)
         material.transparency = get_attribute(data, 'transparency', default=None)
         material.isSmooth = get_attribute(data, 'isSmooth', default=None)
         return material
+
+    @staticmethod
+    def __parse_color(data: dict, key: str) -> Color | None:
+        value = get_attribute(data, key, default=None)
+        return Color(*value) if value is not None else None
 
     def parse(self, data: list) -> Materials:
         """

@@ -1,5 +1,6 @@
 import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TextIO
 
 from pytest_unordered import unordered
@@ -833,3 +834,26 @@ class TestJsonIntegration:
 
         assert primitive_geometry['boundaries'] == cube_2_faces
         assert instance_geometry['boundaries'] == [i_10_0_12]
+
+    def test_materials_are_preserved_when_saving_railway(self, file_manager):
+        source_path = Path(__file__).parent.parent / 'test_files' / 'railway.city.json'
+        saved_path = file_manager.get_empty_file_path()
+
+        city = io.read_cityjson(source_path)
+        io.write_as_cityjson(city, saved_path)
+
+        source = json.load(open(source_path))
+        saved = json.load(open(saved_path))
+        assert saved['appearance']['materials'] == source['appearance']['materials']
+
+    def test_materials_can_be_modified_and_saved(self, file_manager):
+        source_path = Path(__file__).parent.parent / 'test_files' / 'railway.city.json'
+        saved_path = file_manager.get_empty_file_path()
+
+        city = io.read_cityjson(source_path)
+        material = city.materials[0]
+        material.diffuseColor = model.Color(1.0, 0.0, 0.0)
+        io.write_as_cityjson(city, saved_path)
+
+        saved = io.read_cityjson(saved_path)
+        assert saved.materials[0].diffuseColor == model.Color(1.0, 0.0, 0.0)

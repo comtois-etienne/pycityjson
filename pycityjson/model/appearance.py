@@ -69,6 +69,7 @@
 
 from copy import copy
 from dataclasses import dataclass
+from typing import Iterator
 
 from pycityjson.guid import guid
 
@@ -80,10 +81,10 @@ class Color:
     Init with either 3 or 4 floats or 3 or 4 ints.
     """
 
-    r: float
-    g: float
-    b: float
-    a: float = None
+    r: int | float
+    g: int | float
+    b: int | float
+    a: int | float | None = None
 
     @staticmethod
     def f_to_i(f: float) -> int:
@@ -95,7 +96,7 @@ class Color:
         return int(round(f * 255, 0))
 
     @staticmethod
-    def i_to_f(i: int, round_decimals: int = None) -> float:
+    def i_to_f(i: int, round_decimals: int | None = None) -> float:
         """
         int to float
         :param i: int
@@ -127,7 +128,7 @@ class Color:
             return Color(*l)
         return self.copy()
 
-    def to_float(self, round_decimals=3) -> 'Color':
+    def to_float(self, round_decimals: int = 3) -> 'Color':
         """
         Convert the color to float format if it is in int format.
         3 decimals are kept by default for 8bit colors.
@@ -159,7 +160,7 @@ class Color:
             alpha = Color.i_to_f(alpha)
         return Color(self.r, self.g, self.b, alpha)
 
-    def to_list(self) -> list:
+    def to_list(self) -> list[int | float]:
         """
         Converts the color to a list.
         :return: list
@@ -171,16 +172,16 @@ class Color:
 
 @dataclass()
 class Material:
-    name: str = None  # mandatory
-    ambientIntensity: float = None
-    diffuseColor: Color = None
-    emissiveColor: Color = None
-    specularColor: Color = None
-    shininess: float = None
-    transparency: float = None
-    isSmooth: bool = None
+    name: str | None = None  # mandatory
+    ambientIntensity: float | None = None
+    diffuseColor: Color | None = None
+    emissiveColor: Color | None = None
+    specularColor: Color | None = None
+    shininess: float | None = None
+    transparency: float | None = None
+    isSmooth: bool | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.name is None:
             self.name = guid()
 
@@ -193,7 +194,7 @@ class Materials:
     Container for materials.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.__materials: list[Material] = []
         self.__materials_dict: dict[str, int] = {}
 
@@ -203,7 +204,7 @@ class Materials:
         """
         return len(self.__materials)
 
-    def __getitem__(self, item: str | int) -> Material:
+    def __getitem__(self, item: str | int) -> Material | None:
         """
         Returns the material at the given index or the material with the given name.
         :param item: str or int (name or index)
@@ -215,7 +216,7 @@ class Materials:
             return self.get_by_name(item)
         return None
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Material]:
         """
         Iterator for the materials.
         """
@@ -228,7 +229,7 @@ class Materials:
         """
         return item.name in self.__materials_dict
 
-    def get_index(self, material: Material) -> int:
+    def get_index(self, material: Material) -> int | None:
         """
         :param material: Material to get the index of
         :return: Index of the material in the collection. None if the material is not in the collection
@@ -247,7 +248,7 @@ class Materials:
             self.__materials.append(material)
         return self.get_index(material)
 
-    def get_by_index(self, index: int) -> Material:
+    def get_by_index(self, index: int) -> Material | None:
         """
         :param index: Index of the material to get
         :return: Material at the given index. None if the index is out of bounds
@@ -256,7 +257,7 @@ class Materials:
             return None
         return self.__materials[index]
 
-    def get_by_name(self, name: str) -> Material:
+    def get_by_name(self, name: str) -> Material | None:
         """
         :param name: Name of the material to get
         :return: Material with the given name. None if the material is not in the collection
@@ -266,7 +267,7 @@ class Materials:
             return None
         return self.__materials[index]
 
-    def to_list(self) -> list:
+    def to_list(self) -> list[Material]:
         """
         :return: A copy of the list of materials in the collection
         """

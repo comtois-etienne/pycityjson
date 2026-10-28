@@ -1,4 +1,4 @@
-from .appearance import Material, Materials
+from .appearance import Color, Material, Materials
 from .city import City
 from .cityobject import CityObject, CityObjectGroup, CityObjects
 from .geometry import CityGeometry, GeometryInstance, GeometryPrimitive
@@ -39,4 +39,5 @@ __all__ = [
     'Semantic',
     'Materials',
     'Material',
+    'Color',
 ]

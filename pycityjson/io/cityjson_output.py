@@ -9,6 +9,8 @@ from pycityjson.model import (
     GeometryInstance,
     GeometryPrimitive,
     GeometryTemplates,
+    Material,
+    Materials,
     Primitive,
     TransformationMatrix,
     Vertex,
@@ -27,8 +29,8 @@ class TransformationMatrixSerializer:
 
 
 class CityGeometrySerializer:
-    def __init__(self, vertices: Vertices, geometry_templates: GeometryTemplates):
-        self.__primitive_serializer = GeometryPrimitiveSerializer(vertices)
+    def __init__(self, vertices: Vertices, geometry_templates: GeometryTemplates, materials: Materials):
+        self.__primitive_serializer = GeometryPrimitiveSerializer(vertices, materials)
         self.__instance_serializer = GeometryInstanceSerializer(vertices, geometry_templates)
 
     def serialize(self, city_geometry: CityGeometry) -> dict:
@@ -42,8 +44,9 @@ class CityGeometrySerializer:
 
 
 class GeometryPrimitiveSerializer:
-    def __init__(self, vertices: Vertices):
+    def __init__(self, vertices: Vertices, materials: Materials):
         self.__vertices = vertices
+        self.__materials = materials
 
     def serialize(self, geometry_primitive: GeometryPrimitive) -> dict:
         """
@@ -60,6 +63,12 @@ class GeometryPrimitiveSerializer:
             citygeometry['semantics'] = {
                 'surfaces': semantics,
                 'values': primitive.get_semantic_values(semantics),
+            }
+        themes = primitive.get_material_themes()
+        if themes:
+            citygeometry['material'] = {
+                theme: {'values': primitive.get_theme_values(theme, self.__materials)}
+                for theme in themes
             }
         return citygeometry
 
@@ -88,13 +97,13 @@ class GeometryInstanceSerializer:
 
 
 class GeometryTemplateSerializer:
-    def __init__(self, geometry_template: GeometryTemplates, precision: int):
+    def __init__(self, geometry_template: GeometryTemplates, precision: int, materials: Materials):
         """
         :param geometry_template: GeometryTemplates to be serialized
         :param precision: the number of decimal places to round the vertices. Must be a positive integer [0, infinity]
         """
         self.__geometry_template = geometry_template
-        self.__serializer = GeometryPrimitiveSerializer(geometry_template.vertices)
+        self.__serializer = GeometryPrimitiveSerializer(geometry_template.vertices, materials)
         self.__precision = precision
 
     def serialize(self) -> dict:
@@ -111,9 +120,10 @@ class CityObjectsSerializer:
         cityobjects: CityObjects,
         vertices: Vertices,
         geometry_templates: GeometryTemplates,
+        materials: Materials,
     ):
         self.cityobjects = cityobjects
-        self.serializer = CityGeometrySerializer(vertices, geometry_templates)
+        self.serializer = CityGeometrySerializer(vertices, geometry_templates, materials)
 
     def __serialize_cityobject(self, cityobject: CityObject) -> dict:
         """
@@ -186,9 +196,18 @@ class CitySerializer:
             self.__city.vertices = Vertices(precision=self.__city.precision())
             self.__city.geometry_templates.vertices = Vertices(precision=self.__city.precision())
 
-        cityobjects_serializer = CityObjectsSerializer(self.__city.cityobjects, self.__city.vertices, self.__city.geometry_templates)
+        cityobjects_serializer = CityObjectsSerializer(
+            self.__city.cityobjects,
+            self.__city.vertices,
+            self.__city.geometry_templates,
+            self.__city.materials,
+        )
         vertices_serializer = VerticesSerializer(self.__city.vertices, self.__city.origin, self.__city.scale)
-        geometry_template_serializer = GeometryTemplateSerializer(self.__city.geometry_templates, self.__city.precision())
+        geometry_template_serializer = GeometryTemplateSerializer(
+            self.__city.geometry_templates,
+            self.__city.precision(),
+            self.__city.materials,
+        )
 
         city_dict = {
             'type': self.__city.type,
@@ -200,9 +219,34 @@ class CitySerializer:
         city_dict['CityObjects'] = cityobjects_serializer.serialize()
         city_dict['vertices'] = vertices_serializer.serialize()
 
+        if len(self.__city.materials) > 0:
+            city_dict['appearance'] = {
+                'materials': [
+                    self.__serialize_material(material)
+                    for material in self.__city.materials
+                ],
+            }
+
         if not self.__city.geometry_templates.is_empty():
             city_dict['geometry-templates'] = geometry_template_serializer.serialize()
 
         city_dict['metadata'] = self.__city.metadata
 
         return city_dict
+
+    @staticmethod
+    def __serialize_material(material: Material) -> dict:
+        data = {'name': material.name}
+        for key in (
+            'ambientIntensity',
+            'diffuseColor',
+            'emissiveColor',
+            'specularColor',
+            'shininess',
+            'transparency',
+            'isSmooth',
+        ):
+            value = getattr(material, key)
+            if value is not None:
+                data[key] = value.to_list() if hasattr(value, 'to_list') else value
+        return data
