@@ -836,18 +836,18 @@ class TestJsonIntegration:
         assert instance_geometry['boundaries'] == [i_10_0_12]
 
     def test_materials_are_preserved_when_saving_railway(self, file_manager):
-        source_path = Path(__file__).parent.parent / 'test_files' / 'railway.city.json'
+        source_path = Path(__file__).parent.parent / 'test_files' / 'railway.city.json.zip'
         saved_path = file_manager.get_empty_file_path()
 
         city = io.read_cityjson(source_path)
         io.write_as_cityjson(city, saved_path)
 
-        source = json.load(open(source_path))
+        source = io.read_json(source_path)
         saved = json.load(open(saved_path))
         assert saved['appearance']['materials'] == source['appearance']['materials']
 
     def test_materials_can_be_modified_and_saved(self, file_manager):
-        source_path = Path(__file__).parent.parent / 'test_files' / 'railway.city.json'
+        source_path = Path(__file__).parent.parent / 'test_files' / 'railway.city.json.zip'
         saved_path = file_manager.get_empty_file_path()
 
         city = io.read_cityjson(source_path)

@@ -1,4 +1,7 @@
 import json
+import os
+import tarfile
+import zipfile
 
 from pycityjson.model import City
 
@@ -7,14 +10,31 @@ from .cityjson_output import CitySerializer
 from .wavefront_output import WavefrontSerializer
 
 
-def read_json(file_path: str) -> dict:
+def read_json(file_path: str | os.PathLike[str]) -> dict | None:
     """
     Reads a JSON file and returns it as a dictionary
     :param file_path: path to the JSON file
     """
     try:
-        with open(file_path, 'r') as json_file:
-            str_json = json.load(json_file)
+        path = os.fspath(file_path)
+        if path.endswith('.zip'):
+            with zipfile.ZipFile(path) as archive:
+                members = [member for member in archive.namelist() if member.endswith('.city.json')]
+                if not members:
+                    raise ValueError(f'No .city.json file found in archive: {path}')
+                str_json = json.loads(archive.read(members[0]))
+        elif path.endswith('.tar'):
+            with tarfile.open(path, 'r') as archive:
+                members = [member for member in archive.getmembers() if member.isfile() and member.name.endswith('.city.json')]
+                if not members:
+                    raise ValueError(f'No .city.json file found in archive: {path}')
+                file = archive.extractfile(members[0])
+                if file is None:
+                    raise ValueError(f'Unable to read .city.json file in archive: {path}')
+                str_json = json.load(file)
+        else:
+            with open(path, 'r') as json_file:
+                str_json = json.load(json_file)
     except Exception as e:
         print(f'Error reading JSON file: {e}')
         return None
@@ -38,10 +58,10 @@ def write_json(str_json: dict, file_path: str, indent=0):
         print(f'Error writing JSON file: {e}')
 
 
-def read_cityjson(file_path: str) -> City:
+def read_cityjson(file_path: str | os.PathLike[str]) -> City:
     """
     Reads a CityJSON and parses it into a City object
-    :param file_path: path to the CityJSON file
+    :param file_path: path to a CityJSON, `.city.json`, `.city.json.zip`, or `.city.json.tar` file
     """
     cityjson = read_json(file_path)
     city_parser = CityParser(cityjson)
