@@ -1,4 +1,4 @@
-from copy import copy
+from copy import deepcopy
 from typing import TypeAlias
 
 import numpy as np
@@ -58,7 +58,7 @@ class Vertices:
         :param item: Vertex to check if it is in the collection
         :return: True if the vertex is in the collection, False otherwise
         """
-        if not isinstance(item, list) and len(item) != 3:
+        if not isinstance(item, list) or len(item) != 3:
             return False
         return self.__vertex_to_string(item) in self.__vertices_dict
 
@@ -76,6 +76,7 @@ class Vertices:
         :param index: Index of the vertex to get
         :return: Vertex at the given index. None if the index is out of bounds
         """
+        index -= self.start_index
         if index < 0 or index >= len(self.__vertices):
             return None
         vertex = self.__vertices[index]
@@ -88,12 +89,12 @@ class Vertices:
         vertices = np.array(self.__vertices)
         return np.min(vertices, axis=0).tolist()
 
-    def get_max(self) -> float:
+    def get_max(self) -> list[float]:
         """
         :return: Maximum value of the given axis (x, y, z)
         """
         vertices = np.array(self.__vertices)
-        return np.max(vertices, axis=0)
+        return np.max(vertices, axis=0).tolist()
 
     def add(self, vertex: Vertex) -> int:
         """
@@ -119,7 +120,7 @@ class Vertices:
         """
         :return: List of vertices
         """
-        return copy(self.__vertices)
+        return deepcopy(self.__vertices)
 
     @staticmethod
     def __vertex_to_string(vertex: Vertex) -> str:
