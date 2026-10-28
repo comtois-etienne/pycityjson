@@ -92,3 +92,18 @@ def test_read_wavefront_supports_explicit_material_path_and_negative_indices(tmp
     assert city.cityobjects['object-1'].type == 'GenericCityObject'
     assert city.cityobjects['object-1'].geometries[0].lod == '1'
     assert city.cityobjects['object-1'].get_vertices(flatten=True) == [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
+
+
+def test_read_wavefront_geometries_reads_each_object_or_group_as_geometry():
+    geometries = io.read_wavefront_geometries(SOLIDS / 'solids.obj')
+
+    assert len(geometries) == 5
+    assert [geometry.lod for geometry in geometries] == ['2', '3', '2', '3', '2']
+    assert [geometry.surface_count() for geometry in geometries] == [4, 6, 8, 12, 20]
+
+
+def test_read_wavefront_geometries_reads_simple_mesh():
+    geometries = io.read_wavefront_geometries(Path('tests/test_files/mesh/simple_mesh.obj'))
+
+    assert len(geometries) == 1
+    assert geometries[0].surface_count() == 28409

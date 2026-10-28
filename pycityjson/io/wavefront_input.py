@@ -118,4 +118,27 @@ def read_wavefront(
     return city
 
 
+def read_wavefront_geometries(
+    file_path: str | Path,
+    material_path: str | Path | None = None,
+    lod: str | int = 2,
+) -> list[GeometryPrimitive]:
+    """Read OBJ objects and groups as an ordered list of geometries."""
+    city = read_wavefront(
+        file_path,
+        material_path=material_path,
+        lod=lod,
+        add_uuid=False,
+    )
+    geometries: list[GeometryPrimitive] = []
+    for city_object in city.cityobjects:
+        geometries.extend(
+            geometry
+            for geometry in city_object.geometries
+            if isinstance(geometry, GeometryPrimitive)
+        )
+    return geometries
+
+
 read_obj = read_wavefront
+read_obj_geometries = read_wavefront_geometries
