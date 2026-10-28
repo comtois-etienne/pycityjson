@@ -20,6 +20,7 @@ from pycityjson.model import (
     Primitive,
     Semantic,
     Solid,
+    Texture,
     TransformationMatrix,
     Vertex,
     Vertices,
@@ -267,7 +268,9 @@ class GeometryParser:
         primitive = parser.parse(data)
         if dtype in ALT_PRIMITIVE:
             primitive.type = dtype
-        return GeometryPrimitive(primitive, lod)
+        geometry = GeometryPrimitive(primitive, lod)
+        geometry.texture = get_attribute(data, 'texture', default=None)
+        return geometry
 
 
 class InstanceParser:
@@ -487,6 +490,27 @@ class MaterialsParser:
         return materials
 
 
+class TexturesParser:
+    @staticmethod
+    def __parse_color(data: dict, key: str) -> Color | None:
+        value = get_attribute(data, key, default=None)
+        return Color(*value) if value is not None else None
+
+    def parse(self, data: list[dict]) -> list[Texture]:
+        textures = []
+        for texture in data:
+            textures.append(
+                Texture(
+                    type=texture['type'],
+                    image_url=texture['image'],
+                    wrap_mode=get_attribute(texture, 'wrapMode', default=None),
+                    texture_type=get_attribute(texture, 'textureType', default=None),
+                    border_color=self.__parse_color(texture, 'borderColor'),
+                ),
+            )
+        return textures
+
+
 class CityParser:
     def __init__(self, cityjson: dict):
         """
@@ -510,6 +534,12 @@ class CityParser:
         # Done Second to avoid issues with the geometry
         m_parser = MaterialsParser()
         self.__city.materials = m_parser.parse(get_nested_attribute(self.__data, 'appearance', 'materials', default=[]))
+        t_parser = TexturesParser()
+        appearance = get_attribute(self.__data, 'appearance', default={})
+        self.__city.textures = t_parser.parse(get_attribute(appearance, 'textures', default=[]))
+        self.__city.texture_vertices = get_attribute(appearance, 'vertices-texture', default=[])
+        self.__city.default_theme_texture = get_attribute(appearance, 'default-theme-texture', default=None)
+        self.__city.default_theme_material = get_attribute(appearance, 'default-theme-material', default=None)
 
         gt_parser = GeometryTemplateParser(self.__city, add_uuid)
         self.__city.geometry_templates = gt_parser.parse(get_attribute(self.__data, 'geometry-templates', default={}))

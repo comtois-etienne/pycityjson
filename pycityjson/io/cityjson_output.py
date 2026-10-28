@@ -12,6 +12,7 @@ from pycityjson.model import (
     Material,
     Materials,
     Primitive,
+    Texture,
     TransformationMatrix,
     Vertex,
     Vertices,
@@ -70,6 +71,8 @@ class GeometryPrimitiveSerializer:
                 theme: {'values': primitive.get_theme_values(theme, self.__materials)}
                 for theme in themes
             }
+        if geometry_primitive.texture is not None:
+            citygeometry['texture'] = geometry_primitive.texture
         return citygeometry
 
 
@@ -224,13 +227,25 @@ class CitySerializer:
         city_dict['vertices'] = vertices_serializer.serialize()
         city_dict['extensions'] = self.__city.extensions
 
+        appearance = {}
         if len(self.__city.materials) > 0:
-            city_dict['appearance'] = {
-                'materials': [
-                    self.__serialize_material(material)
-                    for material in self.__city.materials
-                ],
-            }
+            appearance['materials'] = [
+                self.__serialize_material(material)
+                for material in self.__city.materials
+            ]
+        if self.__city.textures:
+            appearance['textures'] = [
+                self.__serialize_texture(texture)
+                for texture in self.__city.textures
+            ]
+        if self.__city.texture_vertices:
+            appearance['vertices-texture'] = self.__city.texture_vertices
+        if self.__city.default_theme_texture is not None:
+            appearance['default-theme-texture'] = self.__city.default_theme_texture
+        if self.__city.default_theme_material is not None:
+            appearance['default-theme-material'] = self.__city.default_theme_material
+        if appearance:
+            city_dict['appearance'] = appearance
 
         if not self.__city.geometry_templates.is_empty():
             city_dict['geometry-templates'] = geometry_template_serializer.serialize()
@@ -254,4 +269,15 @@ class CitySerializer:
             value = getattr(material, key)
             if value is not None:
                 data[key] = value.to_list() if hasattr(value, 'to_list') else value
+        return data
+
+    @staticmethod
+    def __serialize_texture(texture: Texture) -> dict:
+        data = {'type': texture.type, 'image': texture.image_url}
+        if texture.wrap_mode is not None:
+            data['wrapMode'] = texture.wrap_mode
+        if texture.texture_type is not None:
+            data['textureType'] = texture.texture_type
+        if texture.border_color is not None:
+            data['borderColor'] = texture.border_color.to_list()
         return data

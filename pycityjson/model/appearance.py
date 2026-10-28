@@ -294,6 +294,6 @@ class Texture:
 
     type: str
     image_url: str
-    wrap_mode: str = None
-    texture_type: str = None
-    border_color: Color = None  # RGBA
+    wrap_mode: str | None = None
+    texture_type: str | None = None
+    border_color: Color | None = None  # RGBA

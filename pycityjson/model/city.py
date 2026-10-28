@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from .appearance import Materials
+from .appearance import Materials, Texture
 from .cityobject import CityObjects
 from .template import GeometryTemplates
 from .vertices import Vertex, Vertices
@@ -20,6 +20,10 @@ class City:
         self.geometry_templates: GeometryTemplates = GeometryTemplates([], Vertices(precision=precision))
         self.cityobjects: CityObjects = CityObjects()
         self.materials: Materials = Materials()
+        self.textures: list[Texture] = []
+        self.texture_vertices: list[list[float]] = []
+        self.default_theme_texture: str | None = None
+        self.default_theme_material: str | None = None
 
     def __getitem__(self, key: str | int):
         """
@@ -97,12 +101,16 @@ class City:
         """
         self.metadata['referenceSystem'] = f'https://www.opengis.net/def/crs/EPSG/0/{epsg}'
 
-    def set_geographical_extent(self) -> None:
+    def set_geographical_extent(self) -> list[float] | None:
         """
         Set minimum and maximum coordinates of the city model
         Will only use the vertices of the city objects that were loaded from a file
         Save and reopen the file to update the geographical extent with new city objects
         """
+        if len(self.vertices) == 0:
+            self.metadata.pop('geographicalExtent', None)
+            return None
+
         min_x, min_y, min_z = self.vertices.get_min()
         max_x, max_y, max_z = self.vertices.get_max()
         self.metadata['geographicalExtent'] = [
@@ -113,3 +121,4 @@ class City:
             max_y,
             max_z,
         ]
+        return self.metadata['geographicalExtent']

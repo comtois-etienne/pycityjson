@@ -98,6 +98,7 @@ class GeometryPrimitive(CityGeometry):
     def __init__(self, primitive: Primitive, lod: str = '1'):
         self.primitive: Primitive = primitive
         self.lod: str = lod  # level of detail (1, 2, 3, ...)
+        self.texture: dict | None = None
 
     def __str__(self) -> str:
         return f'Geometry{self.primitive.get_type()}(lod={self.lod})'
