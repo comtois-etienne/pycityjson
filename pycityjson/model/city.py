@@ -66,7 +66,10 @@ class City:
         3 decimal places is the default value and gives a precision of 1 mm
         2 decimal places gives a precision of 1 cm
         """
-        return max(0, -Decimal(str(self.scale[0])).as_tuple().exponent)
+        return max(
+            max(0, -Decimal(str(scale)).as_tuple().exponent)
+            for scale in self.scale
+        )
 
     def set_origin(self, vertex=None):
         """

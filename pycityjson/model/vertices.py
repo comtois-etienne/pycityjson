@@ -101,7 +101,8 @@ class Vertices:
         Add a vertex to the collection with a given precision. Will round the vertex to the precision given in the
         constructor.
         """
-        vertex = [round(coord, self.__precision) for coord in vertex]
+        if self.__precision is not None:
+            vertex = [round(coord, self.__precision) for coord in vertex]
 
         if vertex not in self:
             self.__vertices_dict[self.__vertex_to_string(vertex)] = len(self.__vertices)
