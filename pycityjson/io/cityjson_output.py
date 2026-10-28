@@ -67,10 +67,18 @@ class GeometryPrimitiveSerializer:
             }
         themes = primitive.get_material_themes()
         if themes:
-            citygeometry['material'] = {
-                theme: {'values': primitive.get_theme_values(theme, self.__materials)}
-                for theme in themes
-            }
+            citygeometry['material'] = {}
+            for theme in themes:
+                values = primitive.get_theme_values(theme, self.__materials)
+                if (
+                    theme in geometry_primitive.material_value_themes
+                    and isinstance(values, list)
+                    and values
+                    and all(value == values[0] for value in values)
+                ):
+                    citygeometry['material'][theme] = {'value': values[0]}
+                else:
+                    citygeometry['material'][theme] = {'values': values}
         if geometry_primitive.texture is not None:
             citygeometry['texture'] = geometry_primitive.texture
         return citygeometry
@@ -87,7 +95,10 @@ class GeometryInstanceSerializer:
         :param geometry_instance: GeometryInstance to be serialized
         """
         boundary = self.__vertices.add(geometry_instance.matrix.get_origin())
-        template_index = self.__geometry_templates.add_template(geometry_instance.geometry)
+        if geometry_instance.template_index is None:
+            template_index = self.__geometry_templates.add_template(geometry_instance.geometry)
+        else:
+            template_index = geometry_instance.template_index
         matrix = self.__matrix_serializer.serialize(geometry_instance.matrix.recenter())
 
         cityinstance = {

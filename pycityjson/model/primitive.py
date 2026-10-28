@@ -136,6 +136,19 @@ class Primitive:
         """
         return None
 
+    @staticmethod
+    def _index_semantics(surfaces: list['MultiLineString']) -> list[dict]:
+        semantics = []
+        semantic_indices = {}
+        for surface in surfaces:
+            if surface.semantic is not None:
+                semantic_id = id(surface.semantic)
+                if semantic_id not in semantic_indices:
+                    semantic_indices[semantic_id] = len(semantics)
+                    semantics.append(surface.semantic.to_dict())
+                surface._semantic_index = semantic_indices[semantic_id]
+        return semantics or None
+
     def get_semantic_values(self, semantics: list[dict]) -> list[int]:
         """
         Returns the index of the semantic in the list of semantics
@@ -300,19 +313,23 @@ class MultiPoint(Primitive):
         MultiPoint doesn't have a semantic
         """
         return [
-            semantics.index(point.get_semantic_dict())
+            getattr(point, '_semantic_index', semantics.index(point.get_semantic_dict()))
             if point.get_semantic_dict() is not None
             else None
             for point in self.children
         ]
 
     def get_semantic_surfaces(self) -> list[dict] | None:
-        semantics = {
-            repr(point.get_semantic_dict()): point.get_semantic_dict()
-            for point in self.children
-            if point.get_semantic_dict() is not None
-        }
-        return list(semantics.values()) or None
+        semantics = []
+        semantic_indices = {}
+        for point in self.children:
+            if point.get_semantic_dict() is not None:
+                semantic_id = id(point.semantic)
+                if semantic_id not in semantic_indices:
+                    semantic_indices[semantic_id] = len(semantics)
+                    semantics.append(point.get_semantic_dict())
+                point._semantic_index = semantic_indices[semantic_id]
+        return semantics or None
 
     def add_child(self, child: Point) -> None:
         """
@@ -427,16 +444,14 @@ class MultiLineString(Primitive):
 
     def get_semantic_surfaces(self) -> list[dict] | None:
         if self.semantic is None:
-            semantics = {
-                repr(face.semantic.to_dict()): face.semantic.to_dict()
-                for face in self.children
-                if face.semantic is not None
-            }
-            return list(semantics.values()) or None
+            return self._index_semantics(self.children)
+        self._semantic_index = 0
         return [self.semantic.to_dict()]
 
     def get_semantic_values(self, semantics: list[dict]) -> int | None:
         if self.semantic is not None:
+            if hasattr(self, '_semantic_index'):
+                return self._semantic_index
             return semantics.index(self.semantic.to_dict())
         if not any(face.semantic is not None for face in self.children):
             return None
@@ -492,12 +507,17 @@ class MultiSurface(Primitive):
         """
         :return: list of semantic of the surfaces of the primitive
         """
-        semantics = {}
+        semantics = []
+        semantic_indices = {}
         for surface in self.children:
             semantic = surface.get_semantic_dict()
             if semantic is not None:
-                semantics[repr(semantic)] = semantic
-        return list(semantics.values()) or None
+                semantic_id = id(surface.semantic)
+                if semantic_id not in semantic_indices:
+                    semantic_indices[semantic_id] = len(semantics)
+                    semantics.append(semantic)
+                surface._semantic_index = semantic_indices[semantic_id]
+        return semantics or None
 
     def get_surfaces(self, flatten=True) -> list['MultiLineString']:
         """
@@ -525,13 +545,18 @@ class Solid(Primitive):
         """
         :return: list of semantic of the surfaces of the primitive
         """
-        semantics = {}
+        semantics = []
+        semantic_indices = {}
         for multi_surface in self.children:
             for surface in multi_surface.children:
                 semantic = surface.get_semantic_dict()
                 if semantic is not None:
-                    semantics[repr(semantic)] = semantic
-        return list(semantics.values()) or None
+                    semantic_id = id(surface.semantic)
+                    if semantic_id not in semantic_indices:
+                        semantic_indices[semantic_id] = len(semantics)
+                        semantics.append(semantic)
+                    surface._semantic_index = semantic_indices[semantic_id]
+        return semantics or None
 
     def get_surfaces(self, flatten=True) -> list['MultiLineString']:
         """
@@ -567,14 +592,19 @@ class MultiSolid(Primitive):
         """
         :return: list of semantic of the surfaces of the primitive
         """
-        semantics = {}
+        semantics = []
+        semantic_indices = {}
         for solid in self.children:
             for multi_surface in solid.children:
                 for surface in multi_surface.children:
                     semantic = surface.get_semantic_dict()
                     if semantic is not None:
-                        semantics[repr(semantic)] = semantic
-        return list(semantics.values()) or None
+                        semantic_id = id(surface.semantic)
+                        if semantic_id not in semantic_indices:
+                            semantic_indices[semantic_id] = len(semantics)
+                            semantics.append(semantic)
+                        surface._semantic_index = semantic_indices[semantic_id]
+        return semantics or None
 
     def get_surfaces(self, flatten=True) -> list['MultiLineString']:
         """

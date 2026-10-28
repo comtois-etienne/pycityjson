@@ -270,6 +270,11 @@ class GeometryParser:
             primitive.type = dtype
         geometry = GeometryPrimitive(primitive, lod)
         geometry.texture = get_attribute(data, 'texture', default=None)
+        geometry.material_value_themes = {
+            theme
+            for theme, assignment in get_attribute(data, 'material', default={}).items()
+            if 'value' in assignment
+        }
         return geometry
 
 
@@ -287,7 +292,7 @@ class InstanceParser:
         matrix = data['transformationMatrix']
         matrix = TransformationMatrix(matrix)
         matrix = matrix.translate(origin)
-        return GeometryInstance(geometry, matrix)
+        return GeometryInstance(geometry, matrix, data['template'])
 
 
 class GeometryTemplateParser:
@@ -409,10 +414,10 @@ class CityObjectParser:
             children=get_attribute(data, 'children', default=[]),
             parents=get_attribute(data, 'parents', default=None),
             address=get_attribute(data, 'address', default=None),
+            uuid=uuid,
         )
 
         city_object.geo_extent = get_attribute(data, 'geographicalExtent', default=None)
-        city_object.set_attribute('uuid', uuid)
         if city_object.type == 'CityObjectGroup':
             city_object = city_object.to_cityobjectgroup(get_attribute(data, 'children_roles', default=[]))
         return city_object

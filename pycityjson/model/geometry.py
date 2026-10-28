@@ -99,6 +99,7 @@ class GeometryPrimitive(CityGeometry):
         self.primitive: Primitive = primitive
         self.lod: str = lod  # level of detail (1, 2, 3, ...)
         self.texture: dict | None = None
+        self.material_value_themes: set[str] = set()
 
     def __str__(self) -> str:
         return f'Geometry{self.primitive.get_type()}(lod={self.lod})'
@@ -167,9 +168,15 @@ class GeometryInstance(CityGeometry):
     Contains 'GeometryInstance' (Template)
     """
 
-    def __init__(self, geometry: GeometryPrimitive, matrix: TransformationMatrix):
+    def __init__(
+        self,
+        geometry: GeometryPrimitive,
+        matrix: TransformationMatrix,
+        template_index: int | None = None,
+    ):
         self.geometry: GeometryPrimitive = geometry
         self.matrix: TransformationMatrix = matrix
+        self.template_index = template_index
 
     def transform(self, matrix: TransformationMatrix, center=None) -> None:
         """
