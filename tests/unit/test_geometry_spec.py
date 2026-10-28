@@ -41,6 +41,77 @@ def test_multilinestring_supports_geometry_semantics():
     assert geometry.primitive.get_semantic_values([{'type': 'TrafficArea'}]) == 0
 
 
+def test_multipoint_semantics_round_trip(tmp_path):
+    source = {
+        'type': 'CityJSON',
+        'version': '2.0',
+        'transform': {'scale': [1, 1, 1], 'translate': [0, 0, 0]},
+        'vertices': [[0, 0, 0], [1, 0, 0]],
+        'CityObjects': {
+            'points': {
+                'type': 'GenericCityObject',
+                'geometry': [{
+                    'type': 'MultiPoint',
+                    'lod': '1',
+                    'boundaries': [0, 1],
+                    'semantics': {
+                        'surfaces': [{'type': '+Tree'}, {'type': '+Lamp'}],
+                        'values': [0, 1],
+                    },
+                }],
+            },
+        },
+    }
+    source_path = tmp_path / 'multipoint.city.json'
+    saved_path = tmp_path / 'saved.city.json'
+    source_path.write_text(json.dumps(source))
+
+    city = io.read_cityjson(source_path)
+    geometry = city.cityobjects['points'].geometries[0]
+    assert geometry.primitive.get_semantic_surfaces() == source['CityObjects']['points']['geometry'][0]['semantics']['surfaces']
+    assert geometry.primitive.get_semantic_values(geometry.primitive.get_semantic_surfaces()) == [0, 1]
+
+    io.write_as_cityjson(city, saved_path)
+    saved = json.loads(saved_path.read_text())
+    assert saved['CityObjects']['points']['geometry'][0]['semantics'] == source['CityObjects']['points']['geometry'][0]['semantics']
+
+
+def test_multilinestring_semantics_apply_to_each_line(tmp_path):
+    source = {
+        'type': 'CityJSON',
+        'version': '2.0',
+        'transform': {'scale': [1, 1, 1], 'translate': [0, 0, 0]},
+        'vertices': [[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+        'CityObjects': {
+            'lines': {
+                'type': 'GenericCityObject',
+                'geometry': [{
+                    'type': 'MultiLineString',
+                    'lod': '1',
+                    'boundaries': [[0, 1], [1, 2]],
+                    'semantics': {
+                        'surfaces': [{'type': '+RoadEdge'}, {'type': '+RailEdge'}],
+                        'values': [0, 1],
+                    },
+                }],
+            },
+        },
+    }
+    source_path = tmp_path / 'lines.city.json'
+    saved_path = tmp_path / 'saved.city.json'
+    source_path.write_text(json.dumps(source))
+
+    city = io.read_cityjson(source_path)
+    geometry = city.cityobjects['lines'].geometries[0]
+    semantics = geometry.primitive.get_semantic_surfaces()
+    assert semantics == source['CityObjects']['lines']['geometry'][0]['semantics']['surfaces']
+    assert geometry.primitive.get_semantic_values(semantics) == [0, 1]
+
+    io.write_as_cityjson(city, saved_path)
+    saved = json.loads(saved_path.read_text())
+    assert saved['CityObjects']['lines']['geometry'][0]['semantics'] == source['CityObjects']['lines']['geometry'][0]['semantics']
+
+
 def test_all_solid_geometry_types_have_specification_types():
     surface = MultiSurface([_line()])
     solid = Solid([surface])
