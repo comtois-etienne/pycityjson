@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from .appearance import Materials
 from .cityobject import CityObjects
 from .template import GeometryTemplates
@@ -64,7 +66,7 @@ class City:
         3 decimal places is the default value and gives a precision of 1 mm
         2 decimal places gives a precision of 1 cm
         """
-        return len(str(self.scale[0]).split('.')[1])
+        return max(0, -Decimal(str(self.scale[0])).as_tuple().exponent)
 
     def set_origin(self, vertex=None):
         """

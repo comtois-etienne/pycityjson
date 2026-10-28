@@ -134,12 +134,14 @@ class CityObjectsSerializer:
             cj['geographicalExtent'] = cityobject.geo_extent
         if cityobject.attributes != {}:
             cj['attributes'] = cityobject.attributes
+        if cityobject.address is not None:
+            cj['address'] = cityobject.address
         if len(cityobject.geometries) > 0:
             cj['geometry'] = [self.serializer.serialize(g) for g in cityobject.geometries]
         if cityobject.children != []:
             cj['children'] = [child.uuid() for child in cityobject.children]
         if cityobject.parents != []:
-            cj['parent'] = [parent.uuid() for parent in cityobject.parents]
+            cj['parents'] = [parent.uuid() for parent in cityobject.parents]
         return cj
 
     def __serialize_cityobjectgroup(self, cityobjectgroup: CityObjectGroup) -> dict:
@@ -148,7 +150,7 @@ class CityObjectsSerializer:
         """
         cj = self.__serialize_cityobject(cityobjectgroup)
         if cityobjectgroup.children_roles != [] and len(cityobjectgroup.children_roles) == len(cityobjectgroup.children):
-            cj['childrenRoles'] = cityobjectgroup.children_roles
+            cj['children_roles'] = cityobjectgroup.children_roles
         return cj
 
     def __serialize_one(self, cityobject: CityObject) -> dict:

@@ -16,6 +16,7 @@ class CityObject:
         geometries: list[CityGeometry] = None,
         children=None,
         parents=None,
+        address: list[dict] | None = None,
     ):
         self.cityobjects: 'CityObjects' = cityobjects
 
@@ -24,6 +25,7 @@ class CityObject:
 
         self.children: list[CityObject] | list[str] = [] if children is None else children
         self.parents: list[CityObject] | list[str] = [] if parents is None else parents
+        self.address: list[dict] | None = address
 
         self.__uuid: str = self.attributes['uuid'] if 'uuid' in self.attributes else guid()
         self.type: str = type  # todo verify with types
@@ -201,6 +203,7 @@ class CityObject:
             self.children,
             self.parents,
             children_roles,
+            self.address,
         )
 
     def transform(self, matrix: TransformationMatrix, center: Vertex = None) -> None:
@@ -251,6 +254,7 @@ class CityObjectGroup(CityObject):
         children: list[CityObject] = None,
         parent: list[CityObject] = None,
         children_roles: list[str] = None,
+        address: list[dict] | None = None,
     ):
         """
         :param cityobjects: the parent class containing all the CityObjects
@@ -258,7 +262,7 @@ class CityObjectGroup(CityObject):
         :param geometries: the geometries of the CityObjectGroup
         :param children: the children of the CityObjectGroup
         """
-        super().__init__(cityobjects, 'CityObjectGroup', attributes, geometries, children, parent)
+        super().__init__(cityobjects, 'CityObjectGroup', attributes, geometries, children, parent, address)
         self.children_roles = [] if children_roles is None else children_roles
 
     def add_child(self, child: CityObject, role: str = None) -> None:

@@ -406,6 +406,7 @@ class CityObjectParser:
             geometries=geometries,
             children=get_attribute(data, 'children', default=[]),
             parents=get_attribute(data, 'parents', default=None),
+            address=get_attribute(data, 'address', default=None),
         )
 
         city_object.geo_extent = get_attribute(data, 'geographicalExtent', default=None)
