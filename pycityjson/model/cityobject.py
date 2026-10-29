@@ -136,6 +136,12 @@ class CityObject:
                 return geometry
         return None
 
+    def set_geometry_lod(self, index: int, lod: str | int) -> None:
+        """Set the level of detail of a geometry by its index."""
+        if index < 0 or index >= len(self.geometries):
+            raise IndexError(f'Geometry index out of range: {index}')
+        self.geometries[index].set_lod(lod)
+
     def get_vertices(self, flatten=False) -> list:
         """
         Returns the vertices of all the geometries of the CityObject.

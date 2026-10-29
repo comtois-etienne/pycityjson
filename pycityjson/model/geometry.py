@@ -130,6 +130,10 @@ class GeometryPrimitive(CityGeometry):
         """
         return self.lod
 
+    def set_lod(self, lod: str | int) -> None:
+        """Set the level of detail of this geometry."""
+        self.lod = str(lod)
+
     def get_vertices(self, flatten=False) -> list:
         """
         :param flatten: If True, the vertices are returned as a list of Vertex, else as the original structure of the geometry
@@ -192,6 +196,10 @@ class GeometryInstance(CityGeometry):
         :return: The level of detail of the geometry
         """
         return self.geometry.get_lod()
+
+    def set_lod(self, lod: str | int) -> None:
+        """Set the level of detail of the referenced template geometry."""
+        self.geometry.set_lod(lod)
 
     def get_vertices(self, flatten=False) -> list:
         """
