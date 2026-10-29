@@ -237,6 +237,14 @@ class Point:
     def __repr__(self):
         return f'Point({self.x}, {self.y}, {self.z})'
 
+    def get_type(self) -> str:
+        """Return the CityJSON primitive type."""
+        return 'Point'
+
+    def get_vertices(self, flatten=False) -> list[Vertex]:
+        """Return this point as a one-item vertex list."""
+        return [self.to_list()]
+
     def copy(self) -> 'Point':
         """
         Deep copy of the point
@@ -266,11 +274,29 @@ class Point:
     def get_semantic_dict(self) -> dict | None:
         return self.semantic.to_dict() if self.semantic is not None else None
 
+    def get_semantic_surfaces(self) -> None:
+        """Return no surface semantics for a point."""
+        return None
+
+    def get_semantic_values(self, semantics) -> None:
+        """Return no surface semantic value for a point."""
+        return None
+
     def get_material_themes(self) -> list[str]:
+        """Return no material themes for a point."""
         return []
 
     def get_theme_values(self, theme: str, materials: Materials) -> None:
+        """Return no material value for a point."""
         return None
+
+    def get_surfaces(self, flatten=True) -> list:
+        """Return no surfaces for a point."""
+        return []
+
+    def surface_count(self) -> int:
+        """Return zero because a point has no surfaces."""
+        return 0
 
     def index_vertices(self, vertices: Vertices) -> int:
         """
