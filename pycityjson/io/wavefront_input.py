@@ -2,6 +2,7 @@ from pathlib import Path
 
 from pycityjson.guid import guid
 from pycityjson.model import City, CityObject, Color, GeometryPrimitive, Material, MultiLineString, MultiPoint, MultiSurface, Point, Texture
+from pycityjson.obj import WavefrontFace, WavefrontGroup, WavefrontVertex
 
 
 def _parse_mtl(path: Path) -> tuple[dict[str, Material], dict[str, str]]:
@@ -139,21 +140,32 @@ def read_wavefront(
         city.textures.append(Texture(texture_type, image))
     for (object_id, group), faces in group_faces.items():
         city_object = objects[object_id]
-        surfaces = []
+        wavefront_group = WavefrontGroup(
+            group,
+            [
+                WavefrontFace([
+                    WavefrontVertex(*vertices[index])
+                    for index in face
+                ])
+                for face, _, _ in faces
+            ],
+        )
+        geometry = wavefront_group.to_city_geometry()
         texture_values: list[list[list[int]]] = []
         texture_theme: str | None = None
-        for face, texture_indices, material in faces:
-            points = [Point(*vertices[index]) for index in face]
-            surface = MultiLineString([MultiPoint(points)])
+        for surface, (_, texture_indices, material) in zip(
+            geometry.get_surfaces(),
+            faces,
+            strict=True,
+        ):
             if material is not None:
                 surface.set_material(material)
                 if material.name in material_images:
                     texture_theme = material.name
                     texture_values.append([texture_indices])
-            surfaces.append(surface)
         group_lod = group.removeprefix('lod_').removeprefix('lod').lstrip('_')
         group_lod = group_lod if group_lod.isdigit() else str(lod)
-        geometry = GeometryPrimitive(MultiSurface(surfaces), group_lod)
+        geometry.set_lod(group_lod)
         if texture_theme is not None:
             geometry.texture = {texture_theme: {'values': texture_values}}
         city_object.add_geometry(geometry)
