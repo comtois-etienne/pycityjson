@@ -42,6 +42,7 @@ def read_wavefront(
     lod: str | int = 0,
     type: str = 'GenericCityObject',
     add_uuid: bool = True,
+    normalize: bool | tuple[bool, bool, bool] = False,
 ) -> City:
     """Read a Wavefront OBJ file into a CityJSON model."""
     path = Path(file_path)
@@ -128,6 +129,7 @@ def read_wavefront(
                 current_material,
             ))
 
+    _normalize_vertices(vertices, normalize)
     city.vertices = city.vertices.__class__(vertices, precision=None)
     city.texture_vertices = texture_vertices
     for image in dict.fromkeys(material_images.values()):
@@ -162,6 +164,7 @@ def read_wavefront_geometries(
     file_path: str | Path,
     material_path: str | Path | None = None,
     lod: str | int = 0,
+    normalize: bool | tuple[bool, bool, bool] = False,
 ) -> list[GeometryPrimitive]:
     """Read OBJ objects and groups as an ordered list of geometries."""
     city = read_wavefront(
@@ -169,6 +172,7 @@ def read_wavefront_geometries(
         material_path=material_path,
         lod=lod,
         add_uuid=False,
+        normalize=normalize,
     )
     geometries: list[GeometryPrimitive] = []
     for city_object in city.cityobjects:
@@ -178,6 +182,30 @@ def read_wavefront_geometries(
             if isinstance(geometry, GeometryPrimitive)
         )
     return geometries
+
+
+def _normalize_vertices(
+    vertices: list[list[float]],
+    normalize: bool | tuple[bool, bool, bool],
+) -> None:
+    """Normalize OBJ vertices in place according to the requested axes."""
+    if normalize is False:
+        return
+    axes = (True, True, True) if normalize is True else normalize
+    if len(axes) != 3:
+        raise ValueError('normalize must be a bool or a three-item tuple')
+    minimum = [min(vertex[axis] for vertex in vertices) for axis in range(3)]
+    extent = [max(vertex[axis] for vertex in vertices) - minimum[axis] for axis in range(3)]
+    scales = [1.0 / extent[axis] if axes[axis] and extent[axis] else 1.0 for axis in range(3)]
+    selected_scales = [scales[axis] for axis in range(3) if axes[axis]]
+    if not selected_scales:
+        return
+    fallback_scale = sum(selected_scales) / len(selected_scales)
+    for axis in range(3):
+        if not axes[axis]:
+            scales[axis] = fallback_scale
+        for vertex in vertices:
+            vertex[axis] = (vertex[axis] - minimum[axis]) * scales[axis]
 
 
 read_obj = read_wavefront
