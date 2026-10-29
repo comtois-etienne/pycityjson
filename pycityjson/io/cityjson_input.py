@@ -123,9 +123,11 @@ class PointParser(PrimitiveParser):
     def parse(self, data: int) -> Point:
         """
         used to override the parent method only
-        data contains the index of the point in the vertices
+        data contains the geometry object and its point index
         :param data: index of the point in the vertices
         """
+        if isinstance(data, dict):
+            return self._parse(data['boundaries'])
         return self._parse(data)
 
 
@@ -225,6 +227,7 @@ GEOMETRY_PARSERS = {
     'MultiSurface': MultiSurfaceParser,
     'MultiLineString': MultiLineStringParser,
     'MultiPoint': MultiPointParser,
+    'Point': PointParser,
 }
 
 
