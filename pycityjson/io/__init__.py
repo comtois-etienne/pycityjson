@@ -7,7 +7,10 @@ from collections.abc import Iterator
 from pycityjson.model import City
 
 from .cityjson_input import CityParser
+from .cityjson_merge import merge_cityjson_directory
 from .cityjson_output import CitySerializer
+from .coordinates import reproject_coordinates
+from .geojson_input import load_geojson, read_geojson
 from .wavefront_input import read_obj, read_obj_geometries, read_wavefront, read_wavefront_geometries
 from .wavefront_output import WavefrontSerializer
 
@@ -155,6 +158,10 @@ def write_as_wavefront(city: City, file_path, *, as_one_geometry=False, swap_yz=
 __all__ = [
     'CityParser',
     'CitySerializer',
+    'merge_cityjson_directory',
+    'read_geojson',
+    'load_geojson',
+    'reproject_coordinates',
     'read_cityjson',
     'read_cityjson_features',
     'write_as_cityjson',
