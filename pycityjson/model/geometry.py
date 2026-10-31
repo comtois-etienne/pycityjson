@@ -41,6 +41,23 @@ class CityGeometry:
         v_max = np.max(vertices, axis=0)
         return v_min.tolist(), v_max.tolist()
 
+    def is_coordinate_inside(
+        self,
+        coordinate: Vertex,
+        bounding_box: bool = False,
+    ) -> bool:
+        """
+        Return whether a coordinate is inside this geometry.
+
+        :param coordinate: x and y coordinate to test.
+        :param bounding_box: use the geometry bounding box instead of polygons.
+        :return: True when the coordinate is inside.
+        """
+        return self.to_geometry_primitive().primitive.is_coordinate_inside(
+            coordinate,
+            bounding_box,
+        )
+
     def duplicate(self) -> 'CityGeometry':
         """
         Super method that should be overridden by GeometryPrimitive and GeometryInstance

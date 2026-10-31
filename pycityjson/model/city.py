@@ -6,6 +6,18 @@ from .template import GeometryTemplates
 from .vertices import Vertex, Vertices
 
 
+def _coordinate_in_bounding_box(
+    coordinate: Vertex,
+    vertices: list[Vertex],
+) -> bool:
+    """Return whether a coordinate is inside an XY bounding box."""
+    if not vertices:
+        return False
+    xs = [vertex[0] for vertex in vertices]
+    ys = [vertex[1] for vertex in vertices]
+    return min(xs) <= coordinate[0] <= max(xs) and min(ys) <= coordinate[1] <= max(ys)
+
+
 class City:
     def __init__(self, type: str = 'CityJSON', version: str = '2.0'):
         self.type: str = type
@@ -123,3 +135,22 @@ class City:
             max_z,
         ]
         return self.metadata['geographicalExtent']
+
+    def is_coordinate_inside(
+        self,
+        coordinate: Vertex,
+        bounding_box: bool = False,
+    ) -> bool:
+        """
+        Return whether a coordinate is inside any city object.
+
+        :param coordinate: x and y coordinate to test.
+        :param bounding_box: use all city vertices for the bounding box.
+        :return: True when the coordinate is inside.
+        """
+        if bounding_box:
+            return _coordinate_in_bounding_box(coordinate, self.vertices.tolist())
+        return any(
+            city_object.is_coordinate_inside(coordinate)
+            for city_object in self.cityobjects
+        )

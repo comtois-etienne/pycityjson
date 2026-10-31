@@ -11,6 +11,30 @@ from .semantic import Semantic
 from .vertices import Vertex, Vertices
 
 
+def _coordinate_in_bounding_box(
+    coordinate: Vertex,
+    vertices: list[Vertex],
+) -> bool:
+    """Return whether a coordinate is inside an XY bounding box."""
+    if not vertices:
+        return False
+    xs = [vertex[0] for vertex in vertices]
+    ys = [vertex[1] for vertex in vertices]
+    return min(xs) <= coordinate[0] <= max(xs) and min(ys) <= coordinate[1] <= max(ys)
+
+
+def _point_in_ring(coordinate: Vertex, ring: list[Vertex]) -> bool:
+    """Return whether a coordinate is inside a two-dimensional ring."""
+    inside = False
+    for first, second in zip(ring, ring[1:] + ring[:1]):
+        if (first[1] > coordinate[1]) != (second[1] > coordinate[1]):
+            edge_x = (second[0] - first[0]) * (coordinate[1] - first[1])
+            edge_x /= second[1] - first[1]
+            if coordinate[0] < edge_x + first[0]:
+                inside = not inside
+    return inside
+
+
 class Primitive:
     """
     A Primitive is a basic element of the geometry.
@@ -101,6 +125,26 @@ class Primitive:
         v_min = np.min(vertices, axis=0)
         v_max = np.max(vertices, axis=0)
         return v_min.tolist(), v_max.tolist()
+
+    def is_coordinate_inside(
+        self,
+        coordinate: Vertex,
+        bounding_box: bool = False,
+    ) -> bool:
+        """
+        Return whether a coordinate is inside this primitive.
+
+        :param coordinate: x and y coordinate to test.
+        :param bounding_box: use the primitive bounding box instead of polygons.
+        :return: True when the coordinate is inside.
+        """
+        if bounding_box:
+            return _coordinate_in_bounding_box(coordinate, self.get_vertices(True))
+        return any(
+            child.is_coordinate_inside(coordinate)
+            for child in self.children
+            if isinstance(child, Primitive)
+        )
 
     def normalize(self, centered=False) -> None:
         """
@@ -510,6 +554,29 @@ class MultiLineString(Primitive):
         :return: list of surfaces (MultiLineString) of the primitive (only self)
         """
         return [self]
+
+    def is_coordinate_inside(
+        self,
+        coordinate: Vertex,
+        bounding_box: bool = False,
+    ) -> bool:
+        """
+        Return whether a coordinate is inside this polygon surface.
+
+        :param coordinate: x and y coordinate to test.
+        :param bounding_box: use all rings' bounding box instead of polygons.
+        :return: True when the coordinate is inside.
+        """
+        if bounding_box:
+            return _coordinate_in_bounding_box(coordinate, self.get_vertices(True))
+        if not self.children:
+            return False
+        if not _point_in_ring(coordinate, self.children[0].get_vertices()):
+            return False
+        return not any(
+            _point_in_ring(coordinate, ring.get_vertices())
+            for ring in self.children[1:]
+        )
 
 
 # Used to create a landscape of a building wall

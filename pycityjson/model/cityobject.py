@@ -7,6 +7,18 @@ from .matrix import TransformationMatrix
 from .vertices import Vertex
 
 
+def _coordinate_in_bounding_box(
+    coordinate: Vertex,
+    vertices: list[Vertex],
+) -> bool:
+    """Return whether a coordinate is inside an XY bounding box."""
+    if not vertices:
+        return False
+    xs = [vertex[0] for vertex in vertices]
+    ys = [vertex[1] for vertex in vertices]
+    return min(xs) <= coordinate[0] <= max(xs) and min(ys) <= coordinate[1] <= max(ys)
+
+
 class CityObject:
     def __init__(
         self,
@@ -154,6 +166,25 @@ class CityObject:
             else:
                 vertices.append(g.get_vertices(flatten))
         return vertices
+
+    def is_coordinate_inside(
+        self,
+        coordinate: Vertex,
+        bounding_box: bool = False,
+    ) -> bool:
+        """
+        Return whether a coordinate is inside any object geometry.
+
+        :param coordinate: x and y coordinate to test.
+        :param bounding_box: use all object vertices for the bounding box.
+        :return: True when the coordinate is inside.
+        """
+        if bounding_box:
+            return _coordinate_in_bounding_box(coordinate, self.get_vertices(True))
+        return any(
+            geometry.is_coordinate_inside(coordinate)
+            for geometry in self.geometries
+        )
 
     def set_geographical_extent(self, overwrite=True) -> Vertex | None:
         """
