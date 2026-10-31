@@ -41,6 +41,14 @@ class CityGeometry:
         v_max = np.max(vertices, axis=0)
         return v_min.tolist(), v_max.tolist()
 
+    def get_bounding_box(self) -> tuple[float, float, float, float] | None:
+        """
+        Return the Y and X limits of this geometry.
+
+        :return: tuple containing y minimum, y maximum, x minimum, x maximum.
+        """
+        return self.to_geometry_primitive().primitive.get_bounding_box()
+
     def is_coordinate_inside(
         self,
         coordinate: Vertex,

@@ -2,20 +2,9 @@ from decimal import Decimal
 
 from .appearance import Materials, Texture
 from .cityobject import CityObjects
+from .primitive import _bounding_box_from_vertices, _coordinate_in_bounding_box
 from .template import GeometryTemplates
 from .vertices import Vertex, Vertices
-
-
-def _coordinate_in_bounding_box(
-    coordinate: Vertex,
-    vertices: list[Vertex],
-) -> bool:
-    """Return whether a coordinate is inside an XY bounding box."""
-    if not vertices:
-        return False
-    xs = [vertex[0] for vertex in vertices]
-    ys = [vertex[1] for vertex in vertices]
-    return min(xs) <= coordinate[0] <= max(xs) and min(ys) <= coordinate[1] <= max(ys)
 
 
 class City:
@@ -136,6 +125,17 @@ class City:
         ]
         return self.metadata['geographicalExtent']
 
+    def get_bounding_box(self) -> tuple[float, float, float, float] | None:
+        """
+        Return the Y and X limits of this city.
+
+        :return: tuple containing y minimum, y maximum, x minimum, x maximum.
+        """
+        vertices = self.vertices.tolist()
+        if not vertices:
+            return None
+        return _bounding_box_from_vertices(vertices)
+
     def is_coordinate_inside(
         self,
         coordinate: Vertex,
@@ -149,7 +149,7 @@ class City:
         :return: True when the coordinate is inside.
         """
         if bounding_box:
-            return _coordinate_in_bounding_box(coordinate, self.vertices.tolist())
+            return _coordinate_in_bounding_box(coordinate, self.get_bounding_box())
         return any(
             city_object.is_coordinate_inside(coordinate)
             for city_object in self.cityobjects

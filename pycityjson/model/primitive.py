@@ -13,14 +13,28 @@ from .vertices import Vertex, Vertices
 
 def _coordinate_in_bounding_box(
     coordinate: Vertex,
-    vertices: list[Vertex],
+    bounding_box: tuple[float, float, float, float] | None,
 ) -> bool:
     """Return whether a coordinate is inside an XY bounding box."""
-    if not vertices:
+    if bounding_box is None:
         return False
-    xs = [vertex[0] for vertex in vertices]
-    ys = [vertex[1] for vertex in vertices]
-    return min(xs) <= coordinate[0] <= max(xs) and min(ys) <= coordinate[1] <= max(ys)
+    y_min, y_max, x_min, x_max = bounding_box
+    return (
+        x_min <= coordinate[0] <= x_max
+        and y_min <= coordinate[1] <= y_max
+    )
+
+
+def _bounding_box_from_vertices(
+    vertices: list[Vertex],
+) -> tuple[float, float, float, float]:
+    """Return Y and X limits calculated independently from vertices."""
+    return (
+        min(vertex[1] for vertex in vertices),
+        max(vertex[1] for vertex in vertices),
+        min(vertex[0] for vertex in vertices),
+        max(vertex[0] for vertex in vertices),
+    )
 
 
 def _point_in_ring(coordinate: Vertex, ring: list[Vertex]) -> bool:
@@ -126,6 +140,17 @@ class Primitive:
         v_max = np.max(vertices, axis=0)
         return v_min.tolist(), v_max.tolist()
 
+    def get_bounding_box(self) -> tuple[float, float, float, float] | None:
+        """
+        Return the Y and X limits of this primitive.
+
+        :return: tuple containing y minimum, y maximum, x minimum, x maximum.
+        """
+        vertices = self.get_vertices(flatten=True)
+        if not vertices:
+            return None
+        return _bounding_box_from_vertices(vertices)
+
     def is_coordinate_inside(
         self,
         coordinate: Vertex,
@@ -139,7 +164,7 @@ class Primitive:
         :return: True when the coordinate is inside.
         """
         if bounding_box:
-            return _coordinate_in_bounding_box(coordinate, self.get_vertices(True))
+            return _coordinate_in_bounding_box(coordinate, self.get_bounding_box())
         return any(
             child.is_coordinate_inside(coordinate)
             for child in self.children
@@ -568,7 +593,7 @@ class MultiLineString(Primitive):
         :return: True when the coordinate is inside.
         """
         if bounding_box:
-            return _coordinate_in_bounding_box(coordinate, self.get_vertices(True))
+            return _coordinate_in_bounding_box(coordinate, self.get_bounding_box())
         if not self.children:
             return False
         if not _point_in_ring(coordinate, self.children[0].get_vertices()):

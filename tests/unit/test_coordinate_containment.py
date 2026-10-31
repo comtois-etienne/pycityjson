@@ -40,3 +40,18 @@ def test_bounding_box_containment_uses_all_vertices_without_recursion():
     assert city.is_coordinate_inside(outside_polygon_inside_box, bounding_box=True)
     assert city_object.is_coordinate_inside(outside_polygon_inside_box, bounding_box=True)
     assert not city.is_coordinate_inside(distant, bounding_box=True)
+
+
+def test_city_object_and_geometry_expose_bounding_boxes():
+    city = read_cityjson(CITYJSON)
+    city_object = city.cityobjects[OBJECT_UUID]
+    geometry = city_object.geometries[0]
+
+    assert city.get_bounding_box() == (
+        5029230.869,
+        5062656.259000001,
+        267517.495,
+        306653.585,
+    )
+    assert city_object.get_bounding_box() == geometry.get_bounding_box()
+    assert geometry.get_bounding_box() is not None
