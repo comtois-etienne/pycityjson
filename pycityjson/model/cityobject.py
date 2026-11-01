@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 
 from pycityjson.guid import guid, is_guid
@@ -174,6 +176,29 @@ class CityObject:
         """
         for geometry in self.geometries:
             geometry.set_lod(lod)
+
+    def at_lod(self, lod: str | int) -> 'CityObject':
+        """
+        Return a copy containing only geometries at the requested LoD.
+
+        :param lod: level of detail to keep.
+        :return: filtered CityObject copy.
+        """
+        geometries = [
+            geometry.duplicate()
+            for geometry in self.geometries
+            if geometry.get_lod() == str(lod)
+        ]
+        return CityObject(
+            self.cityobjects,
+            self.type,
+            attributes=deepcopy(self.attributes),
+            geometries=geometries,
+            children=self.children.copy(),
+            parents=self.parents.copy(),
+            address=deepcopy(self.address),
+            uuid=self.uuid(),
+        )
 
     def get_vertices(self, flatten=False) -> list:
         """
@@ -432,6 +457,20 @@ class CityObjects:
         """
         for city_object in self.__cityobjects:
             city_object.set_lod(lod)
+
+    def at_lod(self, lod: str | int) -> 'CityObjects':
+        """
+        Return a collection containing objects filtered to one LoD.
+
+        :param lod: level of detail to keep.
+        :return: filtered CityObjects copy.
+        """
+        filtered = CityObjects()
+        for city_object in self.__cityobjects:
+            object_copy = city_object.at_lod(lod)
+            object_copy.cityobjects = filtered
+            filtered.add_cityobject(object_copy)
+        return filtered
 
     def round_attribute(self, attribute: str, decimals=0):
         """

@@ -69,3 +69,29 @@ def test_lod_can_be_set_at_city_object_collection_and_city_levels():
     assert all(geometry.get_lod() == '3' for object_ in city.cityobjects for geometry in object_.geometries)
     city.set_lod(4)
     assert all(geometry.get_lod() == '4' for object_ in city.cityobjects for geometry in object_.geometries)
+
+
+def test_at_lod_filters_copies_at_city_object_collection_and_city_levels():
+    city, first, second = _city_with_objects()
+    first.geometries.append(
+        GeometryPrimitive(MultiPoint([Point(1, 1, 1)]), '2'),
+    )
+    second.geometries.append(
+        GeometryPrimitive(MultiPoint([Point(2, 2, 2)]), '2'),
+    )
+
+    object_at_lod = first.at_lod('2')
+    objects_at_lod = city.cityobjects.at_lod(2)
+    city_at_lod = city.at_lod('1')
+
+    assert [geometry.get_lod() for geometry in object_at_lod.geometries] == ['2']
+    assert all(
+        [geometry.get_lod() for geometry in object_.geometries] == ['2']
+        for object_ in objects_at_lod
+    )
+    assert all(
+        [geometry.get_lod() for geometry in object_.geometries] == ['1']
+        for object_ in city_at_lod.cityobjects
+    )
+    assert len(first.geometries) == 2
+    assert len(city.cityobjects[second.uuid()].geometries) == 2

@@ -1,3 +1,4 @@
+from copy import deepcopy
 from decimal import Decimal
 
 from .appearance import Materials, Texture
@@ -102,6 +103,17 @@ class City:
         :param lod: level of detail to assign.
         """
         self.cityobjects.set_lod(lod)
+
+    def at_lod(self, lod: str | int) -> 'City':
+        """
+        Return a city copy containing only geometries at one LoD.
+
+        :param lod: level of detail to keep.
+        :return: filtered City copy.
+        """
+        city = deepcopy(self)
+        city.cityobjects = self.cityobjects.at_lod(lod)
+        return city
 
     def get_objects_by_attribute(self, name: str, value) -> list[CityObject]:
         """
