@@ -69,7 +69,7 @@ class CityObject:
         """
         return self.attributes[str(key)] if str(key) in self.attributes else None
 
-    def set_attribute(self, key: str, value) -> None:
+    def set_attribute(self, key: str, value='') -> None:
         """
         The value of the attribute is stored in a dictionary.
         If the key already exists, the value is overwritten.
@@ -80,6 +80,29 @@ class CityObject:
         self.attributes[str(key)] = value
         if key == 'uuid':
             self.__uuid = value
+            self.attributes['uuid'] = value
+
+    def set_uuid(self, uuid: str | None = None) -> None:
+        """
+        Set the UUID of this object.
+
+        :param uuid: UUID to use, or a generated UUID when omitted.
+        """
+        self.__uuid = guid() if uuid is None else uuid
+        if 'uuid' in self.attributes:
+            self.attributes['uuid'] = self.__uuid
+
+    def add_uuid_as_attribute(self) -> None:
+        """
+        Add the current UUID to this object's attributes.
+        """
+        self.attributes['uuid'] = self.__uuid
+
+    def remove_uuid_as_attribute(self) -> None:
+        """
+        Remove the UUID from this object's attributes.
+        """
+        self.attributes.pop('uuid', None)
 
     def uuid(self) -> str:
         """
@@ -142,6 +165,15 @@ class CityObject:
         if index < 0 or index >= len(self.geometries):
             raise IndexError(f'Geometry index out of range: {index}')
         self.geometries[index].set_lod(lod)
+
+    def set_lod(self, lod: str | int) -> None:
+        """
+        Set the LoD of every geometry in this object.
+
+        :param lod: level of detail to assign.
+        """
+        for geometry in self.geometries:
+            geometry.set_lod(lod)
 
     def get_vertices(self, flatten=False) -> list:
         """
@@ -359,6 +391,48 @@ class CityObjects:
                 city_objects.append(cityobject)
         return city_objects
 
+    def set_uuid(self, uuid: str | None = None) -> None:
+        """
+        Set the UUID of every CityObject.
+
+        :param uuid: UUID to use, or generated UUIDs when omitted.
+        """
+        for city_object in self.__cityobjects:
+            city_object.set_uuid(uuid)
+
+    def add_uuid_as_attribute(self) -> None:
+        """
+        Add UUID attributes to all CityObjects.
+        """
+        for city_object in self.__cityobjects:
+            city_object.add_uuid_as_attribute()
+
+    def remove_uuid_as_attribute(self) -> None:
+        """
+        Remove UUID attributes from all CityObjects.
+        """
+        for city_object in self.__cityobjects:
+            city_object.remove_uuid_as_attribute()
+
+    def set_attribute(self, name: str, value='') -> None:
+        """
+        Set an attribute on all CityObjects.
+
+        :param name: name of the attribute.
+        :param value: value to assign.
+        """
+        for city_object in self.__cityobjects:
+            city_object.set_attribute(name, value)
+
+    def set_lod(self, lod: str | int) -> None:
+        """
+        Set the LoD of every geometry in all CityObjects.
+
+        :param lod: level of detail to assign.
+        """
+        for city_object in self.__cityobjects:
+            city_object.set_lod(lod)
+
     def round_attribute(self, attribute: str, decimals=0):
         """
         Rounds an attribute of all the CityObjects if it exists.
@@ -408,6 +482,16 @@ class CityObjects:
             if attribute in city_object.attributes and city_object.attributes[attribute] == value:
                 city_objects.append(city_object)
         return city_objects
+
+    def get_objects_by_attribute(self, name: str, value) -> list[CityObject]:
+        """
+        Return CityObjects whose attribute equals a value.
+
+        :param name: name of the attribute.
+        :param value: value to match.
+        :return: matching CityObjects.
+        """
+        return self.get_by_attribute(name, value)
 
     def tolist(self) -> list[CityObject]:
         """

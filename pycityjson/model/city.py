@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from .appearance import Materials, Texture
-from .cityobject import CityObjects
+from .cityobject import CityObject, CityObjects
 from .primitive import _bounding_box_from_vertices, _coordinate_in_bounding_box
 from .template import GeometryTemplates
 from .vertices import Vertex, Vertices
@@ -65,6 +65,63 @@ class City:
         :param value: the value of the metadata
         """
         self.metadata[key] = value
+
+    def set_uuid(self, uuid: str | None = None) -> None:
+        """
+        Set the UUID of every CityObject.
+
+        :param uuid: UUID to use, or generated UUIDs when omitted.
+        """
+        self.cityobjects.set_uuid(uuid)
+
+    def add_uuid_as_attribute(self) -> None:
+        """
+        Add UUID attributes to all CityObjects.
+        """
+        self.cityobjects.add_uuid_as_attribute()
+
+    def remove_uuid_as_attribute(self) -> None:
+        """
+        Remove UUID attributes from all CityObjects.
+        """
+        self.cityobjects.remove_uuid_as_attribute()
+
+    def set_attribute(self, name: str, value='') -> None:
+        """
+        Set an attribute on all CityObjects.
+
+        :param name: name of the attribute.
+        :param value: value to assign.
+        """
+        self.cityobjects.set_attribute(name, value)
+
+    def set_lod(self, lod: str | int) -> None:
+        """
+        Set the LoD of every geometry in the city.
+
+        :param lod: level of detail to assign.
+        """
+        self.cityobjects.set_lod(lod)
+
+    def get_objects_by_attribute(self, name: str, value) -> list[CityObject]:
+        """
+        Return CityObjects whose attribute equals a value.
+
+        :param name: name of the attribute.
+        :param value: value to match.
+        :return: matching CityObjects.
+        """
+        return self.cityobjects.get_objects_by_attribute(name, value)
+
+    def get_by_attribute(self, name: str, value) -> list[CityObject]:
+        """
+        Return CityObjects whose attribute equals a value.
+
+        :param name: name of the attribute.
+        :param value: value to match.
+        :return: matching CityObjects.
+        """
+        return self.get_objects_by_attribute(name, value)
 
     def precision(self) -> int:
         """
